@@ -1,5 +1,6 @@
 #include "empire.h"
 
+#include "assets/assets.h"
 #include "building/menu.h"
 #include "city/military.h"
 #include "city/warning.h"
@@ -15,6 +16,7 @@
 #include "graphics/image.h"
 #include "graphics/image_button.h"
 #include "graphics/lang_text.h"
+#include "graphics/panel.h"
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
@@ -78,6 +80,23 @@ static struct {
     int finished_scroll;
     int focus_resource;
 } data = {0, 1};
+
+
+#define MAX_SLOTS 3
+
+struct buildable_city {
+    int x;
+    int y;
+    int slots_number;
+    int slots[MAX_SLOTS];
+};
+
+struct buildable_city buildtown = { 500, 770, 3, {0,0,0} };
+
+
+int selected_buildtown = 0;
+int city_x_size = 34;
+int city_y_size = 34;
 
 static void init(void)
 {
@@ -384,6 +403,15 @@ static void draw_invasion_warning(int x, int y, int image_id)
     image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
 }
 
+static void draw_build_objects(int x, int y)
+{
+    int town_id = assets_get_image_id(assets_get_group_id("Keriew", "Placeholders"), "Town");
+    int quarry_id = assets_get_image_id(assets_get_group_id("Keriew", "Placeholders"), "Quarry");
+    int woodcutter_id = assets_get_image_id(assets_get_group_id("Keriew", "Placeholders"), "Woodcutter");
+    image_draw(town_id, data.x_draw_offset + buildtown.x, data.y_draw_offset + buildtown.y);
+}
+
+
 static void draw_map(void)
 {
     graphics_set_clip_rectangle(data.x_min + 16, data.y_min + 16,
@@ -399,6 +427,7 @@ static void draw_map(void)
     empire_object_foreach(draw_empire_object);
 
     scenario_invasion_foreach_warning(draw_invasion_warning);
+    draw_build_objects(0,0);
 
     graphics_reset_clip_rectangle();
 }
@@ -463,8 +492,69 @@ static void determine_selected_object(const mouse *m)
     window_invalidate();
 }
 
+int buildtown_window_init()
+{
+    return 1;
+}
+
+static void buildtown_draw_background(void)
+{
+    window_draw_underlying_window();
+    graphics_in_dialog();
+    outer_panel_draw(80, 80, 32, 14);
+    inner_panel_draw(90, 130, 10, 4);
+    inner_panel_draw(255, 130, 10, 4);
+    inner_panel_draw(420, 130, 10, 4);
+
+    text_draw_centered("Town Name", 80, 100, 480, FONT_LARGE_BLACK, 0);
+    int woodcutter_id = assets_get_image_id(assets_get_group_id("Keriew", "Placeholders"), "Woodcutter");
+    image_draw(7744, 95,135);
+    text_draw_centered("Wharf produces 20 fish each year" , 80, 260, 480, FONT_NORMAL_BLACK, 0);
+    graphics_reset_dialog();
+}
+
+static void buildtown_draw_foreground(void)
+{
+}
+
+static void buildtown_handle_input(const mouse *m, const hotkeys *h)
+{
+    if (input_go_back_requested(m, h)) {
+        window_go_back();
+    }
+    if (h->enter_pressed) {
+    }
+}
+
+
+void show_buildtown_window()
+{
+    if (buildtown_window_init()) {
+        window_type window = {
+            WINDOW_BUILDTOWN,
+            buildtown_draw_background,
+            buildtown_draw_foreground,
+            buildtown_handle_input,
+        };
+        window_show(&window);
+    }
+}
+
+static void is_buildtown_selected(const mouse *m)
+{
+    int x = buildtown.x + data.x_draw_offset;
+    int y = buildtown.y + data.y_draw_offset;
+    int max_x = x + city_x_size;
+    int max_y = y + city_y_size;
+    if (m->x >= x && m->y >= y && m->x < max_x && m->y < max_y && m->left.is_down) {
+        show_buildtown_window();
+    }
+}
+
 static void handle_input(const mouse *m, const hotkeys *h)
 {
+    is_buildtown_selected(m);
+
     pixel_offset position;
     if (scroll_get_delta(m, &position, SCROLL_TYPE_EMPIRE)) {
         empire_scroll_map(position.x, position.y);
