@@ -1,0 +1,6 @@
+#ifndef WINDOW_EMPIRE_PROVINCE_BUILDING_H
+#define WINDOW_EMPIRE_PROVINCE_BUILDING_H
+
+void empire_province_building_show_window(void);
+
+#endif

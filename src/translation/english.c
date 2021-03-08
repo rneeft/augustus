@@ -577,6 +577,17 @@ static translation_string all_strings[] = {
     {TR_BUILDING_SCHOOL_UPGRADE_DESC, "The school is operational, and the local development allowed for its expansion. That allows more children to study at the same time."},
     {TR_BUILDING_THEATRE_UPGRADE_DESC, "The development of the area allowed for expansion of the theater. The grander theater can satisfy entertainment needs of more citizens." },
     {TR_BUILDING_LIBRARY_UPGRADE_DESC, "The local development allowed to greatly expand the library. The new scrolls can satisfy the education needs for a greater number of Romans." },
+    { TR_EMPIRE_BUILDING_NONE_NAME, "Nothing" },
+    { TR_EMPIRE_BUILDING_HIGHWAY_NAME, "Highway" },
+    { TR_EMPIRE_BUILDING_WOODCUTTER_NAME, "Woodcutter" },
+    { TR_EMPIRE_BUILDING_WALLS_NAME, "Regional outpost" },
+    { TR_EMPIRE_BUILDING_WHARF_NAME, "Wharf" },
+    { TR_EMPIRE_BUILDING_NONE_DESC, "Nothing" },
+    { TR_EMPIRE_BUILDING_HIGHWAY_DESC, "Highways increase the amount of traders your city receive." },
+    { TR_EMPIRE_BUILDING_WHARF_DESC, "Wharf produces 40 fish a year." },
+    { TR_EMPIRE_BUILDING_WOODCUTTER_DESC, "Woodcutter produces 40 timber a year." },
+    { TR_EMPIRE_BUILDING_WALLS_DESC, "Regional outpost reduces the size of incoming invasions." },
+
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

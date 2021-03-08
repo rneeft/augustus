@@ -8,6 +8,7 @@
 #include "empire/city.h"
 #include "empire/empire.h"
 #include "empire/object.h"
+#include "empire/province_building.h"
 #include "empire/trade_route.h"
 #include "empire/type.h"
 #include "game/tutorial.h"
@@ -492,53 +493,6 @@ static void determine_selected_object(const mouse *m)
     window_invalidate();
 }
 
-int buildtown_window_init()
-{
-    return 1;
-}
-
-static void buildtown_draw_background(void)
-{
-    window_draw_underlying_window();
-    graphics_in_dialog();
-    outer_panel_draw(80, 80, 32, 14);
-    inner_panel_draw(90, 130, 10, 4);
-    inner_panel_draw(255, 130, 10, 4);
-    inner_panel_draw(420, 130, 10, 4);
-
-    text_draw_centered("Town Name", 80, 100, 480, FONT_LARGE_BLACK, 0);
-    int woodcutter_id = assets_get_image_id(assets_get_group_id("Keriew", "Placeholders"), "Woodcutter");
-    image_draw(7744, 95,135);
-    text_draw_centered("Wharf produces 20 fish each year" , 80, 260, 480, FONT_NORMAL_BLACK, 0);
-    graphics_reset_dialog();
-}
-
-static void buildtown_draw_foreground(void)
-{
-}
-
-static void buildtown_handle_input(const mouse *m, const hotkeys *h)
-{
-    if (input_go_back_requested(m, h)) {
-        window_go_back();
-    }
-    if (h->enter_pressed) {
-    }
-}
-
-
-void show_buildtown_window()
-{
-    if (buildtown_window_init()) {
-        window_type window = {
-            WINDOW_BUILDTOWN,
-            buildtown_draw_background,
-            buildtown_draw_foreground,
-            buildtown_handle_input,
-        };
-        window_show(&window);
-    }
-}
 
 static void is_buildtown_selected(const mouse *m)
 {
@@ -547,7 +501,7 @@ static void is_buildtown_selected(const mouse *m)
     int max_x = x + city_x_size;
     int max_y = y + city_y_size;
     if (m->x >= x && m->y >= y && m->x < max_x && m->y < max_y && m->left.is_down) {
-        show_buildtown_window();
+        empire_province_building_show_window();
     }
 }
 

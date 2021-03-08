@@ -319,6 +319,8 @@ set(CITY_FILES
     ${PROJECT_SOURCE_DIR}/src/city/warning.c
 )
 set(EMPIRE_FILES
+    ${PROJECT_SOURCE_DIR}/src/empire/build_spot.c
+    ${PROJECT_SOURCE_DIR}/src/empire/building.c
     ${PROJECT_SOURCE_DIR}/src/empire/city.c
     ${PROJECT_SOURCE_DIR}/src/empire/empire.c
     ${PROJECT_SOURCE_DIR}/src/empire/object.c
@@ -556,6 +558,8 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/editor/start_year.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/starting_conditions.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/win_criteria.c
+    ${PROJECT_SOURCE_DIR}/src/window/empire/building_selection.c
+    ${PROJECT_SOURCE_DIR}/src/window/empire/province_building.c
     ${PROJECT_SOURCE_DIR}/src/window/cck_selection.c
     ${PROJECT_SOURCE_DIR}/src/window/city.c
     ${PROJECT_SOURCE_DIR}/src/window/config.c
