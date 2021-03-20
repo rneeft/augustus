@@ -176,6 +176,46 @@ static void add_warehouse(building *b)
     prev->next_part_building_id = 0;
 }
 
+static building *add_distribution_space(int x, int y, building *prev)
+{
+    building *b = building_create(BUILDING_DISTRIBUTION_CENTER_SPACE, x, y);
+    game_undo_add_building(b);
+    b->prev_part_building_id = prev->id;
+    prev->next_part_building_id = b->id;
+    map_building_tiles_add(b->id, x, y, 1,
+        image_group(GROUP_BUILDING_WAREHOUSE_STORAGE_EMPTY), TERRAIN_BUILDING);
+    return b;
+}
+
+static void add_distribution_center(building *b)
+{
+    int x_offset[16] = { 0, 0, 1, 1, 0, 2, 1, 2, 2, 3, 3, 3, 3, 0, 1, 2 };
+    int y_offset[16] = { 0, 1, 0, 1, 2, 0, 2, 1, 2, 0, 1, 2, 3, 3, 3, 3 };
+    int corner = building_rotation_get_corner(2 * building_rotation_get_rotation());
+
+    b->storage_id = building_storage_create();
+    if (config_get(CONFIG_GP_CH_WAREHOUSES_DONT_ACCEPT)) {
+        building_storage_accept_none(b->storage_id);
+    }
+    b->prev_part_building_id = 0;
+    map_building_tiles_add(b->id, b->x + x_offset[corner], b->y + y_offset[corner], 1, image_group(GROUP_BUILDING_WAREHOUSE), TERRAIN_BUILDING);
+
+    building *prev = b;
+    for (int i = 0; i < 16; i++) {
+        if (i == corner) {
+            continue;
+        }
+        prev = add_distribution_space(b->x + x_offset[i], b->y + y_offset[i], prev);
+    }
+    // adjust BUILDING_WAREHOUSE
+    b->x = b->x + x_offset[corner];
+    b->y = b->y + y_offset[corner];
+    b->grid_offset = map_grid_offset(b->x, b->y);
+    game_undo_adjust_building(b);
+
+    prev->next_part_building_id = 0;
+}
+
 static void add_building(building *b, int image_id)
 {
     map_building_tiles_add(b->id, b->x, b->y, b->size, image_id, TERRAIN_BUILDING);
@@ -717,6 +757,9 @@ static void add_to_map(int type, building *b, int size,
             map_tiles_update_area_roads(b->x, b->y, 5);
             building_monument_initialize(b);
             break;
+        case BUILDING_DISTRIBUTION_CENTER:
+            add_distribution_center(b);
+            break;
     }
     map_routing_update_land();
     map_routing_update_walls();
@@ -739,6 +782,9 @@ int building_construction_place_building(building_type type, int x, int y)
     int size = building_properties_for_type(type)->size;
     if (type == BUILDING_WAREHOUSE) {
         size = 3;
+    }
+    if (type == BUILDING_DISTRIBUTION_CENTER) {
+        size = 4;
     }
     int building_orientation = 0;
     if (type == BUILDING_GATEHOUSE) {

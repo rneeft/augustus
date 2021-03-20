@@ -655,7 +655,10 @@ void building_construction_update(int x, int y, int grid_offset)
         mark_construction(x, y, 3, ~TERRAIN_ROAD, 0);
     } else if (type == BUILDING_WAREHOUSE) {
         mark_construction(x, y, 3, TERRAIN_ALL, 0);
-    } else if (building_is_fort(type)) {
+    } else if (type == BUILDING_DISTRIBUTION_CENTER) {
+        mark_construction(x, y, 4, TERRAIN_ALL, 0);
+    }
+    else if (building_is_fort(type)) {
         if (formation_get_num_legions_cached() < formation_get_max_legions()) {
             if (map_building_tiles_are_clear(x, y, 3, TERRAIN_ALL) &&
                 map_building_tiles_are_clear(x + FORT_X_OFFSET[building_rotation_get_rotation()][city_view_orientation()/2], y + FORT_Y_OFFSET[building_rotation_get_rotation()][city_view_orientation()/2], 4, TERRAIN_ALL) &&

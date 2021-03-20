@@ -388,7 +388,7 @@ static void draw_animation(int x, int y, int grid_offset)
             }
             if (b->type == BUILDING_DOCK) {
                 draw_dock_workers(b, x, y, color_mask);
-            } else if (b->type == BUILDING_WAREHOUSE) {
+            } else if (b->type == BUILDING_WAREHOUSE || b->type == BUILDING_DISTRIBUTION_CENTER) {
                 draw_warehouse_ornaments(b, x, y, color_mask);
             } else if (b->type == BUILDING_GRANARY) {
                 draw_granary_stores(img, b, x, y, color_mask);

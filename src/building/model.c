@@ -174,6 +174,7 @@ const model_building MODEL_NYMPHAEUM = {500,12,2,-1,6,0};
 const model_building MODEL_SMALL_MAUSOLEUM = {500,-8,2,2,5,0};
 const model_building MODEL_LARGE_MAUSOLEUM = {1500,-10,2,2,6,0};
 const model_building MODEL_WATCHTOWER = {100,-6,1,2,3,5,};
+const model_building MODEL_DISTRIBUTION_CENTER = { 0,0,0,0,0,0 };
 
 const model_building *model_get_building(building_type type)
 {
@@ -216,6 +217,9 @@ const model_building *model_get_building(building_type type)
             return &MODEL_SMALL_MAUSOLEUM;
         case BUILDING_LARGE_MAUSOLEUM:
             return &MODEL_LARGE_MAUSOLEUM;
+		case BUILDING_DISTRIBUTION_CENTER:
+		case BUILDING_DISTRIBUTION_CENTER_SPACE:
+            return &MODEL_DISTRIBUTION_CENTER;
         default:
             break;
     }
