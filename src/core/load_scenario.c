@@ -19,7 +19,12 @@
 #include <string.h>
 
 #define MAX_TAG_TYPES 24
-
+#define XML_HASH_SEED 0x12345678
+#define XML_BUFFER_SIZE 1024
+#define XML_MAX_DEPTH 4
+#define XML_MAX_ELEMENTS_PER_DEPTH 6
+#define XML_MAX_ATTRIBUTES 12
+#define XML_TAG_MAX_LENGTH 36
 extern int fired_events[180];
 
 static struct {

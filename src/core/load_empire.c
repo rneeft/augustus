@@ -18,6 +18,13 @@
 
 #include <string.h>
 
+#define XML_HASH_SEED 0x12345678
+#define XML_BUFFER_SIZE 1024
+#define XML_MAX_DEPTH 4
+#define XML_MAX_ELEMENTS_PER_DEPTH 2
+#define XML_MAX_ATTRIBUTES 12
+#define XML_TAG_MAX_LENGTH 12
+
 static struct {
     struct {
         char file_name[FILE_NAME_MAX];

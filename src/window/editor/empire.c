@@ -125,12 +125,6 @@ static void draw_shadowed_number(int value, int x, int y, color_t color)
     text_draw_number(value, '@', " ", x, y, FONT_SMALL_PLAIN, color);
 }
 
-static void draw_map_coords(int x, int y)
-{
-    text_draw_number_colored(x - data.x_draw_offset, '@', ",", 30, 30, FONT_SMALL_PLAIN, COLOR_RED);
-    text_draw_number_colored(y - data.y_draw_offset, '@', " ", 70, 30, FONT_SMALL_PLAIN, COLOR_RED);
-}
-
 static void draw_empire_object(const empire_object *obj)
 {
     int x = obj->x;
@@ -186,7 +180,6 @@ static void draw_map(void)
     image_draw(image_group(GROUP_EDITOR_EMPIRE_MAP), data.x_draw_offset, data.y_draw_offset);
 
     empire_object_foreach(draw_empire_object);
-    draw_map_coords(data.map_coords_x_at_mouse, data.map_coords_y_at_mouse);
     graphics_reset_clip_rectangle();
 }
 

@@ -140,27 +140,27 @@ static void draw_scenario_info(void)
     
     int width;
     if (scenario_criteria_culture_enabled()) {
-        width = text_draw_number(scenario_criteria_culture(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK);
+        width = text_draw_number(scenario_criteria_culture(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK, 0);
         lang_text_draw(44, 129, scenario_goals_x + width, scenario_goals_y, FONT_NORMAL_BLACK);
         scenario_goals_y += 18;
     }
     if (scenario_criteria_prosperity_enabled()) {
-        width = text_draw_number(scenario_criteria_prosperity(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK);
+        width = text_draw_number(scenario_criteria_prosperity(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK, 0);
         lang_text_draw(44, 130, scenario_goals_x + width, scenario_goals_y, FONT_NORMAL_BLACK);
         scenario_goals_y += 18;
     }
     if (scenario_criteria_peace_enabled()) {
-        width = text_draw_number(scenario_criteria_peace(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK);
+        width = text_draw_number(scenario_criteria_peace(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK, 0);
         lang_text_draw(44, 131, scenario_goals_x + width, scenario_goals_y, FONT_NORMAL_BLACK);
         scenario_goals_y += 18;
     }
     if (scenario_criteria_favor_enabled()) {
-        width = text_draw_number(scenario_criteria_favor(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK);
+        width = text_draw_number(scenario_criteria_favor(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK, 0);
         lang_text_draw(44, 132, scenario_goals_x + width, scenario_goals_y, FONT_NORMAL_BLACK);
         scenario_goals_y += 18;
     }
     if (scenario_criteria_population_enabled()) {
-        width = text_draw_number(scenario_criteria_population(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK);
+        width = text_draw_number(scenario_criteria_population(), '@', " ", scenario_goals_x, scenario_goals_y, FONT_NORMAL_BLACK, 0);
         lang_text_draw(44, 133, scenario_goals_x + width, scenario_goals_y, FONT_NORMAL_BLACK);
         scenario_goals_y += 18;
     }
