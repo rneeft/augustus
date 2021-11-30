@@ -276,7 +276,7 @@ static void print_census_info(void)
 
     // Average age
     width = text_draw(translation_for(TR_ADVISOR_AVERAGE_AGE), 75, 342, FONT_NORMAL_WHITE, 0);
-    text_draw_number(city_population_average_age(), '@', " ", 75 + width, 342, FONT_NORMAL_WHITE);
+    text_draw_number(city_population_average_age(), '@', " ", 75 + width, 342, FONT_NORMAL_WHITE, 0);
 
     // Percent working age
     width = text_draw(translation_for(TR_ADVISOR_PERCENT_IN_WORKFORCE), 75, 360, FONT_NORMAL_WHITE, 0);
@@ -284,11 +284,11 @@ static void print_census_info(void)
 
     // Yearly births
     width = text_draw(translation_for(TR_ADVISOR_BIRTHS_LAST_YEAR), 75, 378, FONT_NORMAL_WHITE, 0);
-    text_draw_number(city_population_yearly_births(), '@', "", 75 + width, 378, FONT_NORMAL_WHITE);
+    text_draw_number(city_population_yearly_births(), '@', "", 75 + width, 378, FONT_NORMAL_WHITE, 0);
 
     // Yearly deaths
     width = text_draw(translation_for(TR_ADVISOR_DEATHS_LAST_YEAR), 75, 396, FONT_NORMAL_WHITE, 0);
-    text_draw_number(city_population_yearly_deaths(), '@', "", 75 + width, 396, FONT_NORMAL_WHITE);
+    text_draw_number(city_population_yearly_deaths(), '@', "", 75 + width, 396, FONT_NORMAL_WHITE, 0);
 }
 
 static void print_history_info(void)
@@ -314,13 +314,13 @@ static void print_history_info(void)
 
     // food types eaten
     width = lang_text_draw(55, 16, 75, 360, FONT_NORMAL_WHITE);
-    text_draw_number(city_resource_food_types_available(), '@', " ", 75 + width, 360, FONT_NORMAL_WHITE);
+    text_draw_number(city_resource_food_types_available(), '@', " ", 75 + width, 360, FONT_NORMAL_WHITE, 0);
 
     // immigration
     int newcomers = city_migration_newcomers();
     if (newcomers >= 5) {
         lang_text_draw(55, 24, 75, 378, FONT_NORMAL_WHITE);
-        width = text_draw_number(newcomers, '@', " ", 70, 396, FONT_NORMAL_WHITE);
+        width = text_draw_number(newcomers, '@', " ", 70, 396, FONT_NORMAL_WHITE, 0);
         lang_text_draw(55, 17, 70 + width, 396, FONT_NORMAL_WHITE);
     } else if (city_migration_no_room_for_immigrants()) {
         lang_text_draw(55, 24, 75, 378, FONT_NORMAL_WHITE);
@@ -342,7 +342,7 @@ static void print_history_info(void)
         }
     } else {
         lang_text_draw(55, 24, 75, 378, FONT_NORMAL_WHITE);
-        width = text_draw_number(newcomers, '@', " ", 70, 396, FONT_NORMAL_WHITE);
+        width = text_draw_number(newcomers, '@', " ", 70, 396, FONT_NORMAL_WHITE, 0);
         if (newcomers == 1) {
             lang_text_draw(55, 18, 70 + width, 396, FONT_NORMAL_WHITE);
         } else {
@@ -370,7 +370,7 @@ static int draw_background(void)
 
     image_draw(image_group(GROUP_PANEL_WINDOWS) + 14, 62, 60);
 
-    width = text_draw_number(city_population(), '@', " ", 450, 25, FONT_NORMAL_BLACK);
+    width = text_draw_number(city_population(), '@', " ", 450, 25, FONT_NORMAL_BLACK, 0);
     text_draw(translation_for(TR_ADVISOR_TOTAL_POPULATION), 450 + width, 25, FONT_NORMAL_BLACK, 0);
 
     int big_text, top_text, bot_text;

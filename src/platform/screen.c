@@ -8,7 +8,6 @@
 #include "graphics/graphics.h"
 #include "graphics/menu.h"
 #include "graphics/screen.h"
-#include "input/cursor.h"
 #include "platform/android/android.h"
 #include "platform/cursor.h"
 #include "platform/haiku/haiku.h"
@@ -25,24 +24,36 @@ static struct {
     SDL_Renderer *renderer;
     SDL_Texture *texture_ui;
     SDL_Texture *texture_city;
-    SDL_Texture *cursors[CURSOR_MAX];
+    struct {
+        SDL_Texture *texture;
+        int size;
+        struct {
+            int x, y;
+        } hotspot;
+    } cursors[CURSOR_MAX];
 } SDL;
 
 static struct {
-    SDL_Rect offset;
-    SDL_Rect renderer;
-} city_texture_position;
+    struct {
+        SDL_Rect offset;
+        SDL_Rect renderer;
+    } position;
+    struct {
+        int width;
+        int height;
+    } max_size;
+} city_texture;
 
 static struct {
     int x;
     int y;
     int centered;
-} window_pos = { 0, 0, 1 };
+} window_pos = {0, 0, 1};
 
 static struct {
     const int WIDTH;
     const int HEIGHT;
-} MINIMUM = { 640, 480 };
+} MINIMUM = {640, 480};
 
 static int scale_percentage = 100;
 static color_t *framebuffer_ui;
@@ -86,8 +97,15 @@ static void set_scale_percentage(int new_scale, int pixel_width, int pixel_heigh
     SDL_SetWindowMinimumSize(SDL.window,
         scale_logical_to_pixels(MINIMUM.WIDTH), scale_logical_to_pixels(MINIMUM.HEIGHT));
 
-    // Scale using nearest neighbour when we scale a multiple of 100%: makes it look sharper
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, (scale_percentage % 100 == 0) ? "nearest" : "linear");
+    const char *scale_quality = "linear";
+#ifndef __APPLE__
+    // Scale using nearest neighbour when we scale a multiple of 100%: makes it look sharper.
+    // But not on MacOS: users are used to the linear interpolation since that's what Apple also does.
+    if (scale_percentage % 100 == 0) {
+        scale_quality = "nearest";
+    }
+#endif
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scale_quality);
 }
 
 #ifdef __ANDROID__
@@ -162,6 +180,11 @@ int platform_screen_create(const char *title, int display_scale_percentage)
     SDL_Log("Creating screen %d x %d, %s, driver: %s", width, height,
         fullscreen ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
     Uint32 flags = SDL_WINDOW_RESIZABLE;
+
+#if SDL_VERSION_ATLEAST(2, 0, 1)
+    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+#endif
+
     if (fullscreen) {
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
@@ -194,6 +217,11 @@ int platform_screen_create(const char *title, int display_scale_percentage)
             return 0;
         }
     }
+
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(SDL.renderer, &info);
+    city_texture.max_size.width = info.max_texture_width;
+    city_texture.max_size.height = info.max_texture_height;
 
 #if !defined(__APPLE__)
     if (fullscreen && SDL_GetNumVideoDisplays() > 1) {
@@ -228,12 +256,13 @@ static int create_textures(int width, int height)
     int city_texture_error;
 
     if (config_get(CONFIG_UI_ZOOM)) {
+        int max_zoom = system_get_max_zoom(width, height);
         SDL.texture_city = SDL_CreateTexture(SDL.renderer,
             SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-            width * 2, height * 2);
-        city_texture_position.renderer.x = 0;
-        city_texture_position.renderer.y = TOP_MENU_HEIGHT;
-        city_texture_position.renderer.h = height - TOP_MENU_HEIGHT;
+            calc_adjust_with_percentage(width, max_zoom), calc_adjust_with_percentage(height, max_zoom));
+        city_texture.position.renderer.x = 0;
+        city_texture.position.renderer.y = TOP_MENU_HEIGHT;
+        city_texture.position.renderer.h = height - TOP_MENU_HEIGHT;
         SDL_SetTextureBlendMode(SDL.texture_ui, SDL_BLENDMODE_BLEND);
         city_texture_error = SDL.texture_city == 0;
     } else {
@@ -401,18 +430,14 @@ static void draw_software_mouse_cursor(void)
 {
     const mouse *mouse = mouse_get();
     if (!mouse->is_touch) {
-        cursor_shape current_cursor_shape = platform_cursor_get_current_shape();
-        const cursor *c = input_cursor_data(current_cursor_shape, platform_cursor_get_current_scale());
-        if (c) {
-            int size = platform_cursor_get_texture_size(c);
-            size = calc_adjust_with_percentage(size, calc_percentage(100, scale_percentage));
-            SDL_Rect dst;
-            dst.x = mouse->x - c->hotspot_x;
-            dst.y = mouse->y - c->hotspot_y;
-            dst.w = size;
-            dst.h = size;
-            SDL_RenderCopy(SDL.renderer, SDL.cursors[current_cursor_shape], NULL, &dst);
-        }
+        cursor_shape current = platform_cursor_get_current_shape();
+        int size = calc_adjust_with_percentage(SDL.cursors[current].size, calc_percentage(100, scale_percentage));
+        SDL_Rect dst;
+        dst.x = mouse->x - SDL.cursors[current].hotspot.x;
+        dst.y = mouse->y - SDL.cursors[current].hotspot.y;
+        dst.w = size;
+        dst.h = size;
+        SDL_RenderCopy(SDL.renderer, SDL.cursors[current].texture, NULL, &dst);
     }
 }
 #endif
@@ -441,14 +466,14 @@ void platform_screen_update(void)
 {
     SDL_RenderClear(SDL.renderer);
     if (config_get(CONFIG_UI_ZOOM)) {
-        city_view_get_unscaled_viewport(&city_texture_position.offset.x, &city_texture_position.offset.y,
-            &city_texture_position.renderer.w, &city_texture_position.offset.h);
-        city_view_get_scaled_viewport(&city_texture_position.offset.x, &city_texture_position.offset.y,
-            &city_texture_position.offset.w, &city_texture_position.offset.h);
+        city_view_get_unscaled_viewport(&city_texture.position.offset.x, &city_texture.position.offset.y,
+            &city_texture.position.renderer.w, &city_texture.position.offset.h);
+        city_view_get_scaled_viewport(&city_texture.position.offset.x, &city_texture.position.offset.y,
+            &city_texture.position.offset.w, &city_texture.position.offset.h);
 #ifndef __vita__
-        SDL_UpdateTexture(SDL.texture_city, &city_texture_position.offset, graphics_canvas(CANVAS_CITY), screen_width() * 4 * 2);
+        SDL_UpdateTexture(SDL.texture_city, &city_texture.position.offset, graphics_canvas(CANVAS_CITY), screen_width() * 4 * 2);
 #endif
-        SDL_RenderCopy(SDL.renderer, SDL.texture_city, &city_texture_position.offset, &city_texture_position.renderer);
+        SDL_RenderCopy(SDL.renderer, SDL.texture_city, &city_texture.position.offset, &city_texture.position.renderer);
     }
 #ifndef __vita__
     SDL_UpdateTexture(SDL.texture_ui, NULL, graphics_canvas(CANVAS_UI), screen_width() * 4);
@@ -464,22 +489,29 @@ void platform_screen_render(void)
     SDL_RenderPresent(SDL.renderer);
 }
 
-void platform_screen_generate_mouse_cursor_texture(int cursor_id, int scale, const color_t *cursor_colors)
+void platform_screen_generate_mouse_cursor_texture(int cursor_id, int size, const color_t *pixels,
+    int hotspot_x, int hotspot_y)
 {
-    if (SDL.cursors[cursor_id]) {
-        SDL_DestroyTexture(SDL.cursors[cursor_id]);
-        SDL.cursors[cursor_id] = 0;
+    if (SDL.cursors[cursor_id].texture) {
+        SDL_DestroyTexture(SDL.cursors[cursor_id].texture);
+        SDL_memset(&SDL.cursors[cursor_id], 0, sizeof(SDL.cursors[cursor_id]));
     }
-    const cursor *c = input_cursor_data(cursor_id, scale);
-    int size = platform_cursor_get_texture_size(c);
-    SDL.cursors[cursor_id] = SDL_CreateTexture(SDL.renderer,
+    SDL.cursors[cursor_id].texture = SDL_CreateTexture(SDL.renderer,
         SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC,
         size, size);
-    if (!SDL.cursors[cursor_id]) {
+    if (!SDL.cursors[cursor_id].texture) {
         return;
     }
-    SDL_UpdateTexture(SDL.cursors[cursor_id], NULL, cursor_colors, size * sizeof(color_t));
-    SDL_SetTextureBlendMode(SDL.cursors[cursor_id], SDL_BLENDMODE_BLEND);
+    SDL_UpdateTexture(SDL.cursors[cursor_id].texture, NULL, pixels, size * sizeof(color_t));
+    SDL.cursors[cursor_id].hotspot.x = hotspot_x;
+    SDL.cursors[cursor_id].hotspot.y = hotspot_y;
+    SDL.cursors[cursor_id].size = size;
+    SDL_SetTextureBlendMode(SDL.cursors[cursor_id].texture, SDL_BLENDMODE_BLEND);
+}
+
+void platform_screen_show_error_message_box(const char *title, const char *message)
+{
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, SDL.window);
 }
 
 void system_set_mouse_position(int *x, int *y)
@@ -516,6 +548,15 @@ int system_reload_textures(void)
     return result != -1;
 }
 
+int system_get_max_zoom(int width, int height)
+{
+    int width_scale_pct = city_texture.max_size.width * 100 / width;
+    int height_scale_pct = city_texture.max_size.height * 100 / height;
+    int max_zoom = SDL_min(width_scale_pct, height_scale_pct);
+
+    return calc_bound(max_zoom, 100, 200);
+}
+
 int system_save_screen_buffer(void *pixels)
 {
     if (scale_percentage == 100) {
@@ -532,7 +573,7 @@ int system_save_screen_buffer(void *pixels)
     }
     SDL_SetRenderTarget(SDL.renderer, target);
     SDL_RenderClear(SDL.renderer);
-    SDL_RenderCopy(SDL.renderer, SDL.texture_city, &city_texture_position.offset, &city_texture_position.renderer);
+    SDL_RenderCopy(SDL.renderer, SDL.texture_city, &city_texture.position.offset, &city_texture.position.renderer);
     SDL_RenderCopy(SDL.renderer, SDL.texture_ui, NULL, NULL);
     int result = SDL_RenderReadPixels(SDL.renderer, NULL,
         SDL_PIXELFORMAT_ARGB8888, pixels, width * sizeof(color_t)) == 0;

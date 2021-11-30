@@ -6,16 +6,14 @@
 
 #include <stdint.h>
 
-#define ANIMATION_FRAMES_GROUP 10240
-
 typedef struct {
-    char author[XML_STRING_MAX_LENGTH];
     char name[XML_STRING_MAX_LENGTH];
-    int id;
-    asset_image *first_image;
+#ifdef BUILDING_ASSET_PACKER
+    char path[XML_STRING_MAX_LENGTH];
+#endif
+    int first_image_index;
+    int last_image_index;
 } image_groups;
-
-void group_setup_hash_replacements(void);
 
 int group_create_all(int total);
 
@@ -24,7 +22,9 @@ void group_unload_current(void);
 
 image_groups *group_get_current(void);
 
-uint32_t group_get_hash(const char *author, const char *name);
-image_groups *group_get_from_hash(uint32_t hash);
+int group_get_total(void);
+
+image_groups *group_get_from_id(int id);
+image_groups *group_get_from_name(const char *name);
 
 #endif // ASSETS_GROUP_H

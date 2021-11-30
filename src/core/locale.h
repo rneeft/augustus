@@ -1,6 +1,8 @@
 #ifndef CORE_LOCALE_H
 #define CORE_LOCALE_H
 
+#include <stdint.h>
+
 /**
  * Language type
  */

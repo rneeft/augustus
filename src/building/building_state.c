@@ -1,9 +1,9 @@
 #include "building_state.h"
-
-#include "building/building.h"
 #include "building/monument.h"
-#include "game/file_io.h"
+#include "building/roadblock.h"
 #include "game/resource.h"
+
+#define SAVE_GAME_ROADBLOCK_DATA_MOVED_FROM_SUBTYPE 0x86
 
 static int is_industry_type(const building *b)
 {
@@ -53,6 +53,16 @@ static void write_type_data(buffer *buf, const building *b)
         buffer_write_i16(buf, b->data.monument.progress);
         buffer_write_i16(buf, b->data.monument.phase);
         buffer_write_u8(buf, b->data.market.fetch_inventory_id);
+    // As above, Ceres and Venus temples are both monuments and suppliers 
+    } else if (b->type == BUILDING_LARGE_TEMPLE_CERES || b->type == BUILDING_LARGE_TEMPLE_VENUS) {
+        for (int i = 0; i < RESOURCE_MAX; i++) {
+            buffer_write_i16(buf, b->data.monument.resources_needed[i]);
+        }
+        buffer_write_i32(buf, b->data.monument.upgrades);
+        buffer_write_i16(buf, b->data.monument.progress);
+        buffer_write_i16(buf, b->data.monument.phase);
+        buffer_write_u8(buf, b->data.market.fetch_inventory_id);
+        buffer_write_u8(buf, 0);
     } else if (building_has_supplier_inventory(b->type)) {
         buffer_write_i16(buf, 0);
         for (int i = 0; i < INVENTORY_MAX; i++) {
@@ -103,11 +113,17 @@ static void write_type_data(buffer *buf, const building *b)
             buffer_write_i16(buf, b->data.dock.docker_ids[i]);
         }
         buffer_write_i16(buf, b->data.dock.trade_ship_id);
-    } else if (is_industry_type(b)) {
-        buffer_write_i16(buf, b->data.industry.progress);
-        for (int i = 0; i < 12; i++) {
+    } else if (building_type_is_roadblock(b->type)) {
+        buffer_write_u16(buf, b->data.roadblock.exceptions);
+        for (int i = 0; i < 40; i++) {
             buffer_write_u8(buf, 0);
         }
+    } else if (is_industry_type(b)) {
+        buffer_write_i16(buf, b->data.industry.progress);
+        for (int i = 0; i < 11; i++) {
+            buffer_write_u8(buf, 0);
+        }
+        buffer_write_u8(buf, b->data.industry.is_stockpiling);
         buffer_write_u8(buf, b->data.industry.has_fish);
         for (int i = 0; i < 14; i++) {
             buffer_write_u8(buf, 0);
@@ -221,7 +237,7 @@ void building_state_save_to_buffer(buffer *buf, const building *b)
     // up until that point in Augustus' development
 }
 
-static void read_type_data(buffer *buf, building *b)
+static void read_type_data(buffer *buf, building *b, int building_buf_size)
 {
     if (building_is_house(b->type)) {
         for (int i = 0; i < INVENTORY_MAX; i++) {
@@ -263,6 +279,19 @@ static void read_type_data(buffer *buf, building *b)
         b->data.monument.progress = buffer_read_i16(buf);
         b->data.monument.phase = buffer_read_i16(buf);
         b->data.market.fetch_inventory_id = buffer_read_u8(buf);
+    // As above, Ceres and Venus temples are both monuments and suppliers 
+    } else if (b->type == BUILDING_LARGE_TEMPLE_CERES || b->type == BUILDING_LARGE_TEMPLE_VENUS) {
+        for (int i = 0; i < RESOURCE_MAX; i++) {
+            b->data.monument.resources_needed[i] = buffer_read_i16(buf);
+        }
+        b->data.monument.upgrades = buffer_read_i32(buf);
+        b->data.monument.progress = buffer_read_i16(buf);
+        b->data.monument.phase = buffer_read_i16(buf);
+        if (!b->data.monument.phase) { // Compatibility fix
+            b->data.monument.phase = MONUMENT_FINISHED;
+        }
+        b->data.market.fetch_inventory_id = buffer_read_u8(buf);
+        buffer_skip(buf, 1);
     } else if (building_has_supplier_inventory(b->type)) {
         buffer_skip(buf, 2);
         for (int i = 0; i < INVENTORY_MAX; i++) {
@@ -303,9 +332,13 @@ static void read_type_data(buffer *buf, building *b)
             b->data.dock.docker_ids[i] = buffer_read_i16(buf);
         }
         b->data.dock.trade_ship_id = buffer_read_i16(buf);
+    } else if (building_type_is_roadblock(b->type)) {
+        b->data.roadblock.exceptions = buffer_read_i16(buf);
+        buffer_skip(buf, 40);
     } else if (is_industry_type(b)) {
         b->data.industry.progress = buffer_read_i16(buf);
-        buffer_skip(buf, 12);
+        buffer_skip(buf, 11);
+        b->data.industry.is_stockpiling = buffer_read_u8(buf);
         b->data.industry.has_fish = buffer_read_u8(buf);
         buffer_skip(buf, 14);
         b->data.industry.blessing_days_left = buffer_read_u8(buf);
@@ -325,7 +358,7 @@ static void read_type_data(buffer *buf, building *b)
     }
 }
 
-void building_state_load_from_buffer(buffer *buf, building *b, int building_buf_size)
+void building_state_load_from_buffer(buffer *buf, building *b, int building_buf_size, int save_version)
 {
     b->state = buffer_read_u8(buf);
     b->faction_id = buffer_read_u8(buf);
@@ -378,7 +411,7 @@ void building_state_load_from_buffer(buffer *buf, building *b, int building_buf_
     b->house_tax_coverage = buffer_read_u8(buf);
     b->house_pantheon_access = buffer_read_u8(buf);
     b->formation_id = buffer_read_i16(buf);
-    read_type_data(buf, b);
+    read_type_data(buf, b, building_buf_size);
     b->tax_income_or_storage = buffer_read_i32(buf);
     b->house_days_without_food = buffer_read_u8(buf);
     b->ruin_has_plague = buffer_read_u8(buf);
@@ -414,6 +447,13 @@ void building_state_load_from_buffer(buffer *buf, building *b, int building_buf_
             b->data.monument.phase = -1;
         }
 
+    }
+
+    if (save_version < SAVE_GAME_ROADBLOCK_DATA_MOVED_FROM_SUBTYPE) {
+        // Backwards compatibility - roadblock data used to be stored in b->subtype 
+        if (building_type_is_roadblock(b->type)) {
+            b->data.roadblock.exceptions = b->subtype.orientation;
+        }
     }
 
     // To keep backward savegame compatibility, only fill more recent building struct elements

@@ -1,5 +1,6 @@
 #include "text.h"
 
+#include "core/config.h"
 #include "core/lang.h"
 #include "core/locale.h"
 #include "core/string.h"
@@ -328,33 +329,64 @@ static int number_to_string(uint8_t *str, int value, char prefix, const char *po
     return offset;
 }
 
-int text_draw_number(int value, char prefix, const char *postfix, int x_offset, int y_offset, font_t font)
+int text_draw_number(int value, char prefix, const char *postfix, int x, int y, font_t font, color_t color)
 {
-    uint8_t str[NUMBER_BUFFER_LENGTH];
-    number_to_string(str, value, prefix, postfix);
-    return text_draw(str, x_offset, y_offset, font, 0);
-}
+    const font_definition *def = font_definition_for(font);
+    int current_x = x;
 
-int text_draw_number_colored(
-    int value, char prefix, const char *postfix, int x_offset, int y_offset, font_t font, color_t color)
-{
-    uint8_t str[NUMBER_BUFFER_LENGTH];
-    number_to_string(str, value, prefix, postfix);
-    return text_draw(str, x_offset, y_offset, font, color);
+    if (prefix) {
+        uint8_t prefix_str[2] = { prefix, 0 };
+        current_x += text_draw(prefix_str, current_x, y, font, color) - def->space_width;
+    }
+
+    uint8_t buffer[NUMBER_BUFFER_LENGTH];
+    int length = string_from_int(buffer, value, 0);
+    uint8_t *str = buffer;
+
+    int separator_pixels = config_get(CONFIG_UI_DIGIT_SEPARATOR) * 3;
+    
+    while (length > 0) {
+        int num_bytes = 1;
+
+        if (*str >= ' ') {
+            int letter_id = font_letter_id(def, str, &num_bytes);
+            int width;
+            if (*str == ' ' || *str == '_' || letter_id < 0) {
+                width = def->space_width;
+            } else {
+                const image *img = image_letter(letter_id);
+                int height = def->image_y_offset(*str, img->height, def->line_height);
+                image_draw_letter(def->font, letter_id, current_x, y - height, color);
+                width = def->letter_spacing + img->width;
+            }
+
+            current_x += width + ((length == 4 || length == 7) ? separator_pixels : 0);
+        }
+
+        str += num_bytes;
+        length -= num_bytes;
+    }
+
+    if (postfix && *postfix) {
+        current_x += text_draw(string_from_ascii(postfix), current_x, y, font, color);
+    } else {
+        current_x += def->space_width;
+    }
+
+    return current_x - x;
 }
 
 int text_draw_money(int value, int x_offset, int y_offset, font_t font)
 {
-    uint8_t str[NUMBER_BUFFER_LENGTH];
-    int money_len = number_to_string(str, value, '@', " ");
     const uint8_t *postfix;
     if (locale_translate_money_dn()) {
         postfix = lang_get_string(6, 0);
     } else {
         postfix = string_from_ascii("Dn");
     }
-    string_copy(postfix, str + money_len, NUMBER_BUFFER_LENGTH - money_len - 1);
-    return text_draw(str, x_offset, y_offset, font, 0);
+    int offset = text_draw_number(value, '@', 0, x_offset, y_offset, font, 0);
+    offset += text_draw(postfix, x_offset + offset, y_offset, font, 0);
+    return offset;
 }
 
 void text_draw_with_money(const uint8_t *text, int value, const char *prefix, const char *postfix,
@@ -407,6 +439,13 @@ void text_draw_label_and_number_centered(const uint8_t *label, int value, const 
 }
 
 void text_draw_number_centered(int value, int x_offset, int y_offset, int box_width, font_t font)
+{
+    uint8_t str[NUMBER_BUFFER_LENGTH];
+    number_to_string(str, value, '@', " ");
+    text_draw_centered(str, x_offset, y_offset, box_width, font, 0);
+}
+
+void text_draw_number_centered_with_separator(int value, int x_offset, int y_offset, int box_width, font_t font)
 {
     uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, '@', " ");

@@ -142,7 +142,7 @@ static void draw_resource_status_text(int resource, int x, int y, int box_width)
         width += lang_text_draw(54, 5, x + width, y, FONT_NORMAL_WHITE);
         int import_limit = city_resource_import_over(resource);
         if (import_limit > 0) {
-            text_draw_number(import_limit, 0, " ", x + width, y, FONT_NORMAL_WHITE);
+            text_draw_number(import_limit, 0, " ", x + width, y, FONT_NORMAL_WHITE, 0);
         } else {
             text_draw(translation_for(TR_ADVISOR_TRADE_MAX), x + width, y, FONT_NORMAL_WHITE, 0);
         }
@@ -161,7 +161,7 @@ static void draw_resource_status_text(int resource, int x, int y, int box_width)
     } else if (trade_status & TRADE_STATUS_EXPORT) {
         int width = (box_width - 15 - lang_text_get_width(54, 6, FONT_NORMAL_WHITE)) / 2;
         width += lang_text_draw(54, 6, x + width, y, FONT_NORMAL_WHITE);
-        text_draw_number(city_resource_export_over(resource), 0, " ", x + width, y, FONT_NORMAL_WHITE);
+        text_draw_number(city_resource_export_over(resource), 0, " ", x + width, y, FONT_NORMAL_WHITE, 0);
     } else if (trade_flags & TRADE_STATUS_EXPORT) {
         text_draw_centered(translation_for(TR_ADVISOR_TRADE_EXPORTABLE), x, y, box_width, FONT_NORMAL_GREEN, 0);
     } else if (trade_flags_potential & TRADE_STATUS_EXPORT) {
@@ -282,7 +282,7 @@ static void show_policy(trade_policy_type policy_type)
 {
     data.policy_type = policy_type;
     if (!policy_options[policy_type].items[0].image_id) {
-        int base_policy_image = assets_get_image_id(assets_get_group_id("Areldir", "Econ_Logistics"),
+        int base_policy_image = assets_get_image_id("UI_Elements",
             policy_options[policy_type].base_image_name);
         policy_options[policy_type].items[0].image_id = base_policy_image + 1;
         policy_options[policy_type].items[1].image_id = base_policy_image + 2;

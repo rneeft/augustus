@@ -128,3 +128,4 @@ int locale_translate_rank_autosaves(void)
             return 0;
     }
 }
+

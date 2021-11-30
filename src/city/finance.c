@@ -40,8 +40,8 @@ static building_levy_for_type building_levies[] = {
     {BUILDING_COLOSSEUM, COLOSSEUM_LEVY_MONTHLY},
     {BUILDING_HIPPODROME, HIPPODROME_LEVY_MONTHLY},
     {BUILDING_SMALL_MAUSOLEUM, SMALL_MAUSOLEUM_LEVY_MONTHLY},
-    {BUILDING_LARGE_MAUSOLEUM, SMALL_TEMPLE_LEVY_MONTHLY},
-    {BUILDING_NYMPHAEUM, LARGE_TEMPLE_LEVY_MONTHLY},
+    {BUILDING_LARGE_MAUSOLEUM, SMALL_MAUSOLEUM_LEVY_MONTHLY},
+    {BUILDING_NYMPHAEUM, SMALL_TEMPLE_LEVY_MONTHLY},
     {BUILDING_CARAVANSERAI, CARAVANSERAI_LEVY_MONTHLY }
 };
 
@@ -342,12 +342,7 @@ static void pay_monthly_building_levies(void)
         for (building *b = building_first_of_type(type); b; b = b->next_of_type) {
             b->monthly_levy = building_levies[i].amount;
             int levy = building_get_levy(b);
-            if (building_monument_type_is_monument(b->type) && b->data.monument.phase != MONUMENT_FINISHED) {
-                continue;
-            }
-            if (b->state == BUILDING_STATE_IN_USE && levy && !b->prev_part_building_id) {
-                levies += levy;
-            }
+            levies += levy;
         }
     }
 

@@ -1,5 +1,6 @@
 #include "destruction.h"
 
+#include "building/image.h"
 #include "city/message.h"
 #include "city/population.h"
 #include "city/ratings.h"
@@ -54,15 +55,9 @@ static void destroy_on_fire(building *b, int plagued)
         b->fire_proof = 1;
         b->size = 1;
         b->ruin_has_plague = plagued;
-        memset(&b->data, 0, 42);
-        int image_id;
-        if (was_tent) {
-            image_id = image_group(GROUP_TERRAIN_RUBBLE_TENT);
-        } else {
-            int random = map_random_get(b->grid_offset) & 3;
-            image_id = image_group(GROUP_TERRAIN_RUBBLE_GENERAL) + 9 * random;
-        }
-        map_building_tiles_add(b->id, b->x, b->y, 1, image_id, TERRAIN_BUILDING);
+        memset(&b->data, 0, sizeof(b->data));
+        b->data.rubble.was_tent = was_tent;
+        map_building_tiles_add(b->id, b->x, b->y, 1, building_image_get(b), TERRAIN_BUILDING);
     }
     static const int x_tiles[] = {
         0, 1, 1, 0, 2, 2, 2, 1, 0, 3, 3, 3, 3, 2, 1, 0, 4, 4, 4, 4, 4, 3, 2, 1, 0, 5, 5, 5, 5, 5, 5, 4, 3, 2, 1, 0
@@ -77,14 +72,8 @@ static void destroy_on_fire(building *b, int plagued)
             continue;
         }
         building *ruin = building_create(BUILDING_BURNING_RUIN, x, y);
-        int image_id;
-        if (was_tent) {
-            image_id = image_group(GROUP_TERRAIN_RUBBLE_TENT);
-        } else {
-            int random = map_random_get(ruin->grid_offset) & 3;
-            image_id = image_group(GROUP_TERRAIN_RUBBLE_GENERAL) + 9 * random;
-        }
-        map_building_tiles_add(ruin->id, ruin->x, ruin->y, 1, image_id, TERRAIN_BUILDING);
+        ruin->data.rubble.was_tent = was_tent;
+        map_building_tiles_add(ruin->id, ruin->x, ruin->y, 1, building_image_get(ruin), TERRAIN_BUILDING);
         ruin->fire_duration = (ruin->house_figure_generation_delay & 7) + 1;
         ruin->figure_id4 = 0;
         ruin->fire_proof = 1;
@@ -125,6 +114,15 @@ static void destroy_linked_parts(building *b, int on_fire)
             map_building_tiles_set_rubble(part->id, part->x, part->y, part->size);
             part->state = BUILDING_STATE_RUBBLE;
         }
+    }
+
+    // Unlink the buildings to prevent corrupting the building table
+    part = building_main(b);
+    for (int i = 0; i < 9 && part->id > 0; i++) {
+        building *next_part = building_next(part);
+        part->next_part_building_id = 0;
+        part->prev_part_building_id = 0;
+        part = next_part;
     }
 }
 
@@ -201,7 +199,7 @@ void building_destroy_by_enemy(int x, int y, int grid_offset)
     int building_id = map_building_at(grid_offset);
     if (building_id > 0) {
         building *b = building_get(building_id);
-        if (b->state == BUILDING_STATE_IN_USE) {
+        if (b->state == BUILDING_STATE_IN_USE || b->state == BUILDING_STATE_MOTHBALLED) {
             city_ratings_peace_building_destroyed(b->type);
             building_destroy_by_collapse(b);
         }

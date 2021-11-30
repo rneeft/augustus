@@ -37,6 +37,7 @@ typedef enum {
     BUILDING_STORAGE_PERMISSION_TRADERS = 1,
     BUILDING_STORAGE_PERMISSION_DOCK = 2,
     BUILDING_STORAGE_PERMISSION_QUARTERMASTER = 3,
+    BUILDING_STORAGE_PERMISSION_WORKER = 4,
 } building_storage_permission_states;
 
 
@@ -79,6 +80,14 @@ void building_storage_delete(int storage_id);
  * @return Read-only storage
  */
 const building_storage *building_storage_get(int storage_id);
+
+/**
+ * Sets values of a building storage to that of another building storage
+ * @param storage_id Storage id to be changed
+ * @param new_data New values of storage data
+ */
+void building_storage_set_data(int storage_id, building_storage new_data);
+
 
 /**
  * Cycles the resource state for the storage

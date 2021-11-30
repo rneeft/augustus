@@ -41,7 +41,7 @@
 #define BUTTON_SPACING 24
 #define TEXT_Y_OFFSET 4
 
-#define MAX_WIDGETS 26
+#define MAX_WIDGETS 30
 
 #define NUM_VISIBLE_ITEMS 13
 
@@ -78,8 +78,10 @@ static const uint8_t *display_text_music_volume(void);
 static const uint8_t *display_text_speech_volume(void);
 static const uint8_t *display_text_sound_effects_volume(void);
 static const uint8_t *display_text_city_sounds_volume(void);
+static const uint8_t *display_text_video_volume(void);
 static const uint8_t *display_text_scroll_speed(void);
 static const uint8_t *display_text_difficulty(void);
+static const uint8_t *display_text_max_grand_temples(void);
 
 static scrollbar_type scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4 };
 
@@ -107,8 +109,10 @@ enum {
     RANGE_SPEECH_VOLUME,
     RANGE_SOUND_EFFECTS_VOLUME,
     RANGE_CITY_SOUNDS_VOLUME,
+    RANGE_VIDEO_VOLUME,
     RANGE_SCROLL_SPEED,
-    RANGE_DIFFICULTY
+    RANGE_DIFFICULTY,
+    RANGE_MAX_GRAND_TEMPLES
 };
 
 enum {
@@ -184,6 +188,8 @@ static config_widget all_widgets[CONFIG_PAGES][MAX_WIDGETS] = {
         {TYPE_NUMERICAL_RANGE, RANGE_SOUND_EFFECTS_VOLUME, 0, display_text_sound_effects_volume, 1},
         {TYPE_CHECKBOX, CONFIG_ORIGINAL_ENABLE_CITY_SOUNDS, TR_CONFIG_CITY_SOUNDS, 0, 5},
         {TYPE_NUMERICAL_RANGE, RANGE_CITY_SOUNDS_VOLUME, 0, display_text_city_sounds_volume, 1},
+        {TYPE_CHECKBOX, CONFIG_GENERAL_ENABLE_VIDEO_SOUND, TR_CONFIG_VIDEO_SOUND, 0, 5},
+        {TYPE_NUMERICAL_RANGE, RANGE_VIDEO_VOLUME, 0, display_text_video_volume, 1}
     },
     { // UI
         {TYPE_NUMERICAL_DESC, RANGE_SCROLL_SPEED, TR_CONFIG_SCROLL_SPEED},
@@ -201,6 +207,7 @@ static config_widget all_widgets[CONFIG_PAGES][MAX_WIDGETS] = {
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_MILITARY_SIDEBAR, TR_CONFIG_SHOW_MILITARY_SIDEBAR},
         {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, TR_CONFIG_DISABLE_RIGHT_CLICK_MAP_DRAG},
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_MAX_PROSPERITY, TR_CONFIG_SHOW_MAX_POSSIBLE_PROSPERITY},
+        {TYPE_CHECKBOX, CONFIG_UI_DIGIT_SEPARATOR, TR_CONFIG_DIGIT_SEPARATOR}
     },
     { // Difficulty
         {TYPE_NUMERICAL_DESC, RANGE_DIFFICULTY, TR_CONFIG_DIFFICULTY},
@@ -214,6 +221,8 @@ static config_widget all_widgets[CONFIG_PAGES][MAX_WIDGETS] = {
         {TYPE_CHECKBOX, CONFIG_GP_CH_WOLVES_BLOCK, TR_CONFIG_WOLVES_BLOCK },
         {TYPE_CHECKBOX, CONFIG_GP_CH_MULTIPLE_BARRACKS, TR_CONFIG_MULTIPLE_BARRACKS },
         {TYPE_CHECKBOX, CONFIG_GP_CH_DISABLE_INFINITE_WOLVES_SPAWNING, TR_CONFIG_GP_CH_DISABLE_INFINITE_WOLVES_SPAWNING },
+        {TYPE_NUMERICAL_DESC, RANGE_MAX_GRAND_TEMPLES, TR_CONFIG_MAX_GRAND_TEMPLES},
+        {TYPE_NUMERICAL_RANGE, RANGE_MAX_GRAND_TEMPLES, 0, display_text_max_grand_temples},
     },
     { // City Management
         {TYPE_CHECKBOX, CONFIG_GP_CH_NO_SUPPLIER_DISTRIBUTION, TR_CONFIG_NO_SUPPLIER_DISTRIBUTION },
@@ -257,8 +266,10 @@ static numerical_range_widget ranges[] = {
     {130, 25,   0, 100,  1, 0},
     {130, 25,   0, 100,  1, 0},
     {130, 25,   0, 100,  1, 0},
+    {130, 25,   0, 100,  1, 0},
     { 50, 30,   0, 100, 10, 0},
     {146, 24,   0,   4,  1, 0},
+    { 50, 30,   0,   5,  1, 0}
 };
 
 static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
@@ -383,9 +394,12 @@ static inline void set_range_values(void)
     ranges[RANGE_SPEECH_VOLUME].value = &data.config_values[CONFIG_ORIGINAL_SPEECH_VOLUME].new_value;
     ranges[RANGE_SOUND_EFFECTS_VOLUME].value = &data.config_values[CONFIG_ORIGINAL_SOUND_EFFECTS_VOLUME].new_value;
     ranges[RANGE_CITY_SOUNDS_VOLUME].value = &data.config_values[CONFIG_ORIGINAL_CITY_SOUNDS_VOLUME].new_value;
+    ranges[RANGE_VIDEO_VOLUME].value = &data.config_values[CONFIG_GENERAL_VIDEO_VOLUME].new_value;
 
     ranges[RANGE_SCROLL_SPEED].value = &data.config_values[CONFIG_ORIGINAL_SCROLL_SPEED].new_value;
     ranges[RANGE_DIFFICULTY].value = &data.config_values[CONFIG_ORIGINAL_DIFFICULTY].new_value;
+
+    ranges[RANGE_MAX_GRAND_TEMPLES].value = &data.config_values[CONFIG_GP_CH_MAX_GRAND_TEMPLES].new_value;
 }
 
 static inline void fetch_original_config_values(void)
@@ -567,7 +581,7 @@ static void numerical_range_draw(const numerical_range_widget *w, int x, int y, 
     text_draw(value_text, x, y + 6, FONT_NORMAL_BLACK, 0);
     inner_panel_draw(x + w->x, y + 4, w->width_blocks + extra_width / 16, 1);
 
-    int width = w->width_blocks * 16 + extra_width - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE;
+    int width = w->width_blocks * BLOCK_SIZE + extra_width - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE;
     int scroll_position = (*w->value - w->min) * width / (w->max - w->min);
     image_draw(image_group(GROUP_PANEL_BUTTON) + 37,
         x + w->x + NUMERICAL_SLIDER_PADDING + scroll_position, y + 2);
@@ -635,6 +649,12 @@ static const uint8_t *display_text_sound_effects_volume(void)
     return volume_text;
 }
 
+static const uint8_t *display_text_video_volume(void)
+{
+    percentage_string(volume_offset, data.config_values[CONFIG_GENERAL_VIDEO_VOLUME].new_value);
+    return volume_text;
+}
+
 static const uint8_t *display_text_city_sounds_volume(void)
 {
     percentage_string(volume_offset, data.config_values[CONFIG_ORIGINAL_CITY_SOUNDS_VOLUME].new_value);
@@ -649,6 +669,12 @@ static const uint8_t *display_text_scroll_speed(void)
 static const uint8_t *display_text_difficulty(void)
 {
     return lang_get_string(153, data.config_values[CONFIG_ORIGINAL_DIFFICULTY].new_value + 1);
+}
+
+static const uint8_t *display_text_max_grand_temples(void)
+{
+    string_from_int(display_text, data.config_values[CONFIG_GP_CH_MAX_GRAND_TEMPLES].new_value, 0);
+    return display_text;
 }
 
 static void update_scale(void)
@@ -844,7 +870,7 @@ static void draw_foreground(void)
     }
 
     if (data.widgets_per_page[data.page] > NUM_VISIBLE_ITEMS) {
-        inner_panel_draw(scrollbar.x + 4, scrollbar.y + 28, 2, scrollbar.height / 16 - 3);
+        inner_panel_draw(scrollbar.x + 4, scrollbar.y + 28, 2, scrollbar.height / BLOCK_SIZE - 3);
         scrollbar_draw(&scrollbar);
     }
 
@@ -896,11 +922,11 @@ static int numerical_range_handle_mouse(const mouse *m, int x, int y, int numeri
             data.active_numerical_range = 0;
             return 0;
         }
-    } else if (!m->left.is_down || !is_numerical_range(w, m, x, y)) {
+    } else if (!m->left.went_down || !is_numerical_range(w, m, x, y)) {
         return 0;
     }
     int extra_width = data.widgets_per_page[data.page] > NUM_VISIBLE_ITEMS ? 0 : 64;
-    int slider_width = w->width_blocks * 16 - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE + extra_width;
+    int slider_width = w->width_blocks * BLOCK_SIZE - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE + extra_width;
     int pixels_per_pct = slider_width / (w->max - w->min);
     int dot_position = m->x - x - w->x - NUMERICAL_DOT_SIZE / 2 + pixels_per_pct / 2;
 
@@ -1268,10 +1294,9 @@ static int config_change_string_language(config_string_key key)
 {
     config_set_string(CONFIG_STRING_UI_LANGUAGE_DIR, data.config_string_values[key].new_value);
     if (!game_reload_language()) {
-        // Notify user that language dir is invalid and revert to previously selected
-        window_plain_message_dialog_show(TR_INVALID_LANGUAGE_TITLE, TR_INVALID_LANGUAGE_MESSAGE, 1);
         config_set_string(CONFIG_STRING_UI_LANGUAGE_DIR, data.config_string_values[key].original_value);
         game_reload_language();
+        window_plain_message_dialog_show(TR_INVALID_LANGUAGE_TITLE, TR_INVALID_LANGUAGE_MESSAGE, 1);
         return 0;
     }
     strncpy(data.config_string_values[key].original_value,
@@ -1310,6 +1335,7 @@ static void button_close(int save, int param2)
         return;
     }
     if (apply_changed_configs() && save == 1) {
+        config_save();
         window_go_back();
         return;
     }

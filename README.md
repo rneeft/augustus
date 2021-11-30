@@ -7,12 +7,15 @@ Chat: [Discord](http://www.discord.gg/GamerZakh) (kindly hosted by GamerZakh)
   
 | Platform | Latest release | Unstable build |
 |----------|----------------|----------------|
-| Windows  | [![Download](https://augustus.josecadete.net/badge/release/windows.svg)](https://augustus.josecadete.net/download/latest/release/windows) | [![Download](https://augustus.josecadete.net/badge/development/windows.svg)](https://augustus.josecadete.net/download/latest/development/windows)  (needs assets files from the release version) | 
+| Windows  | [![Download](https://augustus.josecadete.net/badge/release/windows.svg)](https://augustus.josecadete.net/download/latest/release/windows) | [![Download](https://augustus.josecadete.net/badge/development/windows.svg)](https://augustus.josecadete.net/download/latest/development/windows)  [(Download development assets)](https://augustus.josecadete.net/download/latest/development/assets) | 
 | Linux AppImage | [![Download](https://augustus.josecadete.net/badge/release/linux-appimage.svg)](https://augustus.josecadete.net/download/latest/release/linux-appimage) | [![Download](https://augustus.josecadete.net/badge/development/linux-appimage.svg)](https://augustus.josecadete.net/download/latest/development/linux-appimage)
 | Mac | [![Download](https://augustus.josecadete.net/badge/release/mac.svg)](https://augustus.josecadete.net/download/latest/release/mac) | [![Download](https://augustus.josecadete.net/badge/development/mac.svg)](https://augustus.josecadete.net/download/latest/development/mac) |
 | PS Vita | [![Download](https://augustus.josecadete.net/badge/release/vita.svg)](https://augustus.josecadete.net/download/latest/release/vita)| [![Download](https://augustus.josecadete.net/badge/development/vita.svg)](https://augustus.josecadete.net/download/latest/development/vita) |
 | Switch |  [![Download](https://augustus.josecadete.net/badge/release/switch.svg)](https://augustus.josecadete.net/download/latest/release/switch) | [![Download](https://augustus.josecadete.net/badge/development/switch.svg)](https://augustus.josecadete.net/download/latest/development/switch) |
 | Android APK |  [![Download](https://augustus.josecadete.net/badge/release/android.svg)](https://augustus.josecadete.net/download/latest/release/android) | [![Download](https://augustus.josecadete.net/badge/development/android.svg)](https://augustus.josecadete.net/download/latest/development/android) |
+
+
+Alternatively, you can [**try Augustus in your browser**](https://augustus.josecadete.net/play/). Note that you'll still need to provide a valid Caesar 3 installation folder.
 
 
 Augustus is a fork of the Julius project that intends to incorporate gameplay changes.
@@ -51,6 +54,18 @@ stored there. Also, your game must be patched to 1.0.1.0 to use Augustus. If Aug
 you are missing it, you can [download the update here](https://github.com/bvschaik/julius/wiki/Patches).
 
 See [Running Julius](https://github.com/bvschaik/julius/wiki/Running-Julius) for further instructions and startup options.
+
+## Manual
+
+Augustus changes are explained in detail in the comprehensive manual. Below you can find the links to the manual in a few language versions.
+
+| Language | Manual |
+|----------|--------|
+|English   |[Download](https://github.com/Keriew/augustus/raw/master/res/manual/augustus_manual_3_1.pdf)|
+|Chinese   |[Download](https://github.com/Keriew/augustus/raw/master/res/translated_manuals/augustus_manual_chinese_3.0.pdf)|
+|French   |[Download](https://github.com/Keriew/augustus/raw/master/res/translated_manuals/augustus_manual_french_3.1.pdf)|
+|Polish   |[Download](https://github.com/Keriew/augustus/raw/master/res/translated_manuals/augustus_manual_polish_3.0.pdf)|
+|Russian   |[Download](https://github.com/Keriew/augustus/raw/master/res/translated_manuals/augustus_manual_russian_3.0.pdf)|
 
 ## Bugs
 

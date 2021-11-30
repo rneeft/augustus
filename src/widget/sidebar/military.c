@@ -250,7 +250,7 @@ static void draw_military_info_text(int x_offset, int y_offset)
     lang_text_draw_centered(138, m->legion_id, x_offset, y_offset + 40, CONTENT_WIDTH, FONT_NORMAL_WHITE);
 
     // Number of soldiers
-    int width = text_draw_number(m->num_figures, '@', " ", x_offset, y_offset + 60, FONT_NORMAL_WHITE);
+    int width = text_draw_number(m->num_figures, '@', " ", x_offset, y_offset + 60, FONT_NORMAL_WHITE, 0);
     lang_text_draw(138, 46 - m->figure_type, x_offset + width, y_offset + 60, FONT_NORMAL_WHITE);
 
     // No soldiers
@@ -310,11 +310,12 @@ static void draw_military_info_buttons(int x_offset, int y_offset)
 static void draw_military_panel_background(int x_offset)
 {
     graphics_draw_vertical_line(x_offset, Y_OFFSET_PANEL_START,
-        Y_OFFSET_PANEL_START + MILITARY_PANEL_BLOCKS * 16, COLOR_WHITE);
+        Y_OFFSET_PANEL_START + MILITARY_PANEL_BLOCKS * BLOCK_SIZE, COLOR_WHITE);
     graphics_draw_vertical_line(x_offset + SIDEBAR_EXPANDED_WIDTH - 1,
-        Y_OFFSET_PANEL_START, Y_OFFSET_PANEL_START + MILITARY_PANEL_BLOCKS * 16, COLOR_SIDEBAR);
-    inner_panel_draw(x_offset + 1, Y_OFFSET_PANEL_START + 10, SIDEBAR_EXPANDED_WIDTH / 16, MILITARY_PANEL_BLOCKS);
-    inner_panel_draw(x_offset + 1, Y_OFFSET_PANEL_START, SIDEBAR_EXPANDED_WIDTH / 16, 1);
+        Y_OFFSET_PANEL_START, Y_OFFSET_PANEL_START + MILITARY_PANEL_BLOCKS * BLOCK_SIZE, COLOR_SIDEBAR);
+    inner_panel_draw(x_offset + 1, Y_OFFSET_PANEL_START + 10,
+        SIDEBAR_EXPANDED_WIDTH / BLOCK_SIZE, MILITARY_PANEL_BLOCKS);
+    inner_panel_draw(x_offset + 1, Y_OFFSET_PANEL_START, SIDEBAR_EXPANDED_WIDTH / BLOCK_SIZE, 1);
 
     draw_military_info_text(x_offset + CONTENT_PADDING, Y_OFFSET_PANEL_START);
     draw_military_info_buttons(x_offset, Y_OFFSET_PANEL_START);

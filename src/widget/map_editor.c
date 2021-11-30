@@ -7,6 +7,7 @@
 #include "graphics/image.h"
 #include "graphics/menu.h"
 #include "graphics/window.h"
+#include "graphics/panel.h"
 #include "input/scroll.h"
 #include "input/zoom.h"
 #include "map/figure.h"
@@ -104,7 +105,7 @@ static void update_zoom_level(void)
     int zoom = city_view_get_scale();
     pixel_offset offset;
     city_view_get_camera_in_pixels(&offset.x, &offset.y);
-    if (zoom_update_value(&zoom, &offset)) {
+    if (zoom_update_value(&zoom, city_view_get_max_scale(), &offset)) {
         city_view_set_scale(zoom);
         city_view_set_camera_from_pixel_position(offset.x, offset.y);
         sound_city_decay_views();
@@ -223,7 +224,7 @@ static int handle_cancel_construction_button(const touch *t)
     }
     int x, y, width, height;
     city_view_get_unscaled_viewport(&x, &y, &width, &height);
-    int box_size = 5 * 16;
+    int box_size = 5 * BLOCK_SIZE;
     width -= box_size;
 
     if (t->current_point.x < width || t->current_point.x >= width + box_size ||

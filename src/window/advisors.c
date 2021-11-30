@@ -18,6 +18,7 @@
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/image_button.h"
+#include "graphics/panel.h"
 #include "graphics/window.h"
 #include "input/input.h"
 #include "translation/translation.h"
@@ -130,7 +131,7 @@ static void set_advisor_window(void)
     }
 }
 
-static void set_advisor(int advisor)
+void window_advisors_set_advisor(advisor_type advisor)
 {
     current_advisor = advisor;
     setting_set_last_advisor(advisor);
@@ -169,9 +170,10 @@ static void prepare_advisor_image_ids(void)
     for (int i = 0; i < ADVISOR_MAX; i++) {
         if (i == (ADVISOR_HOUSING - 1)) {
             reduce = 1;
-            int group = assets_get_group_id("MSTVD", "UI_Elements");
-            advisor_image_ids[0][ADVISOR_HOUSING - 1] = assets_get_image_id(group, "Housing Advisor Button");
-            advisor_image_ids[1][ADVISOR_HOUSING - 1] = assets_get_image_id(group, "Housing Advisor Button Selected");
+            advisor_image_ids[0][ADVISOR_HOUSING - 1] = assets_get_image_id("UI_Elements",
+                "Housing Advisor Button");
+            advisor_image_ids[1][ADVISOR_HOUSING - 1] = assets_get_image_id("UI_Elements",
+                "Housing Advisor Button Selected");
         } else {
             advisor_image_ids[0][i] = image_group(GROUP_ADVISOR_ICONS) + i - reduce;
             advisor_image_ids[1][i] = image_group(GROUP_ADVISOR_ICONS) + i - reduce + 13;
@@ -205,7 +207,7 @@ static void draw_background(void)
 static void draw_foreground(void)
 {
     graphics_in_dialog();
-    image_buttons_draw(0, 16 * (advisor_height - 2), &help_button, 1);
+    image_buttons_draw(0, BLOCK_SIZE * (advisor_height - 2), &help_button, 1);
     graphics_reset_dialog();
 
     if (current_advisor_window->draw_foreground) {
@@ -234,7 +236,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     int button_id;
-    image_buttons_handle_mouse(m_dialog, 0, 16 * (advisor_height - 2), &help_button, 1, &button_id);
+    image_buttons_handle_mouse(m_dialog, 0, BLOCK_SIZE * (advisor_height - 2), &help_button, 1, &button_id);
     if (button_id) {
         focus_button_id = -1;
     }
@@ -250,7 +252,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
 static void button_change_advisor(int advisor, int param2)
 {
     if (advisor) {
-        set_advisor(advisor);
+        window_advisors_set_advisor(advisor);
         window_invalidate();
     } else {
         window_city_show();
@@ -319,7 +321,7 @@ void window_advisors_show_checked(void)
 {
     tutorial_availability avail = tutorial_advisor_empire_availability();
     if (avail == AVAILABLE) {
-        set_advisor(setting_last_advisor());
+        window_advisors_set_advisor(setting_last_advisor());
         window_advisors_show();
     } else {
         city_warning_show(avail == NOT_AVAILABLE ? WARNING_NOT_AVAILABLE : WARNING_NOT_AVAILABLE_YET);
@@ -333,7 +335,7 @@ int window_advisors_show_advisor(advisor_type advisor)
         city_warning_show(avail == NOT_AVAILABLE ? WARNING_NOT_AVAILABLE : WARNING_NOT_AVAILABLE_YET);
         return 0;
     }
-    set_advisor(advisor);
+    window_advisors_set_advisor(advisor);
     window_advisors_show();
     return 1;
 }

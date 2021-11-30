@@ -63,6 +63,9 @@ case "$BUILD_TARGET" in
 		cp augustus/build/outputs/apk/release/augustus-release.apk ../build/augustus.apk
 	fi
 	;;
+"emscripten")
+	cd build && make -j4
+	;;
 *)
 	cd build && make -j4 && make
 	;;

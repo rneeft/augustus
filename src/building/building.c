@@ -1,6 +1,11 @@
 #include "building.h"
 
 #include "building/building_state.h"
+#include "building/building_variant.h"
+#include "building/industry.h"
+#include "building/granary.h"
+#include "building/menu.h"
+#include "building/model.h"
 #include "building/monument.h"
 #include "building/properties.h"
 #include "building/rotation.h"
@@ -23,7 +28,6 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
-#include "menu.h"
 
 #define BUILDING_ARRAY_SIZE_STEP 2000
 
@@ -248,7 +252,7 @@ building *building_create(building_type type, int x, int y)
     }
 
     if (type == BUILDING_GRANARY) {
-        b->data.granary.resource_stored[RESOURCE_NONE] = 2400;
+        b->data.granary.resource_stored[RESOURCE_NONE] = FULL_GRANARY;
     }
 
     if (type == BUILDING_MARKET) {
@@ -307,6 +311,7 @@ void building_clear_related_data(building *b)
 {
     if (b->storage_id) {
         building_storage_delete(b->storage_id);
+        b->storage_id = 0;
     }
     if (b->type == BUILDING_SENATE_UPGRADED) {
         city_buildings_remove_senate(b);
@@ -381,9 +386,9 @@ void building_update_state(void)
                 road_recalc = 1;
             }
             map_building_tiles_remove(i, b->x, b->y);
-            if (b->type == BUILDING_ROADBLOCK) {
+            if (building_type_is_roadblock(b->type)) {
                 // Leave the road behind the deleted roadblock
-                map_terrain_add_roadblock_road(b->x, b->y, 0);
+                map_terrain_add(b->grid_offset, TERRAIN_ROAD);
                 road_recalc = 1;
             }
             land_recalc = 1;
@@ -432,6 +437,11 @@ void building_update_desirability(void)
             default: b->desirability += 18; break;
         }
     }
+}
+
+int building_is_primary_product_producer(building_type type)
+{
+    return building_is_raw_resource_producer(type) || building_is_farm(type) || type == BUILDING_WHARF;
 }
 
 int building_is_house(building_type type)
@@ -522,12 +532,29 @@ int building_mothball_set(building *b, int mothball)
 
 }
 
+unsigned char building_stockpiling_toggle(building *b)
+{
+    b->data.industry.is_stockpiling = !b->data.industry.is_stockpiling;
+    return b->data.industry.is_stockpiling;
+}
+
 int building_get_levy(const building *b)
 {
     int levy = b->monthly_levy;
     if (levy <= 0) {
         return 0;
     }
+    if (building_monument_type_is_monument(b->type) && b->data.monument.phase != MONUMENT_FINISHED) {
+        return 0;
+    }
+    if (b->state != BUILDING_STATE_IN_USE && levy && !b->prev_part_building_id) {
+        return 0;
+    }
+    if (b->prev_part_building_id) {
+        return 0;
+    }
+
+
     // Pantheon base bonus
     if (building_monument_working(BUILDING_PANTHEON) &&
         ((b->type >= BUILDING_SMALL_TEMPLE_CERES && b->type <= BUILDING_LARGE_TEMPLE_VENUS) ||
@@ -554,6 +581,17 @@ int building_get_levy(const building *b)
 int building_get_tourism(const building *b)
 {
     return b->is_tourism_venue;
+}
+
+int building_get_laborers(building_type type)
+{
+    const model_building *model = model_get_building(type);
+    int workers = model->laborers;
+    // Neptune GT bonus
+    if (type == BUILDING_FOUNTAIN && building_monument_working(BUILDING_GRAND_TEMPLE_NEPTUNE)) {
+        workers /= 2;
+    }
+    return workers;
 }
 
 void building_totals_add_corrupted_house(int unfixable)
@@ -610,7 +648,7 @@ void building_save_state(buffer *buf, buffer *highest_id, buffer *highest_id_eve
     buffer_write_i32(corrupt_houses, extra.unfixable_houses);
 }
 
-void building_load_state(buffer *buf, buffer *sequence, buffer *corrupt_houses, int includes_building_size)
+void building_load_state(buffer *buf, buffer *sequence, buffer *corrupt_houses, int includes_building_size, int save_version)
 {
     int building_buf_size = BUILDING_STATE_ORIGINAL_BUFFER_SIZE;
     int buf_size = buf->size;
@@ -634,7 +672,7 @@ void building_load_state(buffer *buf, buffer *sequence, buffer *corrupt_houses, 
 
     for (int i = 0; i < buildings_to_load; i++) {
         building *b = array_next(data.buildings);
-        building_state_load_from_buffer(buf, b, building_buf_size);
+        building_state_load_from_buffer(buf, b, building_buf_size, save_version);
         if (b->state != BUILDING_STATE_UNUSED) {
             highest_id_in_use = i;
             fill_adjacent_types(b);

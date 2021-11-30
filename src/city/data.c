@@ -161,7 +161,10 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.resource.granary_total_stored);
     buffer_write_i32(main, city_data.resource.food_types_available);
     buffer_write_i32(main, city_data.resource.food_types_eaten);
-    for (int i = 0; i < 263; i++) {
+    for (int i = 0; i < RESOURCE_MAX; i++) {
+        buffer_write_i16(main, city_data.resource.export_status_before_stockpiling[i]);
+    }
+    for (int i = 0; i < 231; i++) {
         buffer_write_i8(main, city_data.unused.unknown_2924[i]);
     }
     buffer_write_i8(main, city_data.sentiment.crime_cooldown);
@@ -265,7 +268,7 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.houses.missing.education);
     buffer_write_i32(main, city_data.houses.requiring.school);
     buffer_write_i32(main, city_data.houses.requiring.library);
-    buffer_write_i32(main, city_data.unused.unknown_4284);
+    buffer_write_i32(main, city_data.games.bet_amount);
     buffer_write_i32(main, city_data.houses.missing.barber);
     buffer_write_i32(main, city_data.houses.missing.bathhouse);
     buffer_write_i32(main, city_data.houses.missing.food);
@@ -375,7 +378,9 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.building.barracks_building_id);
     buffer_write_i32(main, city_data.building.barracks_placed);
     buffer_write_i32(main, city_data.building.mess_hall_building_id);
-    for (int i = 0; i < 4; i++) {
+    buffer_write_i32(main, city_data.entertainment.arena_shows);
+    buffer_write_i32(main, city_data.entertainment.arena_no_shows_weighted);
+    for (int i = 0; i < 2; i++) {
         buffer_write_i32(main, city_data.unused.unknown_43d8[i]);
     }
     buffer_write_i32(main, city_data.population.lost_troop_request);
@@ -494,7 +499,7 @@ static void save_main_data(buffer *main)
     buffer_write_i8(main, city_data.distant_battle.roman_months_traveled);
     buffer_write_u8(main, city_data.military.total_legions);
     buffer_write_u8(main, city_data.military.empire_service_legions);
-    buffer_write_u8(main, city_data.unused.unknown_458e);
+    buffer_write_u8(main, city_data.games.chosen_horse);
     buffer_write_u8(main, city_data.military.total_soldiers);
     buffer_write_i8(main, city_data.building.triumphal_arches_placed);
     buffer_write_i8(main, city_data.sound.die_citizen);
@@ -662,7 +667,10 @@ static void load_main_data(buffer *main, int has_separate_import_limits)
     city_data.resource.granary_total_stored = buffer_read_i32(main);
     city_data.resource.food_types_available = buffer_read_i32(main);
     city_data.resource.food_types_eaten = buffer_read_i32(main);
-    for (int i = 0; i < 263; i++) {
+    for (int i = 0; i < RESOURCE_MAX; i++) {
+        city_data.resource.export_status_before_stockpiling[i] = buffer_read_i16(main);
+    }
+    for (int i = 0; i < 231; i++) {
         city_data.unused.unknown_2924[i] = buffer_read_i8(main);
     }
     city_data.sentiment.crime_cooldown = buffer_read_i8(main);
@@ -766,7 +774,7 @@ static void load_main_data(buffer *main, int has_separate_import_limits)
     city_data.houses.missing.education = buffer_read_i32(main);
     city_data.houses.requiring.school = buffer_read_i32(main);
     city_data.houses.requiring.library = buffer_read_i32(main);
-    city_data.unused.unknown_4284 = buffer_read_i32(main);
+    city_data.games.bet_amount = buffer_read_i32(main);
     city_data.houses.missing.barber = buffer_read_i32(main);
     city_data.houses.missing.bathhouse = buffer_read_i32(main);
     city_data.houses.missing.food = buffer_read_i32(main);
@@ -877,7 +885,9 @@ static void load_main_data(buffer *main, int has_separate_import_limits)
     city_data.building.barracks_building_id = buffer_read_i32(main);
     city_data.building.barracks_placed = buffer_read_i32(main);
     city_data.building.mess_hall_building_id = buffer_read_i32(main);
-    for (int i = 0; i < 4; i++) {
+    city_data.entertainment.arena_shows = buffer_read_i32(main); 
+    city_data.entertainment.arena_no_shows_weighted = buffer_read_i32(main);
+    for (int i = 0; i < 2; i++) {
         city_data.unused.unknown_43d8[i] = buffer_read_i32(main);
     }
     city_data.population.lost_troop_request = buffer_read_i32(main);
@@ -996,7 +1006,7 @@ static void load_main_data(buffer *main, int has_separate_import_limits)
     city_data.distant_battle.roman_months_traveled = buffer_read_i8(main);
     city_data.military.total_legions = buffer_read_u8(main);
     city_data.military.empire_service_legions = buffer_read_u8(main);
-    city_data.unused.unknown_458e = buffer_read_u8(main);
+    city_data.games.chosen_horse = buffer_read_u8(main);
     city_data.military.total_soldiers = buffer_read_u8(main);
     city_data.building.triumphal_arches_placed = buffer_read_i8(main);
     city_data.sound.die_citizen = buffer_read_i8(main);

@@ -102,11 +102,12 @@ static int init(build_menu_group submenu)
 
 int window_build_menu_image(void)
 {
-    if (building_construction_type() == BUILDING_NONE) {
-        return image_group(GROUP_PANEL_WINDOWS) + 12;
-    }
+    building_type type = building_construction_type();
     int image_base = image_group(GROUP_PANEL_WINDOWS);
-    switch (data.selected_submenu) {
+    if (type == BUILDING_NONE) {
+        return image_base + 12;
+    }
+    switch (building_menu_for_type(type)) {
         default:
         case BUILD_MENU_VACANT_HOUSE:
             return image_base;
@@ -131,6 +132,8 @@ int window_build_menu_image(void)
         case BUILD_MENU_HEALTH:
             return image_base + 5;
         case BUILD_MENU_TEMPLES:
+        case BUILD_MENU_SMALL_TEMPLES:
+        case BUILD_MENU_LARGE_TEMPLES:
             return image_base + 1;
         case BUILD_MENU_EDUCATION:
             return image_base + 6;
@@ -141,12 +144,16 @@ int window_build_menu_image(void)
         case BUILD_MENU_ENGINEERING:
             return image_base + 7;
         case BUILD_MENU_SECURITY:
+        case BUILD_MENU_FORTS:
             if (scenario_property_climate() == CLIMATE_DESERT) {
                 return image_group(GROUP_PANEL_WINDOWS_DESERT) + 3;
             } else {
                 return image_base + 8;
             }
         case BUILD_MENU_INDUSTRY:
+        case BUILD_MENU_FARMS:
+        case BUILD_MENU_RAW_MATERIALS:
+        case BUILD_MENU_WORKSHOPS:
             return image_base + 9;
     }
 }
@@ -216,14 +223,14 @@ static void draw_menu_buttons(void)
 
         int icons_drawn = 0;
         if (building_rotation_type_has_rotations(type)) {
-            int image_id = assets_get_image_id(assets_get_group_id("Areldir", "UI_Elements"), "Rotate Build Icon");
+            int image_id = assets_get_image_id("UI_Elements", "Rotate Build Icon");
             image_draw(image_id, item_x_align + icons_drawn * MENU_ICON_WIDTH + MENU_ICON_X_OFFSET,
                 data.y_offset + MENU_Y_OFFSET + MENU_ICON_Y_OFFSET + MENU_ITEM_HEIGHT * i);
             icons_drawn++;
         }
 
         if (building_monument_type_is_monument(type)) {
-            int image_id = assets_get_image_id(assets_get_group_id("Areldir", "UI_Elements"), "Monument Build Icon");
+            int image_id = assets_get_image_id("UI_Elements", "Monument Build Icon");
             image_draw(image_id, item_x_align + icons_drawn * MENU_ICON_WIDTH + MENU_ICON_X_OFFSET,
                 data.y_offset + MENU_Y_OFFSET + MENU_ICON_Y_OFFSET + MENU_ITEM_HEIGHT * i);
             icons_drawn++;

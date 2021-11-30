@@ -2,6 +2,7 @@
 
 #include "building/animation.h"
 #include "building/construction.h"
+#include "building/granary.h"
 #include "building/industry.h"
 #include "city/view.h"
 #include "core/config.h"
@@ -108,6 +109,12 @@ static const city_overlay *get_city_overlay(void)
             return city_overlay_for_roads();
         case OVERLAY_LEVY:
             return city_overlay_for_levy();
+        case OVERLAY_MOTHBALL:
+            return city_overlay_for_mothball();
+        case OVERLAY_ENEMY:
+            return city_overlay_for_enemy();
+        case OVERLAY_WAREHOUSE:
+            return city_overlay_for_warehouses();
         default:
             return 0;
     }
@@ -419,15 +426,15 @@ static void draw_building_top(int grid_offset, building *b, int x, int y)
         const image *img = image_get(map_image_at(grid_offset));
         image_draw(image_group(GROUP_BUILDING_GRANARY) + 1,
             x + img->sprite_offset_x, y + img->sprite_offset_y - 30 - (img->height - 90));
-        if (b->data.granary.resource_stored[RESOURCE_NONE] < 2400) {
+        if (b->data.granary.resource_stored[RESOURCE_NONE] < FULL_GRANARY) {
             image_draw(image_group(GROUP_BUILDING_GRANARY) + 2, x + 33, y - 60);
-            if (b->data.granary.resource_stored[RESOURCE_NONE] < 1800) {
+            if (b->data.granary.resource_stored[RESOURCE_NONE] < THREEQUARTERS_GRANARY) {
                 image_draw(image_group(GROUP_BUILDING_GRANARY) + 3, x + 56, y - 50);
             }
-            if (b->data.granary.resource_stored[RESOURCE_NONE] < 1200) {
+            if (b->data.granary.resource_stored[RESOURCE_NONE] < HALF_GRANARY) {
                 image_draw(image_group(GROUP_BUILDING_GRANARY) + 4, x + 91, y - 50);
             }
-            if (b->data.granary.resource_stored[RESOURCE_NONE] < 600) {
+            if (b->data.granary.resource_stored[RESOURCE_NONE] < QUARTER_GRANARY) {
                 image_draw(image_group(GROUP_BUILDING_GRANARY) + 5, x + 117, y - 62);
             }
         }
@@ -466,10 +473,10 @@ static void draw_top(int x, int y, int grid_offset)
     if (overlay->draw_custom_top) {
         overlay->draw_custom_top(x, y, grid_offset);
     } else if (map_property_is_draw_tile(grid_offset)) {
-        if (!map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT | TERRAIN_ROAD)) {
-            if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && map_building_at(grid_offset)) {
-                city_with_overlay_draw_building_top(x, y, grid_offset);
-            } else if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && map_building_at(grid_offset)) {
+            city_with_overlay_draw_building_top(x, y, grid_offset);
+        } else if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+            if (!map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_AQUEDUCT | TERRAIN_ROAD)) {
                 color_t color_mask = 0;
                 if (map_property_is_deleted(grid_offset) && !is_multi_tile_terrain(grid_offset)) {
                     color_mask = COLOR_MASK_RED;
@@ -478,8 +485,10 @@ static void draw_top(int x, int y, int grid_offset)
                 image_draw_isometric_top_from_draw_tile(map_image_at(grid_offset), x, y, color_mask);
             }
         }
+
     }
 }
+
 
 static void draw_animation(int x, int y, int grid_offset)
 {
@@ -522,16 +531,16 @@ static void draw_animation(int x, int y, int grid_offset)
                     x + img->sprite_offset_x,
                     y + 60 + img->sprite_offset_y - img->height,
                     color_mask);
-                if (b->data.granary.resource_stored[RESOURCE_NONE] < 2400) {
+                if (b->data.granary.resource_stored[RESOURCE_NONE] < FULL_GRANARY) {
                     image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 2, x + 33, y - 60, color_mask);
                 }
-                if (b->data.granary.resource_stored[RESOURCE_NONE] < 1800) {
+                if (b->data.granary.resource_stored[RESOURCE_NONE] < THREEQUARTERS_GRANARY) {
                     image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 3, x + 56, y - 50, color_mask);
                 }
-                if (b->data.granary.resource_stored[RESOURCE_NONE] < 1200) {
+                if (b->data.granary.resource_stored[RESOURCE_NONE] < HALF_GRANARY) {
                     image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 4, x + 91, y - 50, color_mask);
                 }
-                if (b->data.granary.resource_stored[RESOURCE_NONE] < 600) {
+                if (b->data.granary.resource_stored[RESOURCE_NONE] < QUARTER_GRANARY) {
                     image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 5, x + 117, y - 62, color_mask);
                 }
             } else {
@@ -644,7 +653,8 @@ int city_with_overlay_get_tooltip_text(tooltip_context *c, int grid_offset)
     int overlay_requires_house =
         overlay_type != OVERLAY_WATER && overlay_type != OVERLAY_FIRE && overlay_type != OVERLAY_LEVY &&
         overlay_type != OVERLAY_DAMAGE && overlay_type != OVERLAY_NATIVE && overlay_type != OVERLAY_DESIRABILITY &&
-        overlay_type != OVERLAY_PROBLEMS
+        overlay_type != OVERLAY_PROBLEMS && overlay_type != OVERLAY_MOTHBALL && overlay_type != OVERLAY_ENEMY &&
+        overlay_type != OVERLAY_WAREHOUSE
         ;
     building *b = building_get(building_id);
     if (overlay_requires_house && !b->house_size) {

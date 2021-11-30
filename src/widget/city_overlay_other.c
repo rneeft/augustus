@@ -1,6 +1,8 @@
 #include "city_overlay_other.h"
 
 #include "building/model.h"
+#include "building/monument.h"
+#include "building/roadblock.h"
 #include "city/constants.h"
 #include "city/finance.h"
 #include "core/calc.h"
@@ -43,7 +45,8 @@ static int show_building_tax_income(const building *b)
 
 static int show_building_water(const building *b)
 {
-    return b->type == BUILDING_WELL || b->type == BUILDING_FOUNTAIN || b->type == BUILDING_RESERVOIR;
+    return b->type == BUILDING_WELL || b->type == BUILDING_FOUNTAIN || b->type == BUILDING_RESERVOIR || 
+        (b->type == BUILDING_GRAND_TEMPLE_NEPTUNE && building_monument_gt_module_is_active(NEPTUNE_MODULE_2_CAPACITY_AND_WATER));
 }
 
 static int show_building_sentiment(const building *b)
@@ -58,8 +61,19 @@ static int show_building_desirability(const building *b)
 
 static int show_building_roads(const building *b)
 {
-    return b->type == BUILDING_ROADBLOCK;
+    return building_type_is_roadblock(b->type) || b->type == BUILDING_GATEHOUSE;
 }
+
+static int show_building_mothball(const building *b)
+{
+    return b->state == BUILDING_STATE_MOTHBALLED;
+}
+
+static int show_building_warehouses(const building *b)
+{
+    return b->type == BUILDING_WAREHOUSE || b->type == BUILDING_WAREHOUSE_SPACE;
+}
+
 
 static int show_building_none(const building *b)
 {
@@ -88,6 +102,15 @@ static int show_figure_tax_income(const figure *f)
     return f->type == FIGURE_TAX_COLLECTOR;
 }
 
+static int show_figure_warehouses(const figure *f)
+{
+    if (f->type != FIGURE_WAREHOUSEMAN) {
+        return 0;
+    }
+    building *b = building_get(f->building_id);
+    return b->type == BUILDING_WAREHOUSE;
+}
+
 static int show_figure_none(const figure *f)
 {
     return 0;
@@ -95,7 +118,7 @@ static int show_figure_none(const figure *f)
 
 static int get_column_height_religion(const building *b)
 {
-    return b->house_size && b->data.house.num_gods ? b->data.house.num_gods * 17 / 10 : NO_COLUMN;
+    return b->house_size && b->data.house.num_gods ? b->data.house.num_gods * 18 / 10 : NO_COLUMN;
 }
 
 static int get_column_height_food_stocks(const building *b)
@@ -120,9 +143,10 @@ static int get_column_height_food_stocks(const building *b)
 
 static int get_column_height_levy(const building *b)
 {
-    int height = calc_percentage(building_get_levy(b), PANTHEON_LEVY_MONTHLY) / 10;
+    int levy = building_get_levy(b);
+    int height = calc_percentage(levy, PANTHEON_LEVY_MONTHLY) / 10;
     height = calc_bound(height, 1, 10);
-    return b->monthly_levy ? height : NO_COLUMN;
+    return levy ? height : NO_COLUMN;
 }
 
 static int get_column_height_tax_income(const building *b)
@@ -262,16 +286,17 @@ static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
     }
 }
 
-static int get_tooltip_roads(tooltip_context *c, int grid_offset)
+static int get_tooltip_none(tooltip_context *c, int grid_offset)
 {
     return 0;
 }
 
 static int get_tooltip_levy(tooltip_context *c, const building *b)
 {
-    if (b->monthly_levy > 0) {
+    int levy = building_get_levy(b);
+    if (levy > 0) {
         c->has_numeric_prefix = 1;
-        c->numeric_prefix = building_get_levy(b);
+        c->numeric_prefix = levy;
         c->translation_key = TR_TOOLTIP_OVERLAY_LEVY;
         return 1;
     }
@@ -608,7 +633,7 @@ const city_overlay *city_overlay_for_roads(void)
         show_building_roads,
         show_figure_none,
         get_column_height_none,
-        get_tooltip_roads,
+        get_tooltip_none,
         0,
         0,
         0
@@ -631,3 +656,36 @@ const city_overlay *city_overlay_for_levy(void)
     };
     return &overlay;
 }
+
+const city_overlay *city_overlay_for_mothball(void)
+{
+    static city_overlay overlay = {
+        OVERLAY_MOTHBALL,
+        COLUMN_COLOR_GREEN,
+        show_building_mothball,
+        show_figure_none,
+        get_column_height_none,
+        get_tooltip_none,
+        0,
+        0,
+        0
+    };
+    return &overlay;
+}
+
+const city_overlay *city_overlay_for_warehouses(void)
+{
+    static city_overlay overlay = {
+        OVERLAY_WAREHOUSE,
+        COLUMN_COLOR_GREEN,
+        show_building_warehouses,
+        show_figure_warehouses,
+        get_column_height_none,
+        get_tooltip_none,
+        0,
+        0,
+        0
+    };
+    return &overlay;
+}
+

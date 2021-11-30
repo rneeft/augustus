@@ -3,19 +3,17 @@
 #include "building/barracks.h"
 #include "building/count.h"
 #include "building/granary.h"
+#include "building/industry.h"
 #include "building/monument.h"
 #include "building/model.h"
 #include "building/storage.h"
-#include "city/buildings.h"
 #include "city/finance.h"
-#include "city/military.h"
 #include "city/resource.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "empire/trade_prices.h"
 #include "game/tutorial.h"
 #include "map/image.h"
-#include "map/road_access.h"
 #include "scenario/property.h"
 
 #define INFINITE 10000
@@ -449,14 +447,13 @@ int building_warehouse_with_resource(int src_building_id, int x, int y, int reso
 {
     int min_dist = INFINITE;
     building *min_building = 0;
-    for (building *b = building_first_of_type(BUILDING_WAREHOUSE_SPACE); b; b = b->next_of_type) {
+    for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b; b = b->next_of_type) {
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
             continue;
         }
-        b = building_main(b);
 
         int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
         if (pct_workers < 100) {
@@ -575,6 +572,9 @@ static int contains_non_stockpiled_food(building *space, const int *resources)
 
 int building_warehouse_determine_worker_task(building *warehouse, int *resource)
 {
+    if (!building_storage_get_permission(BUILDING_STORAGE_PERMISSION_WORKER, warehouse)) {
+        return WAREHOUSE_TASK_NONE; // Disabled by player
+    }
     int pct_workers = calc_percentage(warehouse->num_workers, model_get_building(warehouse->type)->laborers);
     if (pct_workers < 50) {
         return WAREHOUSE_TASK_NONE;
@@ -642,7 +642,8 @@ int building_warehouse_determine_worker_task(building *warehouse, int *resource)
         if (space->id > 0 && space->loads_stored > 0) {
             if (!city_resource_is_stockpiled(space->subtype.warehouse_resource_id)) {
                 int workshop_type = resource_to_workshop_type(space->subtype.warehouse_resource_id);
-                if (workshop_type != WORKSHOP_NONE && city_resource_has_workshop_with_room(workshop_type)) {
+                if (workshop_type != WORKSHOP_NONE && city_resource_has_workshop_with_room(workshop_type) &&
+                    building_has_workshop_for_raw_material_with_room(workshop_type, warehouse->road_network_id)) {
                     *resource = space->subtype.warehouse_resource_id;
                     return WAREHOUSE_TASK_DELIVERING;
                 }

@@ -299,6 +299,8 @@ extern struct city_data_t {
         int32_t amphitheater_no_shows_weighted;
         int32_t colosseum_shows;
         int32_t colosseum_no_shows_weighted;
+        int32_t arena_shows;
+        int32_t arena_no_shows_weighted;
         int32_t hippodrome_shows;
         int32_t hippodrome_no_shows_weighted;
         int32_t venue_needing_shows;
@@ -337,6 +339,8 @@ extern struct city_data_t {
         int32_t executions_bonus_months;
         int32_t imperial_games_bonus_months;
         int32_t games_4_bonus_months;
+        uint8_t chosen_horse;
+        int32_t bet_amount;
     } games;
     struct {
         int16_t space_in_warehouses[RESOURCE_MAX];
@@ -344,6 +348,7 @@ extern struct city_data_t {
         int32_t space_in_workshops[6];
         int32_t stored_in_workshops[6];
         int16_t trade_status[RESOURCE_MAX];
+        int16_t export_status_before_stockpiling[RESOURCE_MAX];
         int16_t import_over[RESOURCE_MAX];
         int16_t export_over[RESOURCE_MAX];
         int32_t stockpiled[RESOURCE_MAX];

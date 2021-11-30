@@ -64,7 +64,7 @@ static void draw_background(void)
 
     graphics_in_dialog();
     if (!data.logo_image_id) {
-        data.logo_image_id = assets_get_image_id(assets_get_group_id("Areldir", "UI_Elements"), "Main Menu Banner");
+        data.logo_image_id = assets_get_image_id("UI_Elements", "Main Menu Banner");
     }
     image_draw(data.logo_image_id, 110, -50);
     graphics_reset_dialog();
@@ -78,7 +78,7 @@ static void draw_foreground(void)
     graphics_in_dialog();
 
     for (int i = 0; i < MAX_BUTTONS; i++) {
-        large_label_draw(buttons[i].x, buttons[i].y, buttons[i].width / 16, data.focus_button_id == i + 1 ? 1 : 0);
+        large_label_draw(buttons[i].x, buttons[i].y, buttons[i].width / BLOCK_SIZE, data.focus_button_id == i + 1 ? 1 : 0);
     }
 
     lang_text_draw_centered(30, 1, 192, 136, 256, FONT_NORMAL_GREEN);

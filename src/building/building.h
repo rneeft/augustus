@@ -31,7 +31,6 @@ typedef struct building {
         short fort_figure_type;
         short native_meeting_center_id;
         short market_goods;
-        short roadblock_exceptions;
         short barracks_priority;
     } subtype;
     unsigned char road_network_id;
@@ -100,6 +99,7 @@ typedef struct building {
             unsigned char curse_days_left;
             unsigned char has_raw_materials;
             unsigned char has_fish;
+            unsigned char is_stockpiling;
             unsigned char orientation;
             short fishing_boat_id;
         } industry;
@@ -144,6 +144,15 @@ typedef struct building {
             int progress;
             short phase;
         } monument;
+        struct {
+            unsigned char was_tent;
+        } rubble;
+        struct {
+            short exceptions;
+        } roadblock;
+        struct {
+            short flag_frame;
+        } warehouse;
     } data;
     int tax_income_or_storage;
     unsigned char house_days_without_food;
@@ -214,11 +223,19 @@ int building_is_statue_garden_temple(building_type type);
 
 int building_is_fort(building_type type);
 
+int building_is_primary_product_producer(building_type type);
+
 int building_mothball_toggle(building *b);
 
 int building_mothball_set(building *b, int value);
 
 int building_get_tourism(const building *b);
+
+int building_get_laborers(building_type type);
+
+unsigned char building_stockpiling_toggle(building *b);
+
+int building_get_tourism(const building* b);
 
 int building_get_levy(const building *b);
 
@@ -229,6 +246,6 @@ void building_clear_all(void);
 void building_save_state(buffer *buf, buffer *highest_id, buffer *highest_id_ever,
                          buffer *sequence, buffer *corrupt_houses);
 
-void building_load_state(buffer *buf, buffer *sequence, buffer *corrupt_houses, int includes_building_size);
+void building_load_state(buffer *buf, buffer *sequence, buffer *corrupt_houses, int includes_building_size, int save_version);
 
 #endif // BUILDING_BUILDING_H

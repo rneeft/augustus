@@ -31,7 +31,10 @@ enum {
     OVERLAY_LEVY = 31,
     OVERLAY_TAVERN = 32,
     OVERLAY_ARENA = 33,
-    OVERLAY_SENTIMENT = 34
+    OVERLAY_SENTIMENT = 34,
+    OVERLAY_MOTHBALL = 35,
+    OVERLAY_ENEMY = 36,
+    OVERLAY_WAREHOUSE = 37,
 };
 
 void game_state_init(void);

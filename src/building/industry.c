@@ -3,17 +3,12 @@
 #include "building/list.h"
 #include "building/monument.h"
 #include "city/data_private.h"
-#include "city/message.h"
-#include "city/resource.h"
-#include "city/view.h"
 #include "city/warning.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/random.h"
-#include "game/resource.h"
 #include "figure/figure.h"
 #include "map/building_tiles.h"
-#include "map/road_access.h"
 #include "scenario/property.h"
 
 #define MAX_PROGRESS_RAW 200
@@ -253,6 +248,11 @@ void building_industry_update_wheat_production(void)
     }
 }
 
+int building_stockpiling_enabled(building *b)
+{
+    return b->data.industry.is_stockpiling;
+}
+
 int building_industry_has_produced_resource(building *b)
 {
     return b->data.industry.progress >= max_progress(b);
@@ -324,6 +324,18 @@ void building_workshop_add_raw_material(building *b)
     if (b->id > 0 && building_is_workshop(b->type)) {
         b->loads_stored++; // BUG: any raw material accepted
     }
+}
+
+int building_has_workshop_for_raw_material_with_room(int workshop_type, int road_network_id)
+{
+    building_type type = OUTPUT_TYPE_TO_INDUSTRY[workshop_type];
+    for (building *b = building_first_of_type(type); b; b = b->next_of_type) {
+        if (b->state == BUILDING_STATE_IN_USE && b->has_road_access && b->distance_from_entry > 0 &&
+            b->road_network_id == road_network_id && b->loads_stored < 2) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 int building_get_workshop_for_raw_material_with_room(int x, int y,

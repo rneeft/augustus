@@ -1,6 +1,7 @@
 #include "image.h"
 
 #include "assets/group.h"
+#include "core/array.h"
 #include "core/image.h"
 #include "core/log.h"
 #include "graphics/color.h"
@@ -10,7 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ANIMATION_MAX_IMAGE_ID 32768
+#define ASSET_ARRAY_SIZE 2000
+
+array(asset_image) asset_images;
 
 static void load_image_layers(asset_image *img)
 {
@@ -33,8 +36,9 @@ void asset_image_unload_layers(asset_image *img)
 int asset_image_load(asset_image *img)
 {
     if (img->loaded) {
-        return 1;
+        return img->data != 0;
     }
+    img->loaded = 1;
 
     load_image_layers(img);
 
@@ -48,7 +52,6 @@ int asset_image_load(asset_image *img)
             img->is_clone = l->is_asset_image_reference;
             l->is_asset_image_reference = 1;
             layer_unload(l);
-            img->loaded = 1;
             return 1;
         }
     }
@@ -57,7 +60,6 @@ int asset_image_load(asset_image *img)
     if (!img->data) {
         log_error("Not enough memory to load image", img->id, 0);
         asset_image_unload_layers(img);
-        img->active = 0;
         return 0;
     }
     memset(img->data, 0, img->img.draw.data_length);
@@ -90,13 +92,21 @@ int asset_image_load(asset_image *img)
         }
     }
     asset_image_unload_layers(img);
-    img->loaded = 1;
     return 1;
+}
+
+static inline int layer_is_empty(const layer *l)
+{
+#ifndef BUILDING_ASSET_PACKER
+    return !l->width && !l->height;
+#else
+    return !l->original_image_group && !l->original_image_id && !l->asset_image_path;
+#endif
 }
 
 static layer *create_layer_for_image(asset_image *img)
 {
-    if (!img->last_layer->width || !img->last_layer->height) {
+    if (layer_is_empty(img->last_layer)) {
         return img->last_layer;
     }
     layer *l = malloc(sizeof(layer));
@@ -111,63 +121,53 @@ static layer *create_layer_for_image(asset_image *img)
 
 int asset_image_add_layer(asset_image *img,
     const char *path, const char *group_id, const char *image_id,
-    int offset_x, int offset_y,
+    int src_x, int src_y, int offset_x, int offset_y, int width, int height,
     layer_invert_type invert, layer_rotate_type rotate, layer_isometric_part part)
 {
     layer *current_layer = create_layer_for_image(img);
 
-    if (path) {
-        current_layer = layer_add_from_image_path(current_layer, path, offset_x, offset_y);
-    } else if (group_id) {
+    if (group_id) {
         current_layer = layer_add_from_image_id(current_layer, group_id, image_id, offset_x, offset_y);
     } else {
-        layer_unload(current_layer);
-        return 0;
+        current_layer = layer_add_from_image_path(current_layer, path, src_x, src_y, offset_x, offset_y, width, height);
     }
     if (!current_layer) {
         return 0;
     }
-    if (!img->img.width) {
-        img->img.width = current_layer->width;
-    }
-    if (!img->img.height) {
-        img->img.height = current_layer->height;
+    if (rotate == ROTATE_NONE || rotate == ROTATE_180_DEGREES) {
+        if (!img->img.width) {
+            img->img.width = current_layer->width;
+        }
+        if (!img->img.height) {
+            img->img.height = current_layer->height;
+        }
+    } else {
+        if (!img->img.width) {
+            img->img.width = current_layer->height;
+        }
+        if (!img->img.height) {
+            img->img.height = current_layer->width;
+        }
     }
     current_layer->invert = invert;
     current_layer->rotate = rotate;
     current_layer->part = part;
+#ifdef BUILDING_ASSET_PACKER
+    if (img->last_layer != current_layer) {
+        img->last_layer->next = current_layer;
+    }
+#endif
     img->last_layer = current_layer;
     return 1;
 }
 
-asset_image *get_animation_image(int image_id)
-{
-    image_groups *group = group_get_from_hash(ANIMATION_FRAMES_GROUP);
-    int image_index = image_id - ANIMATION_FRAMES_GROUP;
-    for (asset_image *img = group->first_image; img; img = img->next) {
-        if (img->index == image_index) {
-            return img;
-        }
-    }
-    return 0;
-}
-
 asset_image *asset_image_get_from_id(int image_id)
 {
-    if (image_id >= ANIMATION_FRAMES_GROUP && image_id < ANIMATION_MAX_IMAGE_ID) {
-        return get_animation_image(image_id);
-    }
-    image_groups *group = group_get_from_hash(image_id);
-    if (!group) {
+    asset_image *last = array_last(asset_images);
+    if (image_id < 0 || !last || image_id > last->index) {
         return 0;
     }
-    int image_index = image_id & 0xff;
-    for (asset_image *img = group->first_image; img; img = img->next) {
-        if (img->index == image_index) {
-            return img;
-        }
-    }
-    return 0;
+    return array_item(asset_images, image_id);
 }
 
 void asset_image_unload(asset_image *img)
@@ -178,4 +178,28 @@ void asset_image_unload(asset_image *img)
     if (!img->is_clone) {
         free(img->data);
     }
+    img->active = 0;
+}
+
+static void new_image(asset_image *img, int index)
+{
+    img->index = index;
+    img->active = 1;
+}
+
+static int is_image_active(const asset_image *img)
+{
+    return img->active;
+}
+
+int asset_image_init_array(void)
+{
+    return array_init(asset_images, ASSET_ARRAY_SIZE, new_image, is_image_active);
+}
+
+asset_image *asset_image_create(void)
+{
+    asset_image *result;
+    array_new_item(asset_images, 1, result);
+    return result;
 }

@@ -126,9 +126,11 @@ int string_from_int(uint8_t *dst, int value, int force_plus_sign)
     total_chars += num_digits;
 
     dst[num_digits] = 0;
+    int digits_written = 0;
     while (--num_digits >= 0) {
         dst[num_digits] = (uint8_t) (value % 10 + '0');
         value /= 10;
+        ++digits_written;
     }
 
     return total_chars;

@@ -23,6 +23,7 @@
 #include "window/empire.h"
 #include "window/gift_to_emperor.h"
 #include "window/popup_dialog.h"
+#include "window/resource_settings.h"
 #include "window/set_salary.h"
 
 #define ADVISOR_HEIGHT 27
@@ -32,16 +33,17 @@ static void button_donate_to_city(int param1, int param2);
 static void button_set_salary(int param1, int param2);
 static void button_gift_to_emperor(int param1, int param2);
 static void button_request(int index, int param2);
+static void button_request_resource(int index, int param2);
 
 static generic_button imperial_buttons[] = {
     {320, 367, 250, 20, button_donate_to_city, button_none, 0, 0},
     {70, 393, 500, 20, button_set_salary, button_none, 0, 0},
     {320, 341, 250, 20, button_gift_to_emperor, button_none, 0, 0},
-    {38, 96, 560, 40, button_request, button_none, 0, 0},
-    {38, 138, 560, 40, button_request, button_none, 1, 0},
-    {38, 180, 560, 40, button_request, button_none, 2, 0},
-    {38, 222, 560, 40, button_request, button_none, 3, 0},
-    {38, 264, 560, 40, button_request, button_none, 4, 0},
+    {38, 96, 560, 40, button_request, button_request_resource, 0, 0},
+    {38, 138, 560, 40, button_request, button_request_resource, 1, 0},
+    {38, 180, 560, 40, button_request, button_request_resource, 2, 0},
+    {38, 222, 560, 40, button_request, button_request_resource, 3, 0},
+    {38, 264, 560, 40, button_request, button_request_resource, 4, 0},
 };
 
 static int focus_button_id;
@@ -56,7 +58,7 @@ static void draw_request(int index, const scenario_request *request)
     }
 
     button_border_draw(38, 96 + 42 * index, 560, 40, 0);
-    text_draw_number(request->amount, '@', " ", 40, 102 + 42 * index, FONT_NORMAL_WHITE);
+    text_draw_number(request->amount, '@', " ", 40, 102 + 42 * index, FONT_NORMAL_WHITE, 0);
     int resource_offset = request->resource + resource_image_offset(request->resource, RESOURCE_IMAGE_ICON);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + resource_offset, 110, 100 + 42 * index);
     lang_text_draw(23, request->resource, 150, 102 + 42 * index, FONT_NORMAL_WHITE);
@@ -67,7 +69,7 @@ static void draw_request(int index, const scenario_request *request)
     if (request->resource == RESOURCE_DENARII) {
         // request for money
         int treasury = city_finance_treasury();
-        width = text_draw_number(treasury, '@', " ", 40, 120 + 42 * index, FONT_NORMAL_WHITE);
+        width = text_draw_number(treasury, '@', " ", 40, 120 + 42 * index, FONT_NORMAL_WHITE, 0);
         width += lang_text_draw(52, 44, 40 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
         if (treasury < request->amount) {
             lang_text_draw(52, 48, 80 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
@@ -80,7 +82,7 @@ static void draw_request(int index, const scenario_request *request)
         int amount_stored = city_resource_get_amount_including_granaries(request->resource,
             request->amount, &using_granaries);
         int y_offset = 120 + 42 * index;
-        width = text_draw_number(amount_stored, '@', " ", 40, y_offset, FONT_NORMAL_WHITE);
+        width = text_draw_number(amount_stored, '@', " ", 40, y_offset, FONT_NORMAL_WHITE, 0);
         if (using_granaries) {
             width += text_draw(translation_for(TR_ADVISOR_IN_STORAGE), 40 + width, y_offset, FONT_NORMAL_WHITE, 0);
         } else {
@@ -104,7 +106,7 @@ static int draw_background(void)
     text_draw(scenario_player_name(), 60, 12, FONT_LARGE_BLACK, 0);
 
     int width = lang_text_draw(52, 0, 60, 44, FONT_NORMAL_BLACK);
-    text_draw_number(city_rating_favor(), '@', " ", 60 + width, 44, FONT_NORMAL_BLACK);
+    text_draw_number(city_rating_favor(), '@', " ", 60 + width, 44, FONT_NORMAL_BLACK, 0);
 
     lang_text_draw_multiline(52, city_rating_favor() / 5 + 22, 60, 60, 544, FONT_NORMAL_BLACK);
 
@@ -153,7 +155,7 @@ static void draw_foreground(void)
 
     button_border_draw(70, 393, 500, 20, focus_button_id == 2);
     width = lang_text_draw(52, city_emperor_salary_rank() + 4, 120, 398, FONT_NORMAL_WHITE);
-    width += text_draw_number(city_emperor_salary_amount(), '@', " ", 120 + width, 398, FONT_NORMAL_WHITE);
+    width += text_draw_number(city_emperor_salary_amount(), '@', " ", 120 + width, 398, FONT_NORMAL_WHITE, 0);
     lang_text_draw(52, 3, 120 + width, 398, FONT_NORMAL_WHITE);
 
     button_border_draw(320, 341, 250, 20, focus_button_id == 3);
@@ -246,6 +248,28 @@ void button_request(int index, int param2)
             }
             break;
     }
+}
+
+// Used for showing the resource settings window on right click
+void button_request_resource(int index, int param2)
+{
+    // Make sure there's a request pending at this index
+    if (!city_request_get_status(index)) {
+        return;
+    }
+
+    // index 0 is used for a troop request if it exists
+    if (!index && city_request_has_troop_request()) {
+        return;
+    }
+    selected_resource = city_get_request_resource(index);
+    
+    // we can't manage money with the resource settings window
+    if (selected_resource == RESOURCE_DENARII) {
+        return;
+    }
+
+    window_resource_settings_show(selected_resource);
 }
 
 static void write_resource_storage_tooltip(advisor_tooltip_result *r, int resource)

@@ -2,9 +2,10 @@
 
 #include "assets/assets.h"
 #include "building/building_variant.h"
+#include "building/connectable.h"
 #include "building/construction.h"
 #include "building/count.h"
-#include "building/image_context.h"
+#include "building/image.h"
 #include "building/industry.h"
 #include "building/monument.h"
 #include "building/model.h"
@@ -116,6 +117,35 @@ static const int RESERVOIR_GRID_OFFSETS[4] = { OFFSET(-1,-1), OFFSET(1,-1), OFFS
 static const int HIPPODROME_X_VIEW_OFFSETS[4] = { 150, 150, -150, -150 };
 static const int HIPPODROME_Y_VIEW_OFFSETS[4] = { 75, -75, -75, 75 };
 
+enum farm_ghost_object {
+    FARM_GHOST_NO_DRAW,
+    FARM_GHOST_FARMHOUSE,
+    FARM_GHOST_CROP
+};
+
+static const int FARM_TILES[4][9] = {
+    {
+        FARM_GHOST_FARMHOUSE, FARM_GHOST_NO_DRAW, FARM_GHOST_NO_DRAW,
+        FARM_GHOST_NO_DRAW, FARM_GHOST_CROP, FARM_GHOST_CROP,
+        FARM_GHOST_CROP, FARM_GHOST_CROP, FARM_GHOST_CROP
+    },
+    {
+        FARM_GHOST_CROP, FARM_GHOST_FARMHOUSE, FARM_GHOST_CROP,
+        FARM_GHOST_NO_DRAW, FARM_GHOST_NO_DRAW, FARM_GHOST_CROP,
+        FARM_GHOST_NO_DRAW, FARM_GHOST_CROP, FARM_GHOST_CROP
+    },
+    {
+        FARM_GHOST_CROP, FARM_GHOST_CROP, FARM_GHOST_CROP,
+        FARM_GHOST_FARMHOUSE, FARM_GHOST_CROP, FARM_GHOST_CROP,
+        FARM_GHOST_NO_DRAW, FARM_GHOST_NO_DRAW, FARM_GHOST_NO_DRAW
+    },
+    {
+        FARM_GHOST_CROP, FARM_GHOST_CROP, FARM_GHOST_FARMHOUSE,
+        FARM_GHOST_NO_DRAW, FARM_GHOST_CROP, FARM_GHOST_NO_DRAW,
+        FARM_GHOST_CROP, FARM_GHOST_NO_DRAW, FARM_GHOST_CROP
+    },
+};
+
 #define RESERVOIR_RANGE_MAX_TILES 900
 
 static struct {
@@ -125,6 +155,8 @@ static struct {
     int last_grid_offset;
     int blocked;
 } reservoir_range_data;
+
+static building ghost_building;
 
 static void draw_flat_tile(int x, int y, color_t color_mask)
 {
@@ -190,15 +222,53 @@ static void image_draw_warehouse(int image_id, int x, int y)
     }
 }
 
+static int get_crop_image_id(building_type type)
+{
+    switch (type) {
+        case BUILDING_WHEAT_FARM:
+            return image_group(GROUP_BUILDING_FARM_CROPS);
+        case BUILDING_VEGETABLE_FARM:
+            return image_group(GROUP_BUILDING_FARM_CROPS) + 5;
+        case BUILDING_FRUIT_FARM:
+            return image_group(GROUP_BUILDING_FARM_CROPS) + 10;
+        case BUILDING_OLIVE_FARM:
+            return image_group(GROUP_BUILDING_FARM_CROPS) + 15;
+        case BUILDING_VINES_FARM:
+            return image_group(GROUP_BUILDING_FARM_CROPS) + 20;
+        case BUILDING_PIG_FARM:
+            return image_group(GROUP_BUILDING_FARM_CROPS) + 25;
+        default:
+            return image_group(GROUP_BUILDING_FARM_CROPS);
+            break;
+    }
+}
+
+static void image_draw_farm(building_type type, int image_id, int x, int y)
+{
+    // Custom draw order to properly draw isometric tops
+    const int draw_order[9] = { 0, 2, 5, 1, 3, 7, 4, 6, 8 };
+    int orientation_index = city_view_orientation() / 2;
+    int crop_image = get_crop_image_id(type);
+    for (int i = 0; i < 9; i++) {
+        int j = draw_order[i];
+        switch (FARM_TILES[orientation_index][j]) {
+            case FARM_GHOST_CROP:
+                draw_building(crop_image, x + X_VIEW_OFFSETS[j], y + Y_VIEW_OFFSETS[j]);
+                break;
+            case FARM_GHOST_FARMHOUSE:
+                draw_building(image_id, x + X_VIEW_OFFSETS[j], y + Y_VIEW_OFFSETS[j]);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+
 static void draw_regular_building(building_type type, int image_id, int x, int y, int grid_offset)
 {
     if (building_is_farm(type)) {
-        draw_building(image_id, x, y);
-        // fields
-        for (int i = 4; i < 9; i++) {
-            image_draw_isometric_footprint(image_id + 1,
-                x + X_VIEW_OFFSETS[i], y + Y_VIEW_OFFSETS[i], COLOR_MASK_BUILDING_GHOST);
-        }
+        image_draw_farm(type, image_id, x, y);
     } else if (type == BUILDING_WAREHOUSE) {
         image_draw_warehouse(image_id, x, y);
     } else if (type == BUILDING_GRANARY) {
@@ -265,65 +335,20 @@ static int get_building_image_id(int map_x, int map_y, building_type type, const
 static int get_new_building_image_id(int map_x, int map_y, int grid_offset,
     building_type type, const building_properties *props)
 {
-    int rotation_offset = building_rotation_get_rotation() % 2 * props->rotation_offset;
-    int image_id = props->image_group + rotation_offset;
-    if (building_construction_is_connecting()) {
-        image_id = building_image_context_get_connecting_image_for_tile(grid_offset, type);
-    } else if (building_variant_has_variants(type)) {
-        image_id = building_variant_get_image_id(type);
+    ghost_building.type = type;
+    ghost_building.grid_offset = grid_offset;
+    if (building_variant_has_variants(type)) {
+        ghost_building.variant = building_rotation_get_rotation_with_limit(
+            building_variant_get_number_of_variants(type));
     } else {
-        if (type == BUILDING_WATCHTOWER) {
-            switch (scenario_property_climate()) {
-                case CLIMATE_CENTRAL:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Watchtowers"), "Watchtower C OFF");
-                    break;
-                case CLIMATE_DESERT:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Watchtowers"), "Watchtower S OFF");
-                    break;
-                case CLIMATE_NORTHERN:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Watchtowers"), "Watchtower N OFF");
-                    break;
-                default:
-                    break;
-            }
-        } else if (type == BUILDING_WORKCAMP) {
-            switch (scenario_property_climate()) {
-                case CLIMATE_CENTRAL:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Workcamps"), "Workcamp Central");
-                    break;
-                case CLIMATE_DESERT:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Workcamps"), "Workcamp South");
-                    break;
-                case CLIMATE_NORTHERN:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Workcamps"), "Workcamp North");
-                    break;
-                default:
-                    break;
-            }
-        } else if (type == BUILDING_CARAVANSERAI) {
-            switch (scenario_property_climate()) {
-                case CLIMATE_DESERT:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Econ_Logistics"), "Caravanserai S OFF");
-                    break;
-                default:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Econ_Logistics"), "Caravanserai N OFF");
-                    break;
-            }
-        } else if (type == BUILDING_MESS_HALL) {
-            switch (scenario_property_climate()) {
-                case CLIMATE_NORTHERN:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Mess_Hall"), "Mess OFF North");
-                    break;
-                case CLIMATE_DESERT:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Mess_Hall"), "Mess OFF South");
-                    break;
-                default:
-                    image_id = assets_get_image_id(assets_get_group_id("Areldir", "Mess_Hall"), "Mess OFF Central");
-                    break;
-            }
-        }
+        ghost_building.variant = 0;
     }
-    return image_id;
+    if (building_properties_for_type(type)->rotation_offset) {
+        ghost_building.subtype.orientation = building_rotation_get_rotation();
+    } else {
+        ghost_building.subtype.orientation = 0;
+    }
+    return building_image_get(&ghost_building);
 }
 
 static void get_building_base_xy(int map_x, int map_y, int building_size, int *x, int *y)
@@ -380,7 +405,8 @@ static int is_fully_blocked(int map_x, int map_y, building_type type, int buildi
     if (!building_monument_type_is_mini_monument(type) && building_monument_has_monument(type)) {
         return 1;
     }
-    if (building_monument_is_grand_temple(type) && building_monument_count_grand_temples() >= 2) {
+    if (building_monument_is_grand_temple(type) &&
+        building_monument_count_grand_temples() >= config_get(CONFIG_GP_CH_MAX_GRAND_TEMPLES)) {
         return 1;
     }
     if (city_finance_out_of_money()) {
@@ -403,11 +429,16 @@ static void draw_default(const map_tile *tile, int x_view, int y_view, building_
     int num_tiles = building_size * building_size;
     int blocked_tiles[MAX_TILES];
     int orientation_index = city_view_orientation() / 2;
+
+    if (building_connectable_gate_type(type) && map_terrain_get(grid_offset) == TERRAIN_ROAD) {
+        type = building_connectable_gate_type(type);
+    }
+
     for (int i = 0; i < num_tiles; i++) {
         int tile_offset = grid_offset + TILE_GRID_OFFSETS[orientation_index][i];
         int forbidden_terrain = map_terrain_get(tile_offset) & TERRAIN_NOT_CLEAR;
         if (type == BUILDING_GATEHOUSE || type == BUILDING_TRIUMPHAL_ARCH ||
-            type == BUILDING_PLAZA || type == BUILDING_ROADBLOCK) {
+            type == BUILDING_PLAZA || type == BUILDING_ROADBLOCK || type == BUILDING_GARDEN_WALL_GATE) {
             forbidden_terrain &= ~TERRAIN_ROAD;
         }
         if (type == BUILDING_TOWER) {
@@ -584,6 +615,9 @@ static void draw_aqueduct(const map_tile *tile, int x, int y)
             if (map_property_is_plaza_or_earthquake(grid_offset)) {
                 blocked = 1;
             }
+            if (map_terrain_count_directly_adjacent_with_types(grid_offset, TERRAIN_ROAD | TERRAIN_AQUEDUCT)) {
+                blocked = 1;
+            }
         } else if (map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
             blocked = 1;
         }
@@ -710,7 +744,6 @@ static void draw_pond(const map_tile *tile, int x, int y, int type)
     } else {
         int has_water = 0;
         int orientation_index = city_view_orientation() / 2;
-        int offset = 0;
 
         for (int i = 0; i < num_tiles; i++) {
             int tile_offset = grid_offset + TILE_GRID_OFFSETS[orientation_index][i];
@@ -718,18 +751,11 @@ static void draw_pond(const map_tile *tile, int x, int y, int type)
                 has_water = 1;
             }
         }
+        ghost_building.type = type;
+        ghost_building.has_water_access = has_water;
+        ghost_building.grid_offset = grid_offset;
 
-        if (scenario_property_climate() == CLIMATE_DESERT) {
-            offset += POND_CLIMATE_IMAGE_OFFSET;
-        }
-        if (has_water) {
-            offset += POND_WATERED_IMAGE_OFFSET;
-        }
-        if (type == BUILDING_LARGE_POND) {
-            offset += POND_LARGE_IMAGE_OFFSET;
-        }
-        int image_id = assets_get_image_id(assets_get_group_id("Areldir", "Aesthetics"), "s pond north off") + offset;
-        draw_regular_building(type, image_id, x - x_offset, y + y_offset, grid_offset);
+        draw_regular_building(type, building_image_get(&ghost_building), x - x_offset, y + y_offset, grid_offset);
     }
 }
 

@@ -22,7 +22,7 @@ static const building_type MENU_BUILDING_TYPE[BUILD_MENU_MAX][BUILD_MENU_ITEM_MA
         BUILDING_PLAZA, BUILDING_ROADBLOCK, BUILDING_FORUM, BUILDING_SENATE_UPGRADED, BUILDING_TRIUMPHAL_ARCH, 0},
     {BUILDING_ENGINEERS_POST, BUILDING_LOW_BRIDGE, BUILDING_SHIP_BRIDGE,
         BUILDING_SHIPYARD, BUILDING_DOCK, BUILDING_WHARF, BUILDING_WORKCAMP, BUILDING_ARCHITECT_GUILD, BUILDING_LIGHTHOUSE, 0},
-    {BUILDING_WALL, BUILDING_TOWER, BUILDING_GATEHOUSE, BUILDING_PREFECTURE,
+    {BUILDING_WALL, BUILDING_TOWER, BUILDING_GATEHOUSE, BUILDING_PALISADE, BUILDING_PREFECTURE,
         BUILDING_FORT, BUILDING_MILITARY_ACADEMY, BUILDING_BARRACKS, BUILDING_MESS_HALL, BUILDING_WATCHTOWER, 0},
     {BUILDING_MENU_FARMS, BUILDING_MENU_RAW_MATERIALS, BUILDING_MENU_WORKSHOPS,
         BUILDING_MARKET, BUILDING_GRANARY, BUILDING_WAREHOUSE, BUILDING_CARAVANSERAI, 0},
@@ -36,7 +36,7 @@ static const building_type MENU_BUILDING_TYPE[BUILD_MENU_MAX][BUILD_MENU_ITEM_MA
     {BUILDING_MENU_LARGE_TEMPLES, BUILDING_LARGE_TEMPLE_CERES, BUILDING_LARGE_TEMPLE_NEPTUNE,
         BUILDING_LARGE_TEMPLE_MERCURY, BUILDING_LARGE_TEMPLE_MARS, BUILDING_LARGE_TEMPLE_VENUS, 0},
     {BUILDING_FORT_LEGIONARIES, BUILDING_FORT_JAVELIN, BUILDING_FORT_MOUNTED, 0},
-    {BUILDING_OBELISK, BUILDING_DECORATIVE_COLUMN, BUILDING_COLONNADE, BUILDING_HEDGE_LIGHT, BUILDING_HEDGE_DARK, BUILDING_GARDEN_WALL, BUILDING_PAVILION_BLUE, BUILDING_SMALL_POND, BUILDING_LARGE_POND, 0},
+    {BUILDING_OBELISK, BUILDING_DECORATIVE_COLUMN, BUILDING_COLONNADE, BUILDING_HEDGE_LIGHT, BUILDING_HEDGE_DARK, BUILDING_GARDEN_WALL, BUILDING_ROOFED_GARDEN_WALL, BUILDING_PAVILION_BLUE, BUILDING_SMALL_POND, BUILDING_LARGE_POND, 0},
     {BUILDING_PINE_TREE, BUILDING_FIR_TREE, BUILDING_OAK_TREE, BUILDING_ELM_TREE, BUILDING_FIG_TREE, BUILDING_PLUM_TREE, BUILDING_PALM_TREE, BUILDING_DATE_TREE, 0},
     {BUILDING_GARDEN_PATH, BUILDING_PINE_PATH , BUILDING_FIR_PATH, BUILDING_OAK_PATH, BUILDING_ELM_PATH, BUILDING_FIG_PATH, BUILDING_PLUM_PATH, BUILDING_PALM_PATH, BUILDING_DATE_PATH, 0},
     {BUILDING_PANTHEON, BUILDING_GRAND_TEMPLE_CERES, BUILDING_GRAND_TEMPLE_NEPTUNE, BUILDING_GRAND_TEMPLE_MERCURY, BUILDING_GRAND_TEMPLE_MARS, BUILDING_GRAND_TEMPLE_VENUS, 0},
@@ -181,6 +181,7 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_SMALL_MAUSOLEUM);
     enable_if_allowed(enabled, type, BUILDING_LARGE_MAUSOLEUM);
     enable_if_allowed(enabled, type, BUILDING_CARAVANSERAI);
+    enable_if_allowed(enabled, type, BUILDING_PALISADE);
 
     if (type == BUILDING_TRIUMPHAL_ARCH) {
         if (city_buildings_triumphal_arch_available()) {
@@ -217,6 +218,12 @@ static void enable_tutorial1_after_collapse(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_ENGINEERS_POST);
     enable_if_allowed(enabled, type, BUILDING_SENATE_UPGRADED);
     enable_if_allowed(enabled, type, BUILDING_ROADBLOCK);
+}
+
+static void enable_tutorial1_after_senate(int *enabled, building_type type)
+{
+    enable_tutorial1_after_collapse(enabled, type);
+    enable_if_allowed(enabled, type, BUILDING_MENU_SMALL_TEMPLES);
 }
 
 static void enable_tutorial2_start(int *enabled, building_type type)
@@ -306,6 +313,8 @@ void building_menu_update(void)
                 case TUT1_BUILD_AFTER_COLLAPSE:
                     enable_tutorial1_after_collapse(menu_item, building_type);
                     break;
+                case TUT1_BUILD_AFTER_SENATE:
+                    enable_tutorial1_after_senate(menu_item, building_type);
                 case TUT2_BUILD_START:
                     enable_tutorial2_start(menu_item, building_type);
                     break;
@@ -358,10 +367,22 @@ building_type building_menu_type(int submenu, int item)
     return MENU_BUILDING_TYPE[submenu][item];
 }
 
+build_menu_group building_menu_for_type(building_type type)
+{
+    for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
+        for (int item = 0; item < BUILD_MENU_ITEM_MAX && MENU_BUILDING_TYPE[sub][item]; item++) {
+            if (MENU_BUILDING_TYPE[sub][item] == type) {
+                return sub;
+            }
+        }
+    }
+    return -1;
+}
+
 int building_menu_is_enabled(building_type type)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
-        for (int item = 0; item < BUILD_MENU_ITEM_MAX; item++) {
+        for (int item = 0; item < BUILD_MENU_ITEM_MAX && MENU_BUILDING_TYPE[sub][item]; item++) {
             if (MENU_BUILDING_TYPE[sub][item] == type) {
                 return menu_enabled[sub][item];
             }

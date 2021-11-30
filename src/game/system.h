@@ -36,6 +36,14 @@ void system_get_max_resolution(int *width, int *height);
 int system_reload_textures(void);
 
 /**
+ * Get the maximum allowed zoom
+ * @param width The width to check the zoom
+ * @param height The height to check the zoom
+ * @return The maximum allowed zoom, truncated between 100 and 200
+ */
+int system_get_max_zoom(int width, int height);
+
+/**
  * Saves the screen buffer to memory
  * Even though it is set to "void", uses "color_t" format
  * @return true if saving was successful, false otherwise
@@ -124,6 +132,16 @@ void system_keyboard_show(void);
 void system_keyboard_hide(void);
 
 /**
+ * Enable text input events
+ */
+void system_start_text_input(void);
+
+/**
+ * Disable text input events
+ */
+void system_stop_text_input(void);
+
+/**
  * Sets mouse to relative mode, where moving the mouse
  * does not move the cursor on the screen
  * @param enabled Boolean: 1 for enable, 0 for disable
@@ -170,6 +188,11 @@ color_t *system_create_city_framebuffer(int width, int height);
  * Releases the city framebuffer
  */
 void system_release_city_framebuffer(void);
+
+/**
+ * Sets up the crash handler
+ */
+void system_setup_crash_handler(void);
 
 /**
  * Exit the game

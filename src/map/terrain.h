@@ -23,6 +23,7 @@ enum {
     // combined
     TERRAIN_WALL_OR_GATEHOUSE = TERRAIN_WALL | TERRAIN_GATEHOUSE,
     TERRAIN_NOT_CLEAR = 0xd77f,
+    TERRAIN_NOT_CLEAR_EXCEPT_ROAD = 0xd73f,
     TERRAIN_CLEARABLE = 0xd17f,
     TERRAIN_IMPASSABLE = 0xc75f,
     TERRAIN_IMPASSABLE_ENEMY = 0x1237,
@@ -32,6 +33,8 @@ enum {
 };
 
 int map_terrain_is(int grid_offset, int terrain);
+
+int map_terrain_is_superset(int grid_offset, int terrain_sum);
 
 int map_terrain_get(int grid_offset);
 
@@ -47,7 +50,21 @@ void map_terrain_remove_with_radius(int x, int y, int size, int radius, int terr
 
 void map_terrain_remove_all(int terrain);
 
+/**
+ * Check orthogonal neighbours of a tile if they contain a terrain.
+ * @param grid_offset Tile which neighbours will be checked.
+ * @param terrain Terrain bitmask to be checked for.
+ * @return 1 if any orthogonal tiles matches at least one terrain from the bitmask, 0 otherwise.
+ */
 int map_terrain_count_directly_adjacent_with_type(int grid_offset, int terrain);
+
+/**
+ * Check orthogonal neighbours of a tile if they contain a terrain.
+ * @param grid_offset Tile which neighbours will be checked.
+ * @param terrain Terrain bitmask to be checked for.
+ * @return 1 if any orthogonal tiles matches all terrains from the bitmask, 0 otherwise.
+ */
+int map_terrain_count_directly_adjacent_with_types(int grid_offset, int terrain_sum);
 
 int map_terrain_count_diagonally_adjacent_with_type(int grid_offset, int terrain);
 
@@ -60,7 +77,7 @@ int map_terrain_exists_tile_in_area_with_type(int x, int y, int size, int terrai
 int map_terrain_exists_tile_in_radius_with_type(int x, int y, int size, int radius, int terrain);
 
 int map_terrain_exists_clear_tile_in_radius(int x, int y, int size, int radius, int except_grid_offset,
-                                            int *x_tile, int *y_tile);
+    int *x_tile, int *y_tile);
 
 int map_terrain_all_tiles_in_radius_are(int x, int y, int size, int radius, int terrain);
 
@@ -76,7 +93,7 @@ int map_terrain_is_adjacent_to_open_water(int x, int y, int size);
 
 int map_terrain_get_adjacent_road_or_clear_land(int x, int y, int size, int *x_tile, int *y_tile);
 
-void map_terrain_add_roadblock_road(int x, int y, int orientation);
+void map_terrain_add_roadblock_road(int x, int y);
 void map_terrain_add_gatehouse_roads(int x, int y, int orientation);
 void map_terrain_add_triumphal_arch_roads(int x, int y, int orientation);
 

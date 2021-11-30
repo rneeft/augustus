@@ -3,6 +3,7 @@
 #include "building/building_variant.h"
 #include "building/clone.h"
 #include "building/construction.h"
+#include "building/data_transfer.h"
 #include "building/menu.h"
 #include "building/properties.h"
 #include "building/rotation.h"
@@ -77,7 +78,17 @@ static int center_in_city(int element_width_pixels)
     return x + margin;
 }
 
-static void draw_paused_and_time_left(void)
+static void draw_paused_banner(void)
+{
+    if (game_state_is_paused()) {
+        int x_offset = center_in_city(448);
+        outer_panel_draw(x_offset, 40, 28, 3);
+        lang_text_draw_centered(13, 2, x_offset, 58, 448, FONT_NORMAL_BLACK);
+        city_view_dirty = 1;
+    }
+}
+
+static void draw_time_left(void)
 {
     if (scenario_criteria_time_limit_enabled() && !city_victory_has_won()) {
         int years;
@@ -89,7 +100,7 @@ static void draw_paused_and_time_left(void)
         int total_months = 12 - game_time_month() + 12 * years;
         label_draw(1, 25, 15, 1);
         int width = lang_text_draw(6, 2, 6, 29, FONT_NORMAL_BLACK);
-        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK);
+        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK, 0);
         city_view_dirty = 1;
     } else if (scenario_criteria_survival_enabled() && !city_victory_has_won()) {
         int years;
@@ -101,40 +112,9 @@ static void draw_paused_and_time_left(void)
         int total_months = 12 - game_time_month() + 12 * years;
         label_draw(1, 25, 15, 1);
         int width = lang_text_draw(6, 3, 6, 29, FONT_NORMAL_BLACK);
-        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK);
+        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK, 0);
         city_view_dirty = 1;
     }
-    if (game_state_is_paused()) {
-        int x_offset = center_in_city(448);
-        outer_panel_draw(x_offset, 40, 28, 3);
-        lang_text_draw_centered(13, 2, x_offset, 58, 448, FONT_NORMAL_BLACK);
-        city_view_dirty = 1;
-    }
-}
-
-static void draw_construction_buttons(void)
-{
-    if (!mouse_get()->is_touch || !building_construction_type()) {
-        return;
-    }
-    int x, y, width, height;
-    city_view_get_unscaled_viewport(&x, &y, &width, &height);
-    width -= 4 * 16;
-    inner_panel_draw(width - 4, 40, 3, 2);
-    image_draw(image_group(GROUP_OK_CANCEL_SCROLL_BUTTONS) + 4, width, 44);
-
-    if (building_construction_can_rotate()) {
-        width = 16;
-        inner_panel_draw(width - 4, 40, 3, 2);
-        image_draw(image_group(GROUP_SIDEBAR_BRIEFING_ROTATE_BUTTONS) + 6, width + 3, 46);
-        graphics_draw_inset_rect(width + 2, 45, 36, 24);
-        width += 3 * 16 + 8;
-        inner_panel_draw(width - 4, 40, 3, 2);
-        image_draw(image_group(GROUP_SIDEBAR_BRIEFING_ROTATE_BUTTONS) + 9, width + 3, 46);
-        graphics_draw_inset_rect(width + 2, 45, 36, 24);
-    }
-
-    city_view_dirty = 1;
 }
 
 static void draw_foreground(void)
@@ -144,8 +124,13 @@ static void draw_foreground(void)
     window_city_draw();
     widget_sidebar_city_draw_foreground();
     if (window_is(WINDOW_CITY) || window_is(WINDOW_CITY_MILITARY)) {
-        draw_paused_and_time_left();
-        draw_construction_buttons();
+        draw_time_left();
+        if (mouse_get()->is_touch) {
+            widget_city_draw_touch_buttons();
+            city_view_dirty = 1;
+        } else {
+            draw_paused_banner();
+        }
     }
     city_view_dirty |= widget_city_draw_construction_cost_and_size();
     if (window_is(WINDOW_CITY)) {
@@ -163,7 +148,13 @@ static void draw_foreground_military(void)
     } else {
         widget_sidebar_city_draw_foreground();
     }
-    draw_paused_and_time_left();
+    draw_time_left();
+    if (mouse_get()->is_touch) {
+        widget_city_draw_touch_buttons();
+        city_view_dirty = 1;
+    } else {
+        draw_paused_banner();
+    }
 }
 
 static void exit_military_command(void)
@@ -218,6 +209,7 @@ static void show_overlay_from_grid_offset(int grid_offset)
         case BUILDING_PLAZA:
         case BUILDING_ROAD:
         case BUILDING_ROADBLOCK:
+        case BUILDING_GARDEN_WALL_GATE:
             overlay = OVERLAY_ROADS;
             break;
         case BUILDING_AQUEDUCT:
@@ -380,6 +372,10 @@ static void show_overlay_from_grid_offset(int grid_offset)
         case BUILDING_NATIVE_MEETING:
             overlay = OVERLAY_NATIVE;
             break;
+        case BUILDING_WAREHOUSE:
+        case BUILDING_WAREHOUSE_SPACE:
+            overlay = OVERLAY_WAREHOUSE;
+            break;
         case BUILDING_NONE:
             if (map_terrain_get(grid_offset) & TERRAIN_RUBBLE) {
                 overlay = OVERLAY_DAMAGE;
@@ -428,6 +424,15 @@ static void toggle_pause(void)
 {
     game_state_toggle_paused();
     city_warning_clear_all();
+}
+
+static void set_construction_building_type(building_type type)
+{
+    if (scenario_building_allowed(type) && building_menu_is_enabled(type)) {
+        building_construction_cancel();
+        building_construction_set_type(type);
+        window_request_refresh();
+    }
 }
 
 static void handle_hotkeys(const hotkeys *h)
@@ -485,18 +490,33 @@ static void handle_hotkeys(const hotkeys *h)
         building_rotation_rotate_backward();
     }
     if (h->building) {
-        if (scenario_building_allowed(h->building) && building_menu_is_enabled(h->building)) {
-            building_construction_cancel();
-            building_construction_set_type(h->building);
-        }
+        set_construction_building_type(h->building);
     }
     if (h->undo) {
         game_undo_perform();
         window_invalidate();
     }
     if (h->clone_building) {
-        building_clone_from_grid_offset(widget_city_current_grid_offset());
+        building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
+        if (type) {
+            set_construction_building_type(type);
+        }
     }
+    if (h->copy_building_settings) {
+        int building_id = map_building_at(widget_city_current_grid_offset());
+        if (building_id) {
+            building *b = building_main(building_get(building_id));
+            building_data_transfer_copy(b);
+        }
+    }
+    if (h->paste_building_settings) {
+        int building_id = map_building_at(widget_city_current_grid_offset());
+        if (building_id) {
+            building *b = building_main(building_get(building_id));
+            building_data_transfer_paste(b);
+        }
+    }
+
     if (h->show_overlay_relative) {
         show_overlay_from_grid_offset(widget_city_current_grid_offset());
     }
@@ -606,6 +626,10 @@ void window_city_show(void)
 
 void window_city_military_show(int legion_formation_id)
 {
+    if (building_construction_type()) {
+        building_construction_cancel();
+        building_construction_clear_type();
+    }
     formation_set_selected(legion_formation_id);
     if (config_get(CONFIG_UI_SHOW_MILITARY_SIDEBAR) && widget_sidebar_military_enter(legion_formation_id)) {
         return;

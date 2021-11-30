@@ -1,5 +1,6 @@
 #include "building/model.h"
 
+#include "city/resource.h"
 #include "core/io.h"
 #include "core/log.h"
 #include "core/string.h"
@@ -201,12 +202,13 @@ const model_building MODEL_ARENA = { 500,-3,1,1,3,25 };
 const model_building MODEL_COLOSSEUM = { 1500,-3,1,1,3,100 };
 const model_building MODEL_HIPPODROME = { 3500,-3,1,1,3,150 };
 const model_building MODEL_NULL = { 0,0,0,0,0 };
-const model_building MODEL_LARARIUM = { 30, 4, 1, 1, 3, 0 };
+const model_building MODEL_LARARIUM = { 30, 4, 1, -1, 3, 0 };
 const model_building MODEL_NYMPHAEUM = { 500,12,2,-1,6,0 };
 const model_building MODEL_SMALL_MAUSOLEUM = { 500,-8,1,3,5,0 };
 const model_building MODEL_LARGE_MAUSOLEUM = { 1500,-10,1,3,6,0 };
 const model_building MODEL_WATCHTOWER = { 100,-6,1,2,3,8, };
 const model_building MODEL_CARAVANSERAI = { 500,-10,2,3,4,20 };
+const model_building MODEL_PALISADE = { 6,0,0,0,0,0 };
 
 const model_building *model_get_building(building_type type)
 {
@@ -255,6 +257,8 @@ const model_building *model_get_building(building_type type)
             return &MODEL_LARGE_MAUSOLEUM;
         case BUILDING_CARAVANSERAI:
             return &MODEL_CARAVANSERAI;
+        case BUILDING_PALISADE:
+            return &MODEL_PALISADE;
         default:
             break;
     }
@@ -262,8 +266,9 @@ const model_building *model_get_building(building_type type)
     if ((type >= BUILDING_PINE_TREE && type <= BUILDING_SMALL_STATUE_ALT_B) ||
         type == BUILDING_HEDGE_DARK || type == BUILDING_HEDGE_LIGHT ||
         type == BUILDING_DECORATIVE_COLUMN || type == BUILDING_GARDEN_WALL ||
-        type == BUILDING_COLONNADE || type == BUILDING_GARDEN_WALL ||
-        type == BUILDING_GARDEN_PATH) {
+        type == BUILDING_COLONNADE || type == BUILDING_GARDEN_WALL || 
+        type == BUILDING_ROOFED_GARDEN_WALL || type == BUILDING_GARDEN_PATH ||
+        type == BUILDING_GARDEN_WALL_GATE) {
         return &buildings[41];
     }
 
@@ -286,4 +291,21 @@ const model_building *model_get_building(building_type type)
 const model_house *model_get_house(house_level level)
 {
     return &houses[level];
+}
+
+int model_house_uses_inventory(house_level level, inventory_type inventory)
+{
+    const model_house *house = model_get_house(level);
+    switch (inventory) {
+        case INVENTORY_WINE:
+            return house->wine;
+        case INVENTORY_OIL:
+            return house->oil;
+        case INVENTORY_FURNITURE:
+            return house->furniture;
+        case INVENTORY_POTTERY:
+            return house->pottery;
+        default:
+            return 0;
+    }
 }

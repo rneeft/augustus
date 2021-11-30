@@ -111,7 +111,7 @@ int game_init(void)
     load_custom_messages();
     sound_system_init();
     game_state_init();
-    int missing_assets = !assets_get_image_id(assets_get_group_id("Areldir", "Roadblocks"), "roadblock"); // If can't find roadblocks asset, extra assets not installed properly
+    int missing_assets = !assets_get_image_id("Roadblocks", "roadblock"); // If can't find roadblocks asset, extra assets not installed properly
     window_logo_show(missing_fonts ? MESSAGE_MISSING_FONTS : (is_unpatched() ? MESSAGE_MISSING_PATCH : (missing_assets ? MESSAGE_MISSING_EXTRA_ASSETS : MESSAGE_NONE)));
     return 1;
 }
@@ -127,7 +127,9 @@ static int reload_language(int is_editor, int reload_images)
         return 0;
     }
     encoding_type encoding = update_encoding();
-    load_custom_messages();
+    if (!is_editor) {
+        load_custom_messages();
+    }
 
     if (!image_load_fonts(encoding)) {
         errlog("unable to load font graphics");
