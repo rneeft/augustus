@@ -10,6 +10,7 @@
 #include "figuretype/editor.h"
 #include "figuretype/enemy.h"
 #include "figuretype/entertainer.h"
+#include "figuretype/farmer.h"
 #include "figuretype/maintenance.h"
 #include "figuretype/migrant.h"
 #include "figuretype/missile.h"
@@ -116,7 +117,8 @@ static void (*figure_action_callbacks[])(figure *f) = {
     figure_robber_action,
     figure_looter_action,
     figure_delivery_boy_action,
-    figure_supplier_action
+    figure_supplier_action,
+    figure_farmer_action,
 };
 
 void figure_action_handle(void)

@@ -301,6 +301,10 @@ static void add_to_map(int type, building *b, int size,
             map_tiles_update_area_roads(b->x, b->y, 4);
             building_monument_set_phase(b, MONUMENT_START);
             break;
+        case BUILDING_WHEAT_PLOT:
+            add_building(b);
+            b->output_resource_id = RESOURCE_WHEAT;
+            break;
     }
     map_routing_update_land();
     map_routing_update_walls();

@@ -3,11 +3,13 @@
 #include "assets/assets.h"
 #include "building/building_variant.h"
 #include "building/connectable.h"
+#include "building/farmhouse.h"
 #include "building/monument.h"
 #include "building/properties.h"
 #include "building/rotation.h"
 #include "city/festival.h"
 #include "city/view.h"
+#include "core/calc.h"
 #include "core/direction.h"
 #include "core/image.h"
 #include "core/image_group.h"
@@ -756,6 +758,17 @@ int building_image_get(building *b)
                 default:
                     return assets_get_image_id("Military_Buildings", "Pal Wall C 01") + building_connectable_get_palisade_offset(b->grid_offset);
             }
+        case BUILDING_FARMHOUSE:
+            return image_group(GROUP_BUILDING_FARM_HOUSE);
+        case BUILDING_WHEAT_PLOT:
+        {
+            int image_offset = b->data.farm_plot.progress / (FARM_PLOT_TICKS_MAX / 3);
+            if (b->data.farm_plot.active) {
+                image_offset++;
+            }
+            image_offset = calc_bound(image_offset, 0, 4);
+            return image_group(GROUP_BUILDING_FARM_CROPS) + image_offset;
+        }
         default:
             return 0;
     }

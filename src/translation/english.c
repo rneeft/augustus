@@ -723,6 +723,12 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_OVERLAY_PROBLEMS_NO_LABOR, "No labor" },
     {TR_WINDOW_BUILDING_DISTRIBUTION_GRANARY_CART_PUSHER_GETTING, "The cart pusher is on his way to get food from another granary."},
     {TR_WINDOW_BUILDING_DISTRIBUTION_CART_PUSHER_RETURNING_WITH, "The cart pusher is returning with a delivery." },
+    {TR_BUILDING_FARMHOUSE, "Farmhouse"},
+    {TR_BUILDING_WHEAT_PLOT, "Wheat plot"},
+    {TR_BUILDING_WHEAT_PLOT_DESC, "The field is laying bare. A farmer from a farmhouse needs to visit the plot to plant the seeds."},
+    {TR_BUILDING_WHEAT_PLOT_DESC2, "Wheat is lazily growing. In time, with Ceres blessing, the golden crop will ripen."},
+    {TR_BUILDING_WHEAT_PLOT_DESC3, "Wheat is ready for the harvest. Soon, a farmer from a farmhouse will come to gather the fruit of his hard work."},
+
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

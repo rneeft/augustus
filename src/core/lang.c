@@ -478,6 +478,10 @@ const uint8_t *lang_get_string(int group, int index)
                 return translation_for(TR_BUILDING_GARDEN_WALL_GATE);
             case BUILDING_PALISADE:
                 return translation_for(TR_BUILDING_PALISADE);
+            case BUILDING_FARMHOUSE:
+                return translation_for(TR_BUILDING_FARMHOUSE);
+            case BUILDING_WHEAT_PLOT:
+                return translation_for(TR_BUILDING_WHEAT_PLOT);
             default:
                 break;
         }

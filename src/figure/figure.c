@@ -140,6 +140,13 @@ void figure_delete(figure *f)
                 b->figure_id = 0;
             }
             break;
+        case FIGURE_FARMER:
+            b->figure_id4 = 0;
+            building *destination = building_get(f->destination_building_id);
+            if (destination->figure_id == f->id) {
+                destination->figure_id = 0;
+            }
+            break;
         default:
             if (f->building_id) {
                 b->figure_id = 0;

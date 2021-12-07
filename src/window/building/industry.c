@@ -1,6 +1,7 @@
 #include "industry.h"
 
 #include "building/building.h"
+#include "building/farmhouse.h"
 #include "city/buildings.h"
 #include "city/resource.h"
 #include "core/calc.h"
@@ -290,3 +291,61 @@ void window_building_draw_wharf(building_info_context *c)
     inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, 4);
     window_building_draw_employment(c, 142);
 }
+
+void window_building_draw_farmhouse(building_info_context *c)
+{
+    c->help_id = 89;
+    window_building_play_sound(c, "wavs/wheat_farm.wav");
+    int group_id = 112;
+
+    outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
+    text_draw_centered(translation_for(TR_BUILDING_FARMHOUSE),
+        c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
+
+    building *b = building_get(c->building_id);
+
+    if (!c->has_road_access) {
+        window_building_draw_description_at(c, 70, 69, 25);
+    } else if (b->data.industry.curse_days_left > 4) {
+        window_building_draw_description_at(c, 70, group_id, 11);
+    } else if (b->num_workers <= 0) {
+        window_building_draw_description_at(c, 70, group_id, 5);
+    } else if (c->worker_percentage >= 100) {
+        window_building_draw_description_at(c, 70, group_id, 6);
+    } else if (c->worker_percentage >= 75) {
+        window_building_draw_description_at(c, 70, group_id, 7);
+    } else if (c->worker_percentage >= 50) {
+        window_building_draw_description_at(c, 70, group_id, 8);
+    } else if (c->worker_percentage >= 25) {
+        window_building_draw_description_at(c, 70, group_id, 9);
+    } else {
+        window_building_draw_description_at(c, 70, group_id, 10);
+    }
+
+    inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, 4);
+    window_building_draw_employment(c, 142);
+    window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 136, group_id, 1);
+}
+
+void window_building_draw_plot(building_info_context *c)
+{
+    c->help_id = 89;
+    window_building_play_sound(c, "wavs/wheat_farm.wav");
+    int group_id = 119;
+
+    outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
+    text_draw_centered(translation_for(TR_BUILDING_WHEAT_PLOT),
+        c->x_offset, c->y_offset + 12, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK, 0);
+
+    building *b = building_get(c->building_id);
+
+    if (!b->data.farm_plot.active) {
+        window_building_draw_description_from_tr_string(c, TR_BUILDING_WHEAT_PLOT_DESC);
+    } else if (b->data.farm_plot.progress < FARM_PLOT_TICKS_MAX) {
+        window_building_draw_description_from_tr_string(c, TR_BUILDING_WHEAT_PLOT_DESC2);
+    } else {
+        window_building_draw_description_from_tr_string(c, TR_BUILDING_WHEAT_PLOT_DESC3);
+    }
+
+}
+

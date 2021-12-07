@@ -216,6 +216,8 @@ const model_building MODEL_LARGE_MAUSOLEUM = { 1500,-10,1,3,6,0 };
 const model_building MODEL_WATCHTOWER = { 100,-6,1,2,3,8, };
 const model_building MODEL_CARAVANSERAI = { 500,-10,2,3,4,20 };
 const model_building MODEL_PALISADE = { 6,0,0,0,0,0 };
+const model_building MODEL_EMPEROR_FARM = { 40,-4,1,1,2,10 };
+const model_building MODEL_WHEAT_PLOT = { 5,0,0,0,0,0 };
 
 const model_building *model_get_building(building_type type)
 {
@@ -266,6 +268,12 @@ const model_building *model_get_building(building_type type)
             return &MODEL_CARAVANSERAI;
         case BUILDING_PALISADE:
             return &MODEL_PALISADE;
+        case BUILDING_FARMHOUSE:
+            return &MODEL_EMPEROR_FARM;
+            break;
+        case BUILDING_WHEAT_PLOT:
+            return &MODEL_WHEAT_PLOT;
+            break;
         default:
             break;
     }

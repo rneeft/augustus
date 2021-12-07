@@ -1,5 +1,7 @@
 #include "industry.h"
 
+#include "building/farmhouse.h"
+#include "building/image.h"
 #include "building/list.h"
 #include "building/monument.h"
 #include "city/data_private.h"
@@ -9,11 +11,13 @@
 #include "core/random.h"
 #include "figure/figure.h"
 #include "map/building_tiles.h"
+#include "map/terrain.h"
 #include "scenario/property.h"
 
 #define MAX_PROGRESS_RAW 200
 #define MAX_PROGRESS_WORKSHOP 400
 #define MAX_STORAGE 16
+#define FARM_PLOT_PROGRESS 60
 #define INFINITE 10000
 
 #define MERCURY_BLESSING_LOADS 3
@@ -97,6 +101,18 @@ static void building_other_update_production(building *b)
                 b->loads_stored += 1;
             }
             b->data.monument.progress = b->data.monument.progress - MAX_PROGRESS_WORKSHOP;
+        }
+    }
+}
+
+static void update_farm_plots()
+{
+    int wheat_multiplier = scenario_property_climate() == CLIMATE_NORTHERN ? 1 : 2;
+    for (building *b = building_first_of_type(BUILDING_WHEAT_PLOT); b; b = b->next_of_type) {
+        if (b->state == BUILDING_STATE_IN_USE && b->data.farm_plot.active) {
+            b->data.farm_plot.progress += FARM_PLOT_PROGRESS * wheat_multiplier;
+            map_building_tiles_add(b->id, b->x, b->y, b->size, building_image_get(b), TERRAIN_BUILDING);
+            calc_bound(b->data.farm_plot.progress, 0, FARM_PLOT_TICKS_MAX);
         }
     }
 }
@@ -220,8 +236,11 @@ void building_industry_update_production(void)
             if (building_is_farm(b->type)) {
                 update_farm_image(b);
             }
+
         }
     }
+
+    update_farm_plots();
 
     int num_strikes = city_data.building.num_striking_industries - striking_buildings;
     force_strike(num_strikes);

@@ -153,6 +153,11 @@ typedef struct building {
         struct {
             short flag_frame;
         } warehouse;
+        struct {
+            char active;
+            int progress;
+            int resource;
+        } farm_plot;
     } data;
     int tax_income_or_storage;
     unsigned char house_days_without_food;

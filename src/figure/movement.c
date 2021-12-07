@@ -270,6 +270,7 @@ static void advance_route_tile(figure *f, int roaming_enabled)
             case BUILDING_GRANARY:
             case BUILDING_TRIUMPHAL_ARCH:
             case BUILDING_FORT_GROUND:
+            case BUILDING_WHEAT_PLOT:
                 break; // OK to walk
             default:
                 f->direction = DIR_FIGURE_REROUTE;

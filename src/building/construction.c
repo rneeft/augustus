@@ -9,6 +9,7 @@
 #include "building/construction_routed.h"
 #include "building/construction_warning.h"
 #include "building/count.h"
+#include "building/farmhouse.h"
 #include "building/image.h"
 #include "building/model.h"
 #include "building/monument.h"
@@ -276,6 +277,52 @@ static int place_garden(int x_start, int y_start, int x_end, int y_end)
     return items_placed;
 }
 
+static int plot_farm_plot(int x_start, int y_start, int x_end, int y_end, int building_type)
+{
+    int x_min, y_min, x_max, y_max;
+    map_grid_start_end_to_area(x_start, y_start, x_end, y_end, &x_min, &y_min, &x_max, &y_max);
+    map_image_restore();
+    map_image_backup();
+
+    int items_placed = 0;
+    for (int y = y_min; y <= y_max; y++) {
+        for (int x = x_min; x <= x_max; x++) {
+            int grid_offset = map_grid_offset(x, y);
+            if (map_terrain_is(grid_offset, TERRAIN_MEADOW) && !map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
+                items_placed++;
+                building *b = building_create(building_type, x, y);
+                map_property_mark_constructing(grid_offset);
+            }
+        }
+    }
+    map_routing_update_land();
+    return items_placed;
+}
+
+
+static int place_farm_plot(int x_start, int y_start, int x_end, int y_end, int building_type)
+{
+    int x_min, y_min, x_max, y_max;
+    map_grid_start_end_to_area(x_start, y_start, x_end, y_end, &x_min, &y_min, &x_max, &y_max);
+    map_image_restore();
+
+    int items_placed = 0;
+    for (int y = y_min; y <= y_max; y++) {
+        for (int x = x_min; x <= x_max; x++) {
+            int grid_offset = map_grid_offset(x, y);
+            if (map_terrain_is(grid_offset, TERRAIN_MEADOW) && !map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
+                items_placed++;
+                building *b = building_create(building_type, x, y);
+                map_property_mark_constructing(grid_offset);
+                game_undo_add_building(b);
+                map_building_tiles_add(b->id, b->x, b->y, b->size, building_image_get(b), TERRAIN_BUILDING);
+            }
+        }
+    }
+    map_routing_update_land();
+    return items_placed;
+}
+
 static int plot_draggable_building(int x_start, int y_start, int x_end, int y_end, int allow_roads)
 {
     int x_min, y_min, x_max, y_max;
@@ -489,6 +536,7 @@ void building_construction_set_type(building_type type)
             case BUILDING_OLIVE_FARM:
             case BUILDING_VINES_FARM:
             case BUILDING_PIG_FARM:
+            case BUILDING_WHEAT_PLOT:
                 data.required_terrain.meadow = 1;
                 break;
             case BUILDING_MARBLE_QUARRY:
@@ -629,6 +677,7 @@ int building_construction_is_updatable(void)
         case BUILDING_GARDENS:
         case BUILDING_HOUSE_VACANT_LOT:
         case BUILDING_PALISADE:
+        case BUILDING_WHEAT_PLOT:
             return 1;
         default:
             return 0;
@@ -743,6 +792,11 @@ void building_construction_update(int x, int y, int grid_offset)
             }
     } else if (type == BUILDING_PALISADE) {
         int items_placed = plot_draggable_building(data.start.x, data.start.y, x, y, 0);
+        if (items_placed >= 0) {
+            current_cost *= items_placed;
+        }
+    } else if (type == BUILDING_WHEAT_PLOT) {
+        int items_placed = plot_farm_plot(data.start.x, data.start.y, x, y, BUILDING_WHEAT_PLOT);
         if (items_placed >= 0) {
             current_cost *= items_placed;
         }
@@ -873,7 +927,8 @@ void building_construction_place(void)
     if (type != BUILDING_CLEAR_LAND && enemy_type != FIGURE_NONE) {
         if (type == BUILDING_WALL || type == BUILDING_ROAD || type == BUILDING_AQUEDUCT) {
             game_undo_restore_map(0);
-        } else if (type == BUILDING_PLAZA || type == BUILDING_GARDENS || building_is_connectable(type)) {
+        } else if (type == BUILDING_PLAZA || type == BUILDING_GARDENS || building_is_connectable(type)
+            || building_farmhouse_is_plot_type(type)) {
             game_undo_restore_map(1);
         } else if (type == BUILDING_LOW_BRIDGE || type == BUILDING_SHIP_BRIDGE) {
             map_bridge_reset_building_length();
@@ -986,6 +1041,8 @@ void building_construction_place(void)
     } else if (type == BUILDING_PALISADE) {
         int rotation = building_rotation_get_rotation_with_limit(BUILDING_CONNECTABLE_ROTATION_LIMIT_HEDGES);
         placement_cost *= place_draggable_building(x_start, y_start, x_end, y_end, type, rotation);
+    } else if (type == BUILDING_WHEAT_PLOT) {
+        placement_cost *= place_farm_plot(x_start, y_start, x_end, y_end, BUILDING_WHEAT_PLOT);
     } else if (type == BUILDING_HOUSE_VACANT_LOT) {
         placement_cost *= place_houses(0, x_start, y_start, x_end, y_end);
     } else if (!building_construction_place_building(type, x_end, y_end)) {

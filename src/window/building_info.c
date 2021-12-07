@@ -151,6 +151,7 @@ static int get_height_id(void)
             case BUILDING_ROOFED_GARDEN_WALL:
             case BUILDING_GARDEN_WALL_GATE:
             case BUILDING_PALISADE:
+            case BUILDING_WHEAT_PLOT:
                 return 1;
 
             case BUILDING_SENATE:
@@ -735,6 +736,10 @@ static void draw_background(void)
             }
         } else if (btype == BUILDING_PALISADE) {
             window_building_draw_palisade(&context);
+        } else if (btype == BUILDING_FARMHOUSE) {
+            window_building_draw_farmhouse(&context);
+        } else if (btype == BUILDING_WHEAT_PLOT) {
+            window_building_draw_plot(&context);
         }
     } else if (context.type == BUILDING_INFO_LEGION) {
         window_building_draw_legion_info(&context);

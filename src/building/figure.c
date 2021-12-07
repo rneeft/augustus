@@ -3,6 +3,7 @@
 #include "assets/assets.h"
 #include "building/barracks.h"
 #include "building/caravanserai.h"
+#include "building/farmhouse.h"
 #include "building/granary.h"
 #include "building/image.h"
 #include "building/industry.h"
@@ -1646,6 +1647,47 @@ static void spawn_figure_watchtower(building *b)
     }
 }
 
+static void spawn_figure_farmhouse(building *b)
+{
+    check_labor_problem(b);
+
+    map_point road;
+    if (map_has_road_access(b->x, b->y, b->size, &road)) {
+        spawn_labor_seeker(b, road.x, road.y, 50);
+        int spawn_delay = default_spawn_delay(b);
+        if (!spawn_delay) {
+            return;
+        }
+        if (!has_figure_of_type(b, FIGURE_CART_PUSHER)) {
+            int stored_resource = building_farmhouse_most_food_of_type(b);
+
+            if (stored_resource) {
+                figure *f = figure_create(FIGURE_CART_PUSHER, road.x, road.y, DIR_4_BOTTOM);
+                f->action_state = FIGURE_ACTION_20_CARTPUSHER_INITIAL;
+                f->resource_id = stored_resource;
+                b->data.granary.resource_stored[stored_resource] -= 100;
+                b->output_resource_id = stored_resource;
+                f->building_id = b->id;
+                b->figure_id = f->id;
+                f->wait_ticks = 30;
+            }
+        }
+
+        b->figure_spawn_delay++;
+        if (b->figure_spawn_delay > spawn_delay) {
+            b->figure_spawn_delay = 0;
+            if (!b->figure_id4) {
+                figure *f = figure_create(FIGURE_FARMER, road.x, road.y, DIR_0_TOP);
+                f->action_state = FIGURE_ACTION_231_FARMER_SPAWNED;
+                f->building_id = b->id;
+                b->figure_id4 = f->id;
+            }
+
+        }
+    }
+}
+
+
 static void update_native_crop_progress(building *b)
 {
     b->data.industry.progress++;
@@ -1822,6 +1864,9 @@ void building_figure_generate(void)
                     if (b->data.monument.phase == MONUMENT_FINISHED) {
                         spawn_figure_caravanserai(b);
                     }
+                    break;
+                case BUILDING_FARMHOUSE:
+                    spawn_figure_farmhouse(b);
                     break;
             }
         }

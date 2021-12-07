@@ -43,6 +43,7 @@ static int get_land_type_citizen_building(int grid_offset)
             type = CITIZEN_0_ROAD;
             break;
         case BUILDING_FORT_GROUND:
+        case BUILDING_WHEAT_PLOT:
             type = CITIZEN_2_PASSABLE_TERRAIN;
             break;
         case BUILDING_TRIUMPHAL_ARCH:
@@ -152,6 +153,7 @@ static int get_land_type_noncitizen(int grid_offset)
             return NONCITIZEN_1_BUILDING;
         case BUILDING_WAREHOUSE:
         case BUILDING_FORT_GROUND:
+        case BUILDING_WHEAT_PLOT:
             type = NONCITIZEN_0_PASSABLE;
             break;
         case BUILDING_BURNING_RUIN:
