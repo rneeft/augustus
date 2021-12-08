@@ -1066,6 +1066,10 @@ void city_building_ghost_draw(const map_tile *tile)
         case BUILDING_ROAD:
             draw_road(tile, x, y);
             break;
+        case BUILDING_FARMHOUSE:
+            // Image shifted, as if building was size 1?
+            draw_default(tile, x + 30, y - 15, type);
+            break;
         default:
             draw_default(tile, x, y, type);
             break;

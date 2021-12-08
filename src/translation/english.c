@@ -728,7 +728,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_WHEAT_PLOT_DESC, "The field is laying bare. A farmer from a farmhouse needs to visit the plot to plant the seeds."},
     {TR_BUILDING_WHEAT_PLOT_DESC2, "Wheat is lazily growing. In time, with Ceres blessing, the golden crop will ripen."},
     {TR_BUILDING_WHEAT_PLOT_DESC3, "Wheat is ready for the harvest. Soon, a farmer from a farmhouse will come to gather the fruit of his hard work."},
-
+    {TR_FIGURE_TYPE_FARMER, "Farmer"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
