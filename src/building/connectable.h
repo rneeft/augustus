@@ -21,11 +21,14 @@ enum {
 int building_connectable_gate_type(building_type type);
 
 int building_connectable_get_hedge_offset(int grid_offset);
+int building_connectable_get_hedge_gate_offset(int grid_offset);
 int building_connectable_get_colonnade_offset(int grid_offset);
 int building_connectable_get_garden_wall_offset(int grid_offset);
 int building_connectable_get_garden_path_offset(int grid_offset, int context);
 int building_connectable_get_garden_gate_offset(int grid_offset);
 int building_connectable_get_palisade_offset(int grid_offset);
+int building_connectable_get_palisade_gate_offset(int grid_offset);
+
 
 int building_is_connectable(building_type type);
 

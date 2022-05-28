@@ -52,7 +52,6 @@ static translation_string all_strings[] = {
     {TR_CONFIG_FIX_100_YEAR_GHOSTS, "100세 이상 고령 주민 문제 수정"},
     {TR_CONFIG_FIX_EDITOR_EVENTS, "커스텀 임무에서 황제 교체와 생존 시간 문제 수정"},
     {TR_CONFIG_DRAW_WALKER_WAYPOINTS, "건물 오른 클릭 후 오버레이에 보행자 경로 그리기"},
-    {TR_CONFIG_ENABLE_ZOOM, "화면 확대 및 축소 (램사용량 증가, 글꼴 출력 오류)"},
     {TR_CONFIG_GRANDFESTIVAL, "대축제를 개최하여 해당 신들의 추가 축복 "},
     {TR_CONFIG_JEALOUS_GODS, "신들의 질투 비활성화"},
     {TR_CONFIG_GLOBAL_LABOUR, "전역적인 인력 활용 활성화"},
@@ -373,6 +372,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_DUPLICATE_TITLE, "단축키가 이미 사용 중"},
     {TR_HOTKEY_DUPLICATE_MESSAGE, "해당 키 조합은 이미 다음의 행동에 할당되어 있습니다:"},
     {TR_CONFIG_DIGIT_SEPARATOR, "Separate digits"},
+    {TR_WARNING_SCREENSHOT_SAVED, "스크린샷이 저장되었습니다: "} // TODO: Google translate
 };
 
 void translation_korean(const translation_string **strings, int *num_strings)

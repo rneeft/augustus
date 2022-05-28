@@ -17,11 +17,13 @@
 #include "figure/formation_legion.h"
 #include "game/resource.h"
 #include "game/settings.h"
+#include "game/state.h"
 #include "graphics/arrow_button.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
+#include "graphics/image_button.h"
 #include "graphics/lang_text.h"
 #include "graphics/menu.h"
 #include "graphics/panel.h"
@@ -51,11 +53,16 @@
 #define REQUEST_MONTHS_LEFT_FOR_RED_WARNING 3
 
 static void button_game_speed(int is_down, int param2);
+static void button_toggle_play_paused(int param1, int param2);
 static void button_handle_request(int index, int param2);
 
 static arrow_button arrow_buttons_speed[] = {
     {11, 30, 17, 24, button_game_speed, 1, 0},
     {35, 30, 15, 24, button_game_speed, 0, 0},
+};
+
+static image_button play_paused_button = {
+    108, 29, 39, 26, IB_NORMAL, 0, 0, button_toggle_play_paused, button_none, 0, 0, 1, "UI", "Pause Button"
 };
 
 static generic_button buttons_emperor_requests[] = {
@@ -65,6 +72,8 @@ static generic_button buttons_emperor_requests[] = {
     {2, 172, 158, 20, button_handle_request, button_none, 3, 0},
     {2, 220, 158, 20, button_handle_request, button_none, 4, 0}
 };
+
+static const char *play_pause_button_image_names[] = { "Pause Button", "Play Button" };
 
 typedef struct {
     int value;
@@ -417,7 +426,7 @@ static int draw_request_buttons(int y_offset)
             const image *img = image_get(image_id);
             int image_y_offset = (EXTRA_INFO_LINE_SPACE - img->height) / 2;
 
-            image_draw(image_id, width, y_offset + image_y_offset - 2);
+            image_draw(image_id, width, y_offset + image_y_offset - 2, COLOR_MASK_NONE, SCALE_NONE);
 
             int force_text_offset = get_text_offset_for_force_size(r->amount);
 
@@ -436,7 +445,7 @@ static int draw_request_buttons(int y_offset)
             const image *img = image_get(image_id);
             int image_y_offset = (EXTRA_INFO_LINE_SPACE - img->height) / 2;
 
-            image_draw(image_id, width, y_offset + image_y_offset);
+            image_draw(image_id, width, y_offset + image_y_offset, COLOR_MASK_NONE, SCALE_NONE);
 
             width += img->width + 6;
 
@@ -455,8 +464,8 @@ static int draw_request_buttons(int y_offset)
                 if (status) {
                     if (status == CITY_REQUEST_STATUS_NOT_ENOUGH_RESOURCES) {
                         if (is_stockpiled) {
-                            image_draw(assets_get_image_id("UI_Elements", "Store Icon"),
-                                data.x_offset + 5, y_offset + 10);
+                            image_draw(assets_get_image_id("UI", "Store Icon"),
+                                data.x_offset + 5, y_offset + 10, COLOR_MASK_NONE, SCALE_NONE);
                             text_draw_centered(translation_for(TR_SIDEBAR_EXTRA_REQUESTS_UNSTOCK),
                                 data.x_offset + 2, y_offset + 25, 158, FONT_NORMAL_GREEN, 0);
                         } else {
@@ -500,8 +509,8 @@ static int draw_request_buttons(int y_offset)
 static void draw_extra_info_panel(void)
 {
     int panel_blocks = data.height / BLOCK_SIZE;
-    graphics_draw_vertical_line(data.x_offset, data.y_offset, data.y_offset + data.height, COLOR_WHITE);
-    graphics_draw_vertical_line(data.x_offset + data.width - 1, data.y_offset,
+    graphics_draw_line(data.x_offset, data.x_offset, data.y_offset, data.y_offset + data.height, COLOR_WHITE);
+    graphics_draw_line(data.x_offset + data.width - 1, data.x_offset + data.width - 1, data.y_offset,
         data.y_offset + data.height, COLOR_SIDEBAR);
     inner_panel_draw(data.x_offset + 1, data.y_offset, data.width / BLOCK_SIZE, panel_blocks);
 
@@ -555,14 +564,14 @@ static void draw_extra_info_panel(void)
 
         font_t font_type = data.gods.angry > 0 ? FONT_NORMAL_RED : FONT_NORMAL_GREEN;
         int width = text_draw_number(data.gods.angry, 0, "", data.x_offset + 42, y_offset + 2, font_type, 0);
-        image_draw(image_group(GROUP_GOD_BOLT), data.x_offset + 42 + width, y_offset - 2);
+        image_draw(image_group(GROUP_GOD_BOLT), data.x_offset + 42 + width, y_offset - 2, COLOR_MASK_NONE, SCALE_NONE);
 
         static int happy_image_id;
         if (!happy_image_id) {
-            happy_image_id = assets_get_image_id("UI_Elements", "Happy God Icon");
+            happy_image_id = assets_get_image_id("UI", "Happy God Icon");
         }
         width = text_draw_number(data.gods.happy, 0, "", data.x_offset + 82, y_offset + 2, FONT_NORMAL_GREEN, 0);
-        image_draw(happy_image_id, data.x_offset + 82 + width, y_offset - 2);
+        image_draw(happy_image_id, data.x_offset + 82 + width, y_offset - 2, COLOR_MASK_NONE, SCALE_NONE);
 
         y_offset += EXTRA_INFO_VERTICAL_PADDING * 2;
     }
@@ -617,7 +626,11 @@ static void draw_extra_info_buttons(void)
         draw_extra_info_panel();
     }
     if (data.info_to_display & SIDEBAR_EXTRA_DISPLAY_GAME_SPEED) {
+        if (!play_paused_button.pressed) {
+            play_paused_button.image_name = play_pause_button_image_names[game_state_is_paused()];
+        }
         arrow_buttons_draw(data.x_offset, data.y_offset, arrow_buttons_speed, 2);
+        image_buttons_draw(data.x_offset, data.y_offset, &play_paused_button, 1);
     }
     if (data.info_to_display & SIDEBAR_EXTRA_DISPLAY_REQUESTS && data.active_requests) {
         for (int i = 0; i < data.visible_requests; i++) {
@@ -636,7 +649,8 @@ void sidebar_extra_draw_foreground(void)
 int sidebar_extra_handle_mouse(const mouse *m)
 {
     if ((data.info_to_display & SIDEBAR_EXTRA_DISPLAY_GAME_SPEED) &&
-        arrow_buttons_handle_mouse(m, data.x_offset, data.y_offset, arrow_buttons_speed, 2, 0)) {
+        (arrow_buttons_handle_mouse(m, data.x_offset, data.y_offset, arrow_buttons_speed, 2, 0) ||
+        image_buttons_handle_mouse(m, data.x_offset, data.y_offset, &play_paused_button, 1, 0))) {
         return 1;
     }
     if ((data.info_to_display & SIDEBAR_EXTRA_DISPLAY_REQUESTS) &&
@@ -655,6 +669,12 @@ static void button_game_speed(int is_down, int param2)
         setting_increase_game_speed();
     }
 }
+
+static void button_toggle_play_paused(int param1, int param2)
+{
+    game_state_toggle_paused();
+}
+
 
 static void confirm_nothing(int accepted, int checked)
 {}
@@ -725,4 +745,9 @@ static void button_handle_request(int index, int param2)
                 break;
         }
     }
+}
+
+int sidebar_extra_is_information_displayed(sidebar_extra_display display)
+{
+    return (data.info_to_display & display) != 0;
 }

@@ -7,9 +7,9 @@
 #include <stdint.h>
 
 typedef struct {
-    char name[XML_STRING_MAX_LENGTH];
+    const char *name;
 #ifdef BUILDING_ASSET_PACKER
-    char path[XML_STRING_MAX_LENGTH];
+    const char *path;
 #endif
     int first_image_index;
     int last_image_index;
@@ -26,5 +26,6 @@ int group_get_total(void);
 
 image_groups *group_get_from_id(int id);
 image_groups *group_get_from_name(const char *name);
+image_groups *group_get_from_image_index(int index);
 
 #endif // ASSETS_GROUP_H

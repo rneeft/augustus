@@ -12,6 +12,7 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "empire/trade_prices.h"
+#include "figure/figure.h"
 #include "game/tutorial.h"
 #include "map/image.h"
 #include "scenario/property.h"
@@ -36,7 +37,7 @@ int building_warehouse_get_space_info(building *warehouse)
     }
     if (empty_spaces > 0) {
         return WAREHOUSE_ROOM;
-    } else if (total_loads < 32) {
+    } else if (total_loads < FULL_WAREHOUSE) {
         return WAREHOUSE_SOME_ROOM;
     } else {
         return WAREHOUSE_FULL;
@@ -114,6 +115,9 @@ int building_warehouse_add_resource(building *b, int resource)
 
 int building_warehouse_remove_resource(building *warehouse, int resource, int amount)
 {
+    if (warehouse->has_plague) {
+        return 0;
+    }
     // returns amount still needing removal
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return amount;
@@ -150,6 +154,7 @@ void building_warehouse_remove_resource_curse(building *warehouse, int amount)
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return;
     }
+
     building *space = warehouse;
     for (int i = 0; i < 8 && amount > 0; i++) {
         space = building_next(space);
@@ -232,18 +237,15 @@ static building *get_next_warehouse(void)
     return 0;
 }
 
-int THREEQ_WAREHOUSE = 24;
-int HALF_WAREHOUSE = 16;
-int QUARTER_WAREHOUSE = 8;
-
 int building_warehouse_is_accepting(int resource, building *b)
 {
     const building_storage *s = building_storage_get(b->storage_id);
     int amount = building_warehouse_get_amount(b, resource);
-    if ((s->resource_state[resource] == BUILDING_STORAGE_STATE_ACCEPTING) ||
+    if (!b->has_plague &&
+        ((s->resource_state[resource] == BUILDING_STORAGE_STATE_ACCEPTING) ||
         (s->resource_state[resource] == BUILDING_STORAGE_STATE_ACCEPTING_3QUARTERS && amount < THREEQ_WAREHOUSE) ||
         (s->resource_state[resource] == BUILDING_STORAGE_STATE_ACCEPTING_HALF && amount < HALF_WAREHOUSE) ||
-        (s->resource_state[resource] == BUILDING_STORAGE_STATE_ACCEPTING_QUARTER && amount < QUARTER_WAREHOUSE)) {
+        (s->resource_state[resource] == BUILDING_STORAGE_STATE_ACCEPTING_QUARTER && amount < QUARTER_WAREHOUSE))) {
         return 1;
     } else {
         return 0;
@@ -254,10 +256,11 @@ int building_warehouse_is_getting(int resource, building *b)
 {
     const building_storage *s = building_storage_get(b->storage_id);
     int amount = building_warehouse_get_amount(b, resource);
-    if ((s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING) ||
+    if (!b->has_plague && 
+        ((s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING) ||
         (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_3QUARTERS && amount < THREEQ_WAREHOUSE) ||
         (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_HALF && amount < HALF_WAREHOUSE) ||
-        (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_QUARTER && amount < QUARTER_WAREHOUSE)) {
+        (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_QUARTER && amount < QUARTER_WAREHOUSE))) {
         return 1;
     } else {
         return 0;
@@ -267,10 +270,11 @@ int building_warehouse_is_getting(int resource, building *b)
 int building_warehouse_is_gettable(int resource, building *b)
 {
     const building_storage *s = building_storage_get(b->storage_id);
-    if ((s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING) ||
+    if (!b->has_plague &&
+        ((s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING) ||
         (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_HALF) ||
         (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_3QUARTERS) ||
-        (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_QUARTER)) {
+        (s->resource_state[resource] == BUILDING_STORAGE_STATE_GETTING_QUARTER))) {
         return 1;
     } else {
         return 0;
@@ -288,7 +292,7 @@ int building_warehouse_get_acceptable_quantity(int resource, building *b)
     switch (s->resource_state[resource]) {
         case BUILDING_STORAGE_STATE_ACCEPTING:
         case BUILDING_STORAGE_STATE_GETTING:
-            return 32;
+            return FULL_WAREHOUSE;
             break;
         case BUILDING_STORAGE_STATE_ACCEPTING_3QUARTERS:
         case BUILDING_STORAGE_STATE_GETTING_3QUARTERS:
@@ -305,6 +309,65 @@ int building_warehouse_get_acceptable_quantity(int resource, building *b)
         default:
             return 0;
     }
+}
+
+int building_warehouses_send_resources_to_rome(int resource, int amount)
+{
+    building *b = get_next_warehouse();
+    if (!b) {
+        return amount;
+    }
+    building *initial_warehouse = b;
+
+    // First go for non-getting warehouses
+    do {
+        if (b->state == BUILDING_STATE_IN_USE) {
+            if (!building_warehouse_is_getting(resource, b)) {
+                city_resource_set_last_used_warehouse(b->id);
+                int remaining = building_warehouse_remove_resource(b, resource, amount);
+                if (remaining < amount) {
+                    int loads = amount - remaining;
+                    amount = remaining;
+                    map_point road;
+                    if (map_has_road_access_rotation(b->subtype.orientation, b->x, b->y, 3, &road)) {
+                        figure *f = figure_create(FIGURE_CART_PUSHER, road.x, road.y, DIR_4_BOTTOM);
+                        f->action_state = FIGURE_ACTION_234_CARTPUSHER_GOING_TO_ROME_CREATED;
+                        f->resource_id = resource;
+                        f->loads_sold_or_carrying = loads;
+                        f->building_id = b->id;
+                    }
+                }
+            }
+        }
+        b = b->next_of_type ? b->next_of_type : building_first_of_type(BUILDING_WAREHOUSE);
+    } while (b != initial_warehouse && amount > 0);
+
+    if (amount <= 0) {
+        return 0;
+    }
+
+    // If that doesn't work, take it anyway
+    do {
+        if (b->state == BUILDING_STATE_IN_USE) {
+            city_resource_set_last_used_warehouse(b->id);
+            int remaining = building_warehouse_remove_resource(b, resource, amount);
+            if (remaining < amount) {
+                int loads = amount - remaining;
+                amount = remaining;
+                map_point road;
+                if (map_has_road_access_rotation(b->subtype.orientation, b->x, b->y, 3, &road)) {
+                    figure *f = figure_create(FIGURE_CART_PUSHER, road.x, road.y, DIR_4_BOTTOM);
+                    f->action_state = FIGURE_ACTION_234_CARTPUSHER_GOING_TO_ROME_CREATED;
+                    f->resource_id = resource;
+                    f->loads_sold_or_carrying = loads;
+                    f->building_id = b->id;
+                }
+            }
+        }
+        b = b->next_of_type ? b->next_of_type : building_first_of_type(BUILDING_WAREHOUSE);
+    } while (b != initial_warehouse && amount > 0);
+
+    return amount;
 }
 
 int building_warehouses_remove_resource(int resource, int amount)
@@ -345,7 +408,7 @@ int building_warehouses_remove_resource(int resource, int amount)
 int building_warehouse_accepts_storage(building *b, int resource, int *understaffed)
 {
     if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE ||
-        !b->has_road_access || b->distance_from_entry <= 0) {
+        !b->has_road_access || b->distance_from_entry <= 0 || b->has_plague) {
         return 0;
     }
     const building_storage *s = building_storage_get(b->storage_id);
@@ -415,7 +478,7 @@ int building_warehouse_for_getting(building *src, int resource, map_point *dst)
     int min_dist = INFINITE;
     building *min_building = 0;
     for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b; b = b->next_of_type) {
-        if (b->state != BUILDING_STATE_IN_USE) {
+        if (b->state != BUILDING_STATE_IN_USE || b->has_plague) {
             continue;
         }
         if (b->id == src->id) {
@@ -448,7 +511,7 @@ int building_warehouse_with_resource(int src_building_id, int x, int y, int reso
     int min_dist = INFINITE;
     building *min_building = 0;
     for (building *b = building_first_of_type(BUILDING_WAREHOUSE); b; b = b->next_of_type) {
-        if (b->state != BUILDING_STATE_IN_USE) {
+        if (b->state != BUILDING_STATE_IN_USE || b->has_plague) {
             continue;
         }
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
@@ -501,7 +564,7 @@ static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD], int 
     }
     int can_accept = 0;
     for (building *b = building_first_of_type(BUILDING_GRANARY); b; b = b->next_of_type) {
-        if (b->state != BUILDING_STATE_IN_USE || !b->has_road_access || road_network != b->road_network_id) {
+        if (b->state != BUILDING_STATE_IN_USE || !b->has_road_access || b->has_plague || road_network != b->road_network_id) {
             continue;
         }
         int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
@@ -530,7 +593,7 @@ static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD], int roa
     }
     int can_get = 0;
     for (building *b = building_first_of_type(BUILDING_GRANARY); b; b = b->next_of_type) {
-        if (b->state != BUILDING_STATE_IN_USE || !b->has_road_access || road_network != b->road_network_id) {
+        if (b->state != BUILDING_STATE_IN_USE || !b->has_road_access || b->has_plague || road_network != b->road_network_id) {
             continue;
         }
         int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);

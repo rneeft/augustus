@@ -712,7 +712,7 @@ void building_construction_update(int x, int y, int grid_offset)
             current_cost *= items_placed;
         }
     } else if (type == BUILDING_HEDGE_DARK || type == BUILDING_HEDGE_LIGHT) {
-        int items_placed = plot_draggable_building(data.start.x, data.start.y, x, y, 0);
+        int items_placed = plot_draggable_building(data.start.x, data.start.y, x, y, 1);
         if (items_placed >= 0) {
             current_cost *= items_placed;
         }
@@ -742,7 +742,7 @@ void building_construction_update(int x, int y, int grid_offset)
                 current_cost *= items_placed;
             }
     } else if (type == BUILDING_PALISADE) {
-        int items_placed = plot_draggable_building(data.start.x, data.start.y, x, y, 0);
+        int items_placed = plot_draggable_building(data.start.x, data.start.y, x, y, 1);
         if (items_placed >= 0) {
             current_cost *= items_placed;
         }
@@ -1024,7 +1024,7 @@ int building_construction_can_place_on_terrain(int x, int y, int *warning_id)
             return 0;
         }
     } else if (data.required_terrain.rock) {
-        if (!map_terrain_exists_tile_in_radius_with_type(x, y, 2, 1, TERRAIN_ROCK)) {
+        if (!map_terrain_exists_rock_in_radius(x, y, 2, 1)) {
             set_warning(warning_id, WARNING_ROCK_NEEDED);
             return 0;
         }

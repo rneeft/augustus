@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include "city/view.h"
 #include "core/calc.h"
 #include "core/config.h"
 #include "core/dir.h"
@@ -83,7 +82,9 @@ static const uint8_t *display_text_scroll_speed(void);
 static const uint8_t *display_text_difficulty(void);
 static const uint8_t *display_text_max_grand_temples(void);
 
-static scrollbar_type scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4 };
+static scrollbar_type scrollbar = {
+    580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, CHECKBOX_WIDTH, NUM_VISIBLE_ITEMS, on_scroll, 0, 4
+};
 
 enum {
     TYPE_NONE,
@@ -203,11 +204,14 @@ static config_widget all_widgets[CONFIG_PAGES][MAX_WIDGETS] = {
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE},
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_CONSTRUCTION_SIZE, TR_CONFIG_SHOW_CONSTRUCTION_SIZE},
         {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, TR_CONFIG_HIGHLIGHT_LEGIONS},
-        {TYPE_CHECKBOX, CONFIG_UI_ZOOM, TR_CONFIG_ENABLE_ZOOM },
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_MILITARY_SIDEBAR, TR_CONFIG_SHOW_MILITARY_SIDEBAR},
         {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, TR_CONFIG_DISABLE_RIGHT_CLICK_MAP_DRAG},
         {TYPE_CHECKBOX, CONFIG_UI_SHOW_MAX_PROSPERITY, TR_CONFIG_SHOW_MAX_POSSIBLE_PROSPERITY},
-        {TYPE_CHECKBOX, CONFIG_UI_DIGIT_SEPARATOR, TR_CONFIG_DIGIT_SEPARATOR}
+        {TYPE_CHECKBOX, CONFIG_UI_DIGIT_SEPARATOR, TR_CONFIG_DIGIT_SEPARATOR},
+        {TYPE_CHECKBOX, CONFIG_UI_INVERSE_MAP_DRAG, TR_CONFIG_UI_INVERSE_MAP_DRAG},
+        {TYPE_CHECKBOX, CONFIG_UI_MESSAGE_ALERTS, TR_CONFIG_UI_MESSAGE_ALERTS},
+        {TYPE_CHECKBOX, CONFIG_UI_SHOW_GRID, TR_CONFIG_UI_SHOW_GRID},
+        {TYPE_CHECKBOX, CONFIG_UI_SHOW_PARTIAL_GRID_AROUND_CONSTRUCTION, TR_CONFIG_UI_SHOW_PARTIAL_GRID_AROUND_CONSTRUCTION},
     },
     { // Difficulty
         {TYPE_NUMERICAL_DESC, RANGE_DIFFICULTY, TR_CONFIG_DIFFICULTY},
@@ -322,7 +326,7 @@ static struct {
     int show_background_image;
     int has_changes;
     int reload_cursors;
-    color_t *graphics_behind_tab[CONFIG_PAGES];
+    int graphics_behind_tab[CONFIG_PAGES];
 } data;
 
 static int config_change_basic(config_key key);
@@ -348,7 +352,6 @@ static int config_enable_city_sounds(config_key key);
 static int config_set_city_sounds_volume(config_key key);
 
 static int config_change_scroll_speed(config_key key);
-static int config_change_zoom(config_key key);
 
 static int config_set_difficulty(config_key key);
 static int config_enable_gods_effects(config_key key);
@@ -376,7 +379,6 @@ static inline void set_custom_config_changes(void)
     data.config_values[CONFIG_ORIGINAL_CITY_SOUNDS_VOLUME].change_action = config_set_city_sounds_volume;
 
     data.config_values[CONFIG_ORIGINAL_SCROLL_SPEED].change_action = config_change_scroll_speed;
-    data.config_values[CONFIG_UI_ZOOM].change_action = config_change_zoom;
 
     data.config_values[CONFIG_ORIGINAL_DIFFICULTY].change_action = config_set_difficulty;
     data.config_values[CONFIG_ORIGINAL_GODS_EFFECTS].change_action = config_enable_gods_effects;
@@ -499,7 +501,7 @@ static void set_page(int page)
     for (int i = 0; i < data.page; i++) {
         data.starting_option += data.widgets_per_page[i];
     }
-    scrollbar_init(&scrollbar, 0, data.widgets_per_page[data.page] - NUM_VISIBLE_ITEMS);
+    scrollbar_init(&scrollbar, 0, data.widgets_per_page[page]);
 }
 
 static void init(int page, int show_background_image)
@@ -582,9 +584,14 @@ static void numerical_range_draw(const numerical_range_widget *w, int x, int y, 
     inner_panel_draw(x + w->x, y + 4, w->width_blocks + extra_width / 16, 1);
 
     int width = w->width_blocks * BLOCK_SIZE + extra_width - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE;
-    int scroll_position = (*w->value - w->min) * width / (w->max - w->min);
+    int scroll_position;
+    if (w->min != w->max) {
+        scroll_position = (*w->value - w->min) * width / (w->max - w->min);
+    } else {
+        scroll_position = width / 2;
+    }
     image_draw(image_group(GROUP_PANEL_BUTTON) + 37,
-        x + w->x + NUMERICAL_SLIDER_PADDING + scroll_position, y + 2);
+        x + w->x + NUMERICAL_SLIDER_PADDING + scroll_position, y + 2, COLOR_MASK_NONE, SCALE_NONE);
 }
 
 static uint8_t *percentage_string(uint8_t *string, int percentage)
@@ -798,9 +805,8 @@ static void draw_background(void)
         }
         page_buttons[i].x = page_x_offset - 10;
         page_buttons[i].width = width + 15;
-        free(data.graphics_behind_tab[i]);
-        data.graphics_behind_tab[i] = malloc(page_buttons[i].width * 3 * sizeof(color_t));
-        graphics_save_to_buffer(page_buttons[i].x, 75, page_buttons[i].width, 3, data.graphics_behind_tab[i]);
+        data.graphics_behind_tab[i] = graphics_save_to_image(data.graphics_behind_tab[i],
+            page_buttons[i].x, 75, page_buttons[i].width, 3);
         page_x_offset += width;
     }
 
@@ -846,8 +852,7 @@ static void draw_foreground(void)
             page_buttons[i].width, page_buttons[i].height,
             data.page_focus_button == i + 1);
         if (data.page == i) {
-            graphics_draw_from_buffer(page_buttons[i].x, 75, page_buttons[i].width, 3,
-                data.graphics_behind_tab[i]);
+            graphics_draw_from_image(data.graphics_behind_tab[i], page_buttons[i].x, 75);
         } else {
             graphics_fill_rect(page_buttons[i].x, 75, page_buttons[i].width, 3, COLOR_WHITE);
         }
@@ -925,6 +930,9 @@ static int numerical_range_handle_mouse(const mouse *m, int x, int y, int numeri
     } else if (!m->left.went_down || !is_numerical_range(w, m, x, y)) {
         return 0;
     }
+    if (w->min == w->max) {
+        return 1;
+    }
     int extra_width = data.widgets_per_page[data.page] > NUM_VISIBLE_ITEMS ? 0 : 64;
     int slider_width = w->width_blocks * BLOCK_SIZE - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE + extra_width;
     int pixels_per_pct = slider_width / (w->max - w->min);
@@ -946,16 +954,20 @@ static int numerical_range_handle_mouse(const mouse *m, int x, int y, int numeri
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     const mouse *m_dialog = mouse_in_dialog(m);
+    data.focus_button = 0;
+
     if (data.active_numerical_range) {
         numerical_range_handle_mouse(m_dialog, NUMERICAL_RANGE_X, 0, data.active_numerical_range);
         return;
     }
+
     if (scrollbar_handle_mouse(&scrollbar, m_dialog)) {
+        data.page_focus_button = 0;
+        data.bottom_focus_button = 0;
         return;
     }
-    int handled = 0;
-    data.focus_button = 0;
 
+    int handled = 0;
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.widgets_per_page[data.page]; i++) {
         config_widget *w = data.widgets[i + data.starting_option + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
@@ -1234,18 +1246,6 @@ static int config_set_city_sounds_volume(config_key key)
     return 1;
 }
 
-static int config_change_zoom(config_key key)
-{
-    config_change_basic(key);
-    city_view_set_scale(100);
-    if (!system_reload_textures()) {
-        window_plain_message_dialog_show(TR_CONFIG_ZOOM_COULD_NOT_BE_ENABLED_TITLE,
-            TR_CONFIG_ZOOM_COULD_NOT_BE_ENABLED_MESSAGE, 1);
-        return 0;
-    }
-    return 1;
-}
-
 static int config_change_scroll_speed(config_key key)
 {
     config_change_basic(key);
@@ -1301,6 +1301,7 @@ static int config_change_string_language(config_string_key key)
     }
     strncpy(data.config_string_values[key].original_value,
         data.config_string_values[key].new_value, CONFIG_STRING_VALUE_MAX - 1);
+    string_copy(translation_for(TR_CONFIG_LANGUAGE_DEFAULT), data.language_options_data[0], CONFIG_STRING_VALUE_MAX);
     return 1;
 }
 

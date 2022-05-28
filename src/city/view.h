@@ -24,7 +24,6 @@ int city_view_get_scale(void);
 void city_view_set_scale(int scale);
 
 int city_view_get_max_scale(void);
-void city_view_set_max_scale(int scale);
 
 void city_view_get_camera(int *x, int *y);
 void city_view_get_pixel_offset(int *x, int *y);
@@ -54,8 +53,7 @@ void city_view_rotate_right(void);
 
 void city_view_set_viewport(int screen_width, int screen_height);
 
-void city_view_get_scaled_viewport(int *x, int *y, int *width, int *height);
-void city_view_get_unscaled_viewport(int *x, int *y, int *width, int *height);
+void city_view_get_viewport(int *x, int *y, int *width, int *height);
 void city_view_get_viewport_size_tiles(int *width, int *height);
 
 int city_view_is_sidebar_collapsed(void);

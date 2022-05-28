@@ -32,15 +32,6 @@ static struct warning *new_warning(void)
 
 void city_warning_show(warning_type type)
 {
-    if (!setting_warnings()) {
-        return;
-    }
-    struct warning *w = new_warning();
-    if (!w) {
-        return;
-    }
-    w->in_use = 1;
-    w->time = time_get_millis();
     const uint8_t *text;
     if (type == WARNING_ORIENTATION) {
         text = lang_get_string(17, city_view_orientation());
@@ -68,10 +59,31 @@ void city_warning_show(warning_type type)
         text = translation_for(TR_WARNING_BET_VICTORY);
     } else if (type == WARNING_BET_DEFEAT) {
         text = translation_for(TR_WARNING_BET_DEFEAT);
+    } else if (type == WARNING_DATA_COPY_SUCCESS) {
+        text = translation_for(TR_CITY_WARNING_DATA_COPY_SUCCESS);
+    } else if (type == WARNING_DATA_COPY_NOT_SUPPORTED) {
+        text = translation_for(TR_CITY_WARNING_DATA_COPY_NOT_SUPPORTED);
+    } else if (type == WARNING_DATA_PASTE_FAILURE) {
+        text = translation_for(TR_CITY_WARNING_DATA_PASTE_NOT_SUPPORTED);
+    } else if (type == WARNING_DATA_PASTE_SUCCESS) {
+        text = translation_for(TR_CITY_WARNING_DATA_PASTE_SUCCESS);
     } else {
         text = lang_get_string(19, type - 2);
     }
+    city_warning_show_custom(text);
+}
 
+void city_warning_show_custom(const uint8_t *text)
+{
+    if (!setting_warnings()) {
+        return;
+    }
+    struct warning *w = new_warning();
+    if (!w) {
+        return;
+    }
+    w->in_use = 1;
+    w->time = time_get_millis();
     string_copy(text, w->text, MAX_TEXT);
 }
 

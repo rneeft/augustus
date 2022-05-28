@@ -56,7 +56,7 @@ void building_maintenance_update_burning_ruins(void)
             recalculate_terrain = 1;
             continue;
         }
-        if (b->ruin_has_plague) {
+        if (b->has_plague) {
             continue;
         }
         building_list_burning_add(i);
@@ -118,7 +118,7 @@ int building_maintenance_get_closest_burning_ruin(int x, int y, int *distance)
     for (int i = 0; i < burning_size; i++) {
         int building_id = building_list_burning_item(i);
         building *b = building_get(building_id);
-        if ((b->state == BUILDING_STATE_IN_USE || b->state == BUILDING_STATE_MOTHBALLED) && b->type == BUILDING_BURNING_RUIN && !b->ruin_has_plague && b->distance_from_entry) {
+        if ((b->state == BUILDING_STATE_IN_USE || b->state == BUILDING_STATE_MOTHBALLED) && b->type == BUILDING_BURNING_RUIN && !b->has_plague && b->distance_from_entry) {
             int dist = calc_maximum_distance(x, y, b->x, b->y);
             if (b->figure_id4) {
                 if (dist < min_occupied_dist) {
@@ -334,6 +334,22 @@ void building_maintenance_check_rome_access(void)
             b->distance_from_entry = 0;
             int x_road, y_road;
             int road_grid_offset = map_road_to_largest_network_caravanserai(b->x, b->y, &x_road, &y_road);
+            if (road_grid_offset >= 0) {
+                b->road_network_id = map_road_network_get(road_grid_offset);
+                b->distance_from_entry = map_routing_distance(road_grid_offset);
+                b->road_access_x = x_road;
+                b->road_access_y = y_road;
+            }
+        } else if (b->type == BUILDING_FORT) {
+            b->distance_from_entry = 0;
+            int x_road, y_road;
+            int road_grid_offset = map_road_to_largest_network(b->x, b->y, b->size, &x_road, &y_road);
+            if (road_grid_offset < 0) {
+                int reachable = map_closest_reachable_spot_within_radius(b->x, b->y, b->size, 1, &x_road, &y_road);
+                if (reachable) {
+                    road_grid_offset = map_grid_offset(x_road, y_road);
+                }
+            }
             if (road_grid_offset >= 0) {
                 b->road_network_id = map_road_network_get(road_grid_offset);
                 b->distance_from_entry = map_routing_distance(road_grid_offset);

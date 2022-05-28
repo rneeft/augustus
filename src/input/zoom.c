@@ -24,9 +24,6 @@ static struct {
 
 static void start_touch(const touch *first, const touch *last, int scale)
 {
-    if (!config_get(CONFIG_UI_ZOOM)) {
-        return;
-    }
     data.restore = 0;
     data.touch.active = 1;
     data.input_offset.x = first->current_point.x;
@@ -37,9 +34,6 @@ static void start_touch(const touch *first, const touch *last, int scale)
 
 void zoom_update_touch(const touch *first, const touch *last, int scale)
 {
-    if (!config_get(CONFIG_UI_ZOOM)) {
-        return;
-    }
     if (!data.touch.active) {
         start_touch(first, last, scale);
         return;
@@ -64,15 +58,12 @@ void zoom_update_touch(const touch *first, const touch *last, int scale)
 
 void zoom_end_touch(void)
 {
-    if (!config_get(CONFIG_UI_ZOOM)) {
-        return;
-    }
     data.touch.active = 0;
 }
 
-void zoom_map(const mouse *m)
+void zoom_map(const mouse *m, int current_zoom)
 {
-    if (!config_get(CONFIG_UI_ZOOM) || data.touch.active || m->is_touch) {
+    if (data.touch.active || m->is_touch) {
         return;
     }
     if (m->middle.went_up) {
@@ -83,7 +74,13 @@ void zoom_map(const mouse *m)
     }
     if (m->scrolled != SCROLL_NONE) {
         data.restore = 0;
-        data.delta = (m->scrolled == SCROLL_DOWN) ? ZOOM_DELTA : -ZOOM_DELTA;
+        int multiplier;
+        if (current_zoom >= 200) {
+            multiplier = current_zoom / 200;
+        } else {
+            multiplier = 1;
+        }
+        data.delta = (m->scrolled == SCROLL_DOWN ? ZOOM_DELTA : -ZOOM_DELTA) * multiplier;
         if (config_get(CONFIG_UI_SMOOTH_SCROLLING)) {
             speed_clear(&data.step);
             speed_set_target(&data.step, ZOOM_STEP, SPEED_CHANGE_IMMEDIATE, 1);
@@ -109,9 +106,7 @@ int zoom_update_value(int *zoom, int max, pixel_offset *camera_position)
         }
         if (config_get(CONFIG_UI_SMOOTH_SCROLLING)) {
             step = speed_get_delta(&data.step);
-            if (*zoom > 100) {
-                step *= 2;
-            }
+            step *= (*zoom / 100) + 1;
             if (!step) {
                 return 1;
             }

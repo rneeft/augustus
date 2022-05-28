@@ -14,6 +14,7 @@ typedef struct {
     int increase_game_speed;
     int rotate_map_left;
     int rotate_map_right;
+    int rotate_map_north;
     int show_advisor;
     int show_overlay;
     int show_overlay_relative;
@@ -31,6 +32,8 @@ typedef struct {
     int copy_building_settings;
     int paste_building_settings;
     int undo;
+    int show_empire_map;
+    int show_messages;
 } hotkeys;
 
 void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings);

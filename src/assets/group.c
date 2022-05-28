@@ -37,6 +37,10 @@ void group_unload_current(void)
         asset_image_unload(image);
         image = asset_image_get_from_id(image->index - 1);
     }
+    free((char *) group->name);
+#ifdef BUILDING_ASSET_PACKER
+    free((char *) group->path);
+#endif
     memset(group, 0, sizeof(image_groups));
     data.total_groups--;
 }
@@ -59,6 +63,17 @@ image_groups *group_get_from_name(const char *name)
     for (int i = 0; i < data.total_groups; i++) {
         image_groups *current = &data.groups[i];
         if (strcmp(current->name, name) == 0) {
+            return current;
+        }
+    }
+    return 0;
+}
+
+image_groups *group_get_from_image_index(int index)
+{
+    for (int i = 0; i < data.total_groups; i++) {
+        image_groups *current = &data.groups[i];
+        if (index >= current->first_image_index && index <= current->last_image_index) {
             return current;
         }
     }

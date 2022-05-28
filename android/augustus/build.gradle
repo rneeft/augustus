@@ -88,7 +88,13 @@ android {
         }
         sourceSets {
             main.res.srcDirs += '../../res/android'
-            main.assets.srcDirs += '../../assets'
+            if (file('../../res/packed_assets').exists()) {
+                println 'Using packed assets'
+                main.assets.srcDirs += '../../res/packed_assets'
+            } else {
+                println 'Packed assets not found. Using regular assets'
+                main.assets.srcDirs += '../../res/assets'
+            }
         }
     }
     signingConfigs {
@@ -106,6 +112,7 @@ android {
         debug {
             ext.alwaysUpdateBuildId = false
             applicationIdSuffix ".debug"
+            externalNativeBuild.cmake.arguments += "-DDRAW_FPS=1"
         }
         release {
             minifyEnabled false

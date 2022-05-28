@@ -194,6 +194,8 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     image_load_enemy(scenario_property_enemy());
 
     city_data_init_scenario();
+
+    setting_set_default_game_speed();
     game_state_unpause();
 }
 
@@ -279,7 +281,11 @@ static void initialize_saved_game(void)
     city_military_determine_distant_battle_city();
     map_tiles_determine_gardens();
 
+    map_natives_check_land(0);
+
     city_message_clear_scroll();
+
+    setting_set_default_game_speed();
 
     game_state_unpause();
 }

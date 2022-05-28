@@ -274,6 +274,16 @@ void load_custom_messages(void)
             MESSAGE_TYPE_GENERAL);
         i += 1;
     }
+
+    m = &data.message_entries[i];
+    set_message_parameters(m, TR_CITY_MESSAGE_TITLE_SICKNESS, TR_CITY_MESSAGE_TEXT_SICKNESS, 1, MESSAGE_TYPE_DISASTER);
+    i += 1;
+
+    m = &data.message_entries[i];
+    set_message_parameters(m, TR_CITY_MESSAGE_TITLE_EMPERORS_WRATH, TR_CITY_MESSAGE_TEXT_EMPERORS_WRATH, 1, MESSAGE_TYPE_GENERAL);
+    m->video.text = (uint8_t *) "smk/Emp_send_army.smk";
+    m->urgent = 1;
+    i += 1;
 }
 
 
@@ -333,7 +343,8 @@ const uint8_t *lang_get_string(int group, int index)
     if (group == 96 && !index) {
         return translation_for(TR_BUILDING_SMALL_TEMPLE_VENUS_NAME);
     }
-    if (group == 23 && index == 6 && scenario_building_allowed(BUILDING_WHARF)) {
+    if (((group == 23 && index == 6) || (group == 27 && index == 6) || (group == 68 && index == 137))
+        && scenario_building_allowed(BUILDING_WHARF)) {
         return translation_for(TR_RESOURCE_FISH);
     }
 

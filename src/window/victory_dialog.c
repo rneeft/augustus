@@ -46,9 +46,9 @@ static void draw_foreground(void)
     graphics_in_dialog();
 
     if (city_victory_state() == VICTORY_STATE_WON) {
-        int image_id = assets_get_image_id("UI_Elements", "Victory_Banner");
-        image_draw(image_id, 88, 137);
-        image_draw(image_id, 512, 137);
+        int image_id = assets_get_image_id("UI", "Victory_Banner");
+        image_draw(image_id, 88, 137, COLOR_MASK_NONE, SCALE_NONE);
+        image_draw(image_id, 512, 137, COLOR_MASK_NONE, SCALE_NONE);
 
         large_label_draw(80, 240, 30, focus_button_id == 1);
         if (scenario_campaign_rank() < 10 || scenario_is_custom()) {
