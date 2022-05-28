@@ -306,7 +306,6 @@ static custom_event_type all_custom_event_types[] = {
 	{EVENT_TYPE_UPRISING, "uprising", start_custom_invasion, MESSAGE_DISTANT_BATTLE},
 	{EVENT_TYPE_DISTANT_BATTLE, "distantBattle", start_custom_invasion, MESSAGE_CAESAR_REQUESTS_ARMY},
 	//{EVENT_TYPE_EARTHQUAKE, "earthquake", start_earthquake}, 
-	//{EVENT_TYPE_PLAGUE}
 	{EVENT_TYPE_RIOTS, "riot", start_riot, MESSAGE_RIOT},
 	//{EVENT_TYPE_SENTIMENT}
 	//{EVENT_TYPE_CITY_FALLS, "cityNowTrades", city_now_trades, MESSAGE_EMPIRE_HAS_EXPANDED},
