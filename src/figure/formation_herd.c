@@ -63,9 +63,13 @@ static int get_free_tile(int x, int y, int allow_negative_desirability, int *x_t
 }
 
 // Try to find an open destination point (x_tile,y_tile) in the general direction, at the given distance
-static int get_roaming_destination(int formation_id, int allow_negative_desirability,
-                                   int x, int y, int distance, int direction, int *x_tile, int *y_tile)
+static int get_roaming_destination(formation *m, int distance, int *x_tile, int *y_tile)
 {
+    int formation_id = m->id;
+    int x = m->x_home;
+    int y = m->y_home;
+    int direction = m->herd_direction;
+    int allow_negative_desirability = m->figure_type == FIGURE_WOLF;
     int target_direction = (formation_id + random_byte()) & 7;
     if (direction >= DIR_0_TOP && direction < DIR_8_NONE) {
         target_direction = direction;
@@ -195,22 +199,18 @@ static void update_herd_formation(formation *m, int infinite_wolves_spawning)
     int attacking_animals = 0;
     int roam_distance;
     int roam_delay;
-    int allow_negative_desirability;
     switch (m->figure_type) {
         case FIGURE_SHEEP:
             roam_distance = SHEEP_ROAM_DISTANCE;
             roam_delay = SHEEP_ROAM_DELAY;
-            allow_negative_desirability = 0;
             break;
         case FIGURE_ZEBRA:
             roam_distance = ZEBRA_ROAM_DISTANCE;
             roam_delay = ZEBRA_ROAM_DELAY;
-            allow_negative_desirability = 0;
             break;
         case FIGURE_WOLF:
             roam_distance = WOLF_ROAM_DISTANCE;
             roam_delay = WOLF_ROAM_DELAY;
-            allow_negative_desirability = 1;
             for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
                 int figure_id = m->figures[fig];
                 if (figure_id > 0 && figure_get(figure_id)->action_state == FIGURE_ACTION_150_ATTACK) {
@@ -232,8 +232,7 @@ static void update_herd_formation(formation *m, int infinite_wolves_spawning)
             move_animals(m, attacking_animals);
         } else {
             int x_tile, y_tile;
-            if (get_roaming_destination(m->id, allow_negative_desirability, m->x_home, m->y_home,
-                    roam_distance, m->herd_direction, &x_tile, &y_tile)) {
+            if (get_roaming_destination(m, roam_distance, &x_tile, &y_tile)) {
                 m->herd_direction = DIR_8_NONE;
                 if (formation_enemy_move_formation_to(m, x_tile, y_tile, &x_tile, &y_tile)) {
                     formation_set_destination(m, x_tile, y_tile);
