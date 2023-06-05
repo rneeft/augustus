@@ -257,7 +257,7 @@ static void init(int grid_offset)
     context.has_reservoir_pipes = map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE);
     context.aqueduct_has_water = map_aqueduct_has_water_access_at(grid_offset);
 
-    city_resource_determine_available();
+    city_resource_determine_available(1);
     context.type = BUILDING_INFO_TERRAIN;
     context.figure.drawn = 0;
     if (!context.building_id && map_sprite_bridge_at(grid_offset) > 0) {
@@ -485,6 +485,10 @@ static void draw_background(void)
             window_building_draw_clay_pit(&context);
         } else if (btype == BUILDING_GOLD_MINE) {
             window_building_draw_gold_mine(&context);
+        } else if (btype == BUILDING_STONE_QUARRY) {
+            window_building_draw_stone_quarry(&context);
+        } else if (btype == BUILDING_SAND_PIT) {
+            window_building_draw_sand_pit(&context);
         } else if (btype == BUILDING_WINE_WORKSHOP) {
             window_building_draw_wine_workshop(&context);
         } else if (btype == BUILDING_OIL_WORKSHOP) {
@@ -495,6 +499,10 @@ static void draw_background(void)
             window_building_draw_furniture_workshop(&context);
         } else if (btype == BUILDING_POTTERY_WORKSHOP) {
             window_building_draw_pottery_workshop(&context);
+        } else if (btype == BUILDING_BRICKWORKS) {
+            window_building_draw_brickworks(&context);
+        } else if (btype == BUILDING_CONCRETE_MAKER) {
+            window_building_draw_concrete_maker(&context);
         } else if (btype == BUILDING_CITY_MINT) {
             window_building_draw_city_mint(&context);
         } else if (btype == BUILDING_MARKET) {

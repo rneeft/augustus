@@ -121,7 +121,7 @@ static const monument_type caravanserai = {
 static const monument_type city_mint = {
     .phases    = 2,
     .resources = {
-        { [ARCHITECTS] = 2, [RESOURCE_TIMBER] = 6, [RESOURCE_CLAY] = 8, [RESOURCE_IRON] = 4 },
+        { [ARCHITECTS] = 2, [RESOURCE_TIMBER] = 6, [RESOURCE_CLAY] = 8, [RESOURCE_IRON] = 4, [RESOURCE_CONCRETE] = 2 },
         { NOTHING }
     }
 };
@@ -247,8 +247,7 @@ int building_monument_add_module(building *b, int module_type)
     return 1;
 }
 
-int building_monument_get_monument(int x, int y, int resource, int road_network_id,
-    int distance_from_entry, map_point *dst)
+int building_monument_get_monument(int x, int y, int resource, int road_network_id, map_point *dst)
 {
     if (city_resource_is_stockpiled(resource)) {
         return 0;

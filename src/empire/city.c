@@ -151,17 +151,17 @@ int can_produce_resource(int resource)
         return scenario_building_allowed(BUILDING_CITY_MINT) &&
             building_monument_has_required_resources_to_build(BUILDING_CITY_MINT);
     }
-
     return 0;
 }
 
 int empire_can_produce_resource(int resource)
 {
-    const resource_type *raw_resources = resource_get_raw_materials_for_good(resource);
+    resource_supply_chain chain[RESOURCE_SUPPLY_CHAIN_MAX_SIZE];
+    int num_raw_materials = resource_get_supply_chain_for_good(chain, resource);
     // finished goods: check imports of raw materials
-    if (raw_resources != 0) {
-        for (int i = 0; raw_resources[i] != RESOURCE_NONE; i++) {
-            if (!empire_can_import_resource(raw_resources[i]) && !can_produce_resource(raw_resources[i])) {
+    if (num_raw_materials > 0) {
+        for (int i = 0; i < num_raw_materials; i++) {
+            if (!empire_can_import_resource(chain[i].raw_material) && !can_produce_resource(chain[i].raw_material)) {
                 return 0;
             }
         }
@@ -173,11 +173,13 @@ int empire_can_produce_resource(int resource)
 
 int empire_can_produce_resource_potentially(int resource)
 {
-    const resource_type *raw_resources = resource_get_raw_materials_for_good(resource);
+    resource_supply_chain chain[RESOURCE_SUPPLY_CHAIN_MAX_SIZE];
+    int num_raw_materials = resource_get_supply_chain_for_good(chain, resource);
     // finished goods: check imports of raw materials
-    if (raw_resources != 0) {
-        for (int i = 0; raw_resources[i] != RESOURCE_NONE; i++) {
-            if (!empire_can_import_resource_potentially(raw_resources[i]) && !can_produce_resource(raw_resources[i])) {
+    if (num_raw_materials > 0) {
+        for (int i = 0; i < num_raw_materials; i++) {
+            if (!empire_can_import_resource_potentially(chain[i].raw_material) &&
+                !can_produce_resource(chain[i].raw_material)) {
                 return 0;
             }
         }
@@ -471,6 +473,21 @@ int empire_city_can_mine_gold(int city_name_id)
     }
 }
 
+static void set_new_monument_elements_production(empire_city *city)
+{
+    if (city->sells_resource[RESOURCE_IRON] || city->sells_resource[RESOURCE_MARBLE]) {
+        if (city->type == EMPIRE_CITY_OURS) {
+            city->sells_resource[RESOURCE_STONE] = 1;
+            city->sells_resource[RESOURCE_SAND] = 1;
+        } else {
+            // Sea trades sell sand, land trades sell stone
+            resource_type resource = city->is_sea_trade ? RESOURCE_SAND : RESOURCE_STONE;
+            city->sells_resource[resource] = 1;
+            trade_route_set_limit(city->route_id, resource, 25);
+        }
+    }
+}
+
 static void set_gold_production(empire_city *city)
 {
     if (empire_city_can_mine_gold(city->name_id) && city->sells_resource[RESOURCE_IRON]) {
@@ -481,28 +498,36 @@ static void set_gold_production(empire_city *city)
     }
 }
 
-void empire_city_update_gold_trading(void)
+void empire_city_update_trading_data(int version)
 {
     if (scenario_empire_id() == SCENARIO_CUSTOM_EMPIRE) {
         return;
     }
     empire_city *city;
     array_foreach(cities, city) {
-        set_gold_production(city);
+        if (version < SAVE_GAME_LAST_NO_NEW_MONUMENT_RESOURCES) {
+            set_new_monument_elements_production(city);
+        }
+        if (version < SAVE_GAME_LAST_NO_GOLD_AND_MINTING) {
+            set_gold_production(city);
+        }
     }
 }
 
 static void update_resource_production_and_trading(empire_city *city)
 {
+    if (resource_mapping_get_version() < RESOURCE_HAS_NEW_MONUMENT_ELEMENTS) {
+        set_new_monument_elements_production(city);
+    }
     if (resource_mapping_get_version() < RESOURCE_HAS_GOLD_VERSION) {
         set_gold_production(city);
-        if (resource_mapping_get_version() < RESOURCE_SEPARATE_FISH_AND_MEAT_VERSION) {
-            if (city->type == EMPIRE_CITY_OURS) {
-                if (city->sells_resource[RESOURCE_FISH]) {
-                    city->sells_resource[RESOURCE_MEAT] = 1;
-                } else if (scenario_building_allowed(BUILDING_WHARF)) {
-                    city->sells_resource[RESOURCE_FISH] = 1;
-                }
+    }
+    if (resource_mapping_get_version() < RESOURCE_SEPARATE_FISH_AND_MEAT_VERSION) {
+        if (city->type == EMPIRE_CITY_OURS) {
+            if (city->sells_resource[RESOURCE_FISH]) {
+                city->sells_resource[RESOURCE_MEAT] = 1;
+            } else if (scenario_building_allowed(BUILDING_WHARF)) {
+                city->sells_resource[RESOURCE_FISH] = 1;
             }
         }
     }
