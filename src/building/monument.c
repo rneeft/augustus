@@ -599,12 +599,20 @@ int building_monument_working(building_type type)
     return monument_id;
 }
 
+int building_monument_requires_resource(building_type type, int resource)
+{
+    int phases = building_monument_phases(type);
+    for (int phase = 1; phase < phases; phase++) {
+        if (building_monument_resources_needed_for_monument_type(type, resource, phase) > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int building_monument_has_required_resources_to_build(building_type type)
 {
     int phases = building_monument_phases(type);
-    if (!phases) {
-        return 1;
-    }
     for (int phase = 1; phase < phases; phase++) {
         for (resource_type r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
             if (building_monument_resources_needed_for_monument_type(type, r, phase) > 0 &&
