@@ -296,8 +296,15 @@ void resource_set_mapping(int version)
             mapping.joined_meat_and_fish = 0;
             break;
         case RESOURCE_HAS_GOLD_VERSION:
+            mapping.resources = resource_mappings[3];
+            mapping.inventory = 0;
+            mapping.total_resources = RESOURCE_MAX_WITH_GOLD;
+            mapping.total_food_resources = RESOURCE_MAX_FOOD;
+            mapping.joined_meat_and_fish = 0;
+            break;
+        case RESOURCE_HAS_NEW_MONUMENT_ELEMENTS:
         default:
-            mapping.resources = 0;
+            mapping.resources = resource_mappings[4];
             mapping.inventory = 0;
             mapping.total_resources = RESOURCE_MAX;
             mapping.total_food_resources = RESOURCE_MAX_FOOD;
