@@ -178,7 +178,7 @@ static void determine_cartpusher_destination(figure *f, building *b, int road_ne
     }
     if (!is_storable) {
         // Special priority for non-storable resource: monument under construction
-        int dst_building_id = building_monument_get_monument(f->x, f->y, b->output_resource_id, road_network_id, &dst);
+        dst_building_id = building_monument_get_monument(f->x, f->y, b->output_resource_id, road_network_id, &dst);
         if (dst_building_id) {
             set_destination(f, FIGURE_ACTION_239_CARTPUSHER_DELIVERING_TO_MONUMENT, dst_building_id, dst.x, dst.y);
             building_monument_add_delivery(dst_building_id, f->id, b->output_resource_id, 1);
@@ -346,6 +346,7 @@ void figure_cartpusher_action(figure *f)
             } else if ((f->wait_ticks % (NON_STORABLE_RESOURCE_CARTPUSHER_MAX_WAIT_TICKS / 10) == 0)) {
                 determine_cartpusher_destination(f, b, road_network_id);                
             }
+            break;
         case FIGURE_ACTION_21_CARTPUSHER_DELIVERING_TO_WAREHOUSE:
             set_cart_graphic(f, 1);
             figure_movement_move_ticks_with_percentage(f, 1, percentage_speed);

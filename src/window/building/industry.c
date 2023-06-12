@@ -245,7 +245,7 @@ static void draw_workshop(
         resource_supply_chain chain[RESOURCE_SUPPLY_CHAIN_MAX_SIZE];
         int num_raw_materials = resource_get_supply_chain_for_good(chain, resource);
         if (num_raw_materials > 0) {
-            int width = 0;
+            width = 0;
             for (int i = 0; i < num_raw_materials; i++) {
                 int current_width = lang_text_get_width(group_id, text_offset + 12 + i, FONT_NORMAL_BLACK);
                 if (current_width > width) {

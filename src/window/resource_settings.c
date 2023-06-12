@@ -155,7 +155,7 @@ static void draw_foreground(void)
             button_border_draw(322, 212, 286, 30, data.focus_button_id == 3);
             if (trade_status & TRADE_STATUS_EXPORT) {
                 int x_offset = 324 + (220 - lang_text_get_width(54, 6, FONT_NORMAL_BLACK)) / 2;
-                int width = lang_text_draw(54, 6, x_offset, 221, FONT_NORMAL_BLACK);
+                width = lang_text_draw(54, 6, x_offset, 221, FONT_NORMAL_BLACK);
                 int trade_quantity = city_resource_export_over(data.resource);
                 text_draw_number(trade_quantity, 0, " ", x_offset + width, 221, FONT_NORMAL_BLACK, 0);
                 arrow_buttons_draw(0, 0, export_amount_arrow_buttons, 2);

@@ -664,14 +664,14 @@ int building_warehouse_determine_worker_task(building *warehouse, int *resource)
         for (int i = 0; i < 8; i++) {
             space = building_next(space);
             if (space->id > 0) {
-                resource_type r = space->subtype.warehouse_resource_id;
-                if (r == RESOURCE_NONE) {
+                resource_type space_resource = space->subtype.warehouse_resource_id;
+                if (space_resource == RESOURCE_NONE) {
                     continue;
                 }
-                if (space->resources[r] <= 0) {
+                if (space->resources[space_resource] <= 0) {
                     room += MAX_CARTLOADS_PER_SPACE;
                 } else {
-                    room += MAX_CARTLOADS_PER_SPACE - space->resources[r];
+                    room += MAX_CARTLOADS_PER_SPACE - space->resources[space_resource];
                 }
             }
         }
