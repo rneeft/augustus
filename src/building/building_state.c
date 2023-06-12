@@ -533,49 +533,6 @@ void building_state_load_from_buffer(buffer *buf, building *b, int building_buf_
         b->data.industry.progress *= 2;
     }
 
-    // Backwards compatibility - update loads stored to the proper new variable
-    if (save_version <= SAVE_GAME_LAST_NO_NEW_MONUMENT_RESOURCES && !building_monument_is_unfinished_monument(b)) {
-        switch (b->type) {
-            case BUILDING_GRAND_TEMPLE_MARS:
-            case BUILDING_BARRACKS:
-                b->resources[RESOURCE_WEAPONS] = loads_stored;
-                break;
-            case BUILDING_POTTERY_WORKSHOP:
-                b->resources[RESOURCE_CLAY] = loads_stored * RESOURCE_ONE_LOAD;
-                break;
-            case BUILDING_OIL_WORKSHOP:
-                b->resources[RESOURCE_OIL] = loads_stored * RESOURCE_ONE_LOAD;
-                break;
-            case BUILDING_WINE_WORKSHOP:
-                b->resources[RESOURCE_VINES] = loads_stored * RESOURCE_ONE_LOAD;
-                break;
-            case BUILDING_FURNITURE_WORKSHOP:
-                b->resources[RESOURCE_TIMBER] = loads_stored * RESOURCE_ONE_LOAD;
-                break;
-            case BUILDING_WEAPONS_WORKSHOP:
-                b->resources[RESOURCE_IRON] = loads_stored * RESOURCE_ONE_LOAD;
-                break;
-            case BUILDING_CITY_MINT:
-                b->resources[RESOURCE_GOLD] = loads_stored;
-                break;
-            case BUILDING_SMALL_TEMPLE_NEPTUNE:
-            case BUILDING_LARGE_TEMPLE_NEPTUNE:
-                b->days_since_offering = loads_stored;
-                break;
-            case BUILDING_WAREHOUSE_SPACE:
-                b->resources[b->subtype.warehouse_resource_id] = loads_stored;
-                break;
-            case BUILDING_LIGHTHOUSE:
-                b->resources[RESOURCE_TIMBER] = loads_stored;
-                break;
-            case TR_BUILDING_GRAND_TEMPLE_VENUS:
-                b->resources[RESOURCE_WINE] = loads_stored;
-                break;
-            default:
-                break;
-        }
-    }
-
     // To keep backward savegame compatibility, only fill more recent building struct elements
     // if building_buf_size is the correct size when those elements are included
     // For example, if you add an int (4 bytes) to the building state struct, in order to check
@@ -622,6 +579,49 @@ void building_state_load_from_buffer(buffer *buf, building *b, int building_buf_
         }
         for (int i = 0; i < resource_total_mapped(); i++) {
             b->accepted_goods[resource_remap(i)] = buffer_read_u8(buf);
+        }
+    }
+
+    // Backwards compatibility - update loads stored to the proper new variable
+    if (save_version <= SAVE_GAME_LAST_NO_NEW_MONUMENT_RESOURCES && !building_monument_is_unfinished_monument(b)) {
+        switch (b->type) {
+            case BUILDING_GRAND_TEMPLE_MARS:
+            case BUILDING_BARRACKS:
+                b->resources[RESOURCE_WEAPONS] = loads_stored;
+                break;
+            case BUILDING_POTTERY_WORKSHOP:
+                b->resources[RESOURCE_CLAY] = loads_stored * RESOURCE_ONE_LOAD;
+                break;
+            case BUILDING_OIL_WORKSHOP:
+                b->resources[RESOURCE_OIL] = loads_stored * RESOURCE_ONE_LOAD;
+                break;
+            case BUILDING_WINE_WORKSHOP:
+                b->resources[RESOURCE_VINES] = loads_stored * RESOURCE_ONE_LOAD;
+                break;
+            case BUILDING_FURNITURE_WORKSHOP:
+                b->resources[RESOURCE_TIMBER] = loads_stored * RESOURCE_ONE_LOAD;
+                break;
+            case BUILDING_WEAPONS_WORKSHOP:
+                b->resources[RESOURCE_IRON] = loads_stored * RESOURCE_ONE_LOAD;
+                break;
+            case BUILDING_CITY_MINT:
+                b->resources[RESOURCE_GOLD] = loads_stored;
+                break;
+            case BUILDING_SMALL_TEMPLE_NEPTUNE:
+            case BUILDING_LARGE_TEMPLE_NEPTUNE:
+                b->days_since_offering = loads_stored;
+                break;
+            case BUILDING_WAREHOUSE_SPACE:
+                b->resources[b->subtype.warehouse_resource_id] = loads_stored;
+                break;
+            case BUILDING_LIGHTHOUSE:
+                b->resources[RESOURCE_TIMBER] = loads_stored;
+                break;
+            case TR_BUILDING_GRAND_TEMPLE_VENUS:
+                b->resources[RESOURCE_WINE] = loads_stored;
+                break;
+            default:
+                break;
         }
     }
 
