@@ -211,9 +211,7 @@ static void update_city_mint_production(int new_day)
         city_finance_treasury_add_miscellaneous(DENARII_MINTED_PER_PRODUCTION - minted_personal_funds);
         if (b->resources[RESOURCE_GOLD] >= BUILDING_INDUSTRY_CITY_MINT_GOLD_PER_COIN) {
             b->resources[RESOURCE_GOLD] -= BUILDING_INDUSTRY_CITY_MINT_GOLD_PER_COIN;
-            if (b->resources[RESOURCE_GOLD] >= BUILDING_INDUSTRY_CITY_MINT_GOLD_PER_COIN) {
                 b->data.industry.has_raw_materials = 1;
-            }
         }
     }
 }
@@ -335,12 +333,7 @@ void building_industry_start_new_production(building *b)
     }
     resource_supply_chain chain[RESOURCE_SUPPLY_CHAIN_MAX_SIZE];
     int num_raw_materials = building_get_raw_materials_for_workshop(chain, b->type);
-    int has_raw_materials = 1;
-    for (int i = 0; i < num_raw_materials; i++) {
-        if (b->resources[chain[i].raw_material] <= chain[i].raw_amount) {
-            has_raw_materials = 0;
-        }
-    }
+    int has_raw_materials = building_industry_has_raw_materials_for_production(b);
     if (has_raw_materials) {
         for (int i = 0; i < num_raw_materials; i++) {
             b->resources[chain[i].raw_material] -= chain[i].raw_amount;

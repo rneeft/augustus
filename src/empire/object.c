@@ -526,8 +526,7 @@ int empire_object_city_buys_resource(int object_id, int resource)
 int empire_object_city_sells_resource(int object_id, int resource)
 {
     const full_empire_object *object = array_item(objects, object_id);
-    if (object->city_sells_resource[resource] &&
-        (resource_is_storable(resource) || object->city_type == EMPIRE_CITY_OURS)) {
+    if (object->city_sells_resource[resource] && resource_is_storable(resource)) {
         return 1;
     }
     return 0;

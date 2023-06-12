@@ -94,11 +94,10 @@ static const resource_supply_chain SUPPLY_CHAIN[RESOURCE_SUPPLY_CHAIN_MAX_SIZE] 
     { .raw_amount = 100, .raw_material = RESOURCE_OLIVES, .good = RESOURCE_OIL       },
     { .raw_amount = 100, .raw_material = RESOURCE_VINES,  .good = RESOURCE_WINE      },
     { .raw_amount = 100, .raw_material = RESOURCE_IRON,   .good = RESOURCE_WEAPONS   },
-    { .raw_amount = 100, .raw_material = RESOURCE_GOLD,   .good = RESOURCE_DENARII   },
+    { .raw_amount =  20, .raw_material = RESOURCE_GOLD,   .good = RESOURCE_DENARII   },
     { .raw_amount =  50, .raw_material = RESOURCE_SAND,   .good = RESOURCE_CONCRETE  },
     { .raw_amount =  50, .raw_material = RESOURCE_SAND,   .good = RESOURCE_BRICKS    },
     { .raw_amount =  50, .raw_material = RESOURCE_CLAY,   .good = RESOURCE_BRICKS    },
-    { .raw_amount =  20, .raw_material = RESOURCE_GOLD,   .good = RESOURCE_DENARII   },
 };
 
 int resource_is_food(resource_type resource)

@@ -161,7 +161,12 @@ int empire_can_produce_resource(int resource)
     // finished goods: check imports of raw materials
     if (num_raw_materials > 0) {
         for (int i = 0; i < num_raw_materials; i++) {
-            if (!empire_can_import_resource(chain[i].raw_material) && !can_produce_resource(chain[i].raw_material)) {
+            if (resource_is_raw_material(chain[i].raw_material)) {
+                if (!empire_can_import_resource(chain[i].raw_material) &&
+                    !can_produce_resource(chain[i].raw_material)) {
+                    return 0;
+                }
+            } else if (!empire_can_produce_resource(chain[i].raw_material)) {
                 return 0;
             }
         }
@@ -178,8 +183,12 @@ int empire_can_produce_resource_potentially(int resource)
     // finished goods: check imports of raw materials
     if (num_raw_materials > 0) {
         for (int i = 0; i < num_raw_materials; i++) {
-            if (!empire_can_import_resource_potentially(chain[i].raw_material) &&
-                !can_produce_resource(chain[i].raw_material)) {
+            if (resource_is_raw_material(chain[i].raw_material)) {
+                if (!empire_can_import_resource_potentially(chain[i].raw_material) &&
+                    !can_produce_resource(chain[i].raw_material)) {
+                    return 0;
+                }
+            } else if (!empire_can_produce_resource_potentially(chain[i].raw_material)) {
                 return 0;
             }
         }
