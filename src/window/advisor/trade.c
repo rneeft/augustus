@@ -29,7 +29,6 @@
 #include <string.h>
 
 #define ADVISOR_HEIGHT 27
-#define NUMBER_WIDTH 20
 #define RESOURCE_Y_OFFSET 54
 #define RESOURCE_ROW_HEIGHT 41
 #define MAX_VISIBLE_ROWS 8

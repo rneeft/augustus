@@ -132,7 +132,7 @@ static void draw_foreground(void)
             button_border_draw(30, 212, 286, 30, data.focus_button_id == 2);
             if (trade_status & TRADE_STATUS_IMPORT) {
                 int x_offset = 32 + (215 - lang_text_get_width(54, 5, FONT_NORMAL_BLACK)) / 2;
-                int width = lang_text_draw(54, 5, x_offset, 221, FONT_NORMAL_BLACK);
+                width = lang_text_draw(54, 5, x_offset, 221, FONT_NORMAL_BLACK);
                 int trade_quantity = city_resource_import_over(data.resource);
                 if (trade_quantity == 0) {
                     text_draw(translation_for(TR_ADVISOR_TRADE_NO_LIMIT), x_offset + width, 221, FONT_NORMAL_BLACK, 0);
@@ -283,7 +283,7 @@ static void button_toggle_stockpile(int param1, int param2)
     }
 }
 
-void get_tooltip(tooltip_context *c)
+static void get_tooltip(tooltip_context *c)
 {
     if ((data.focus_button_id == 2 && needs_to_open_trade_route(TRADE_STATUS_IMPORT)) ||
         (data.focus_button_id == 3 && needs_to_open_trade_route(TRADE_STATUS_EXPORT))) {

@@ -13,7 +13,8 @@ typedef enum {
     EVENT_STATE_UNDEFINED = 0,
     EVENT_STATE_DISABLED = 1,
     EVENT_STATE_ACTIVE = 2,
-    EVENT_STATE_PAUSED = 3
+    EVENT_STATE_PAUSED = 3,
+    EVENT_STATE_DELETED = 4
 } event_state;
 
 typedef enum {
@@ -69,7 +70,7 @@ typedef enum {
 typedef enum {
     LINK_TYPE_UNDEFINED = -1,
     LINK_TYPE_SCENARIO_EVENT = 0
-} link_type;
+} link_type_t;
 
 enum {
     COMPARISON_TYPE_UNDEFINED = 0,
