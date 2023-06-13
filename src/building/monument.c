@@ -62,10 +62,10 @@ static const monument_type pantheon = {
 static const monument_type lighthouse = {
     .phases    = 5,
     .resources = {
-        { [ARCHITECTS] = 1, [RESOURCE_MARBLE] = 12 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8,  [RESOURCE_MARBLE] = 12 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_MARBLE] = 8 },
-        { [ARCHITECTS] = 4, [RESOURCE_TIMBER] = 8,  [RESOURCE_CLAY] = 20, [RESOURCE_MARBLE] = 8 },
+        { [ARCHITECTS] = 1, [RESOURCE_STONE] = 16 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8,  [RESOURCE_STONE] = 16 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_STONE] = 12 },
+        { [ARCHITECTS] = 4, [RESOURCE_TIMBER] = 8,  [RESOURCE_BRICKS] = 20, [RESOURCE_STONE] = 12 },
         { NOTHING }
     }
 };
@@ -110,9 +110,10 @@ static const monument_type large_temple_nymphaeum_and_large_mausuleum = {
 
 
 static const monument_type caravanserai = {
-    .phases    = 2,
+    .phases    = 3,
     .resources = {
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 6, [RESOURCE_CLAY] = 8, [RESOURCE_MARBLE] = 6 },
+        { [ARCHITECTS] = 1, [RESOURCE_STONE] = 12 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8, [RESOURCE_BRICKS] = 12, [RESOURCE_STONE] = 12 },
         { NOTHING }
     }
 };
@@ -120,7 +121,7 @@ static const monument_type caravanserai = {
 static const monument_type city_mint = {
     .phases    = 2,
     .resources = {
-        { [ARCHITECTS] = 2, [RESOURCE_TIMBER] = 6, [RESOURCE_CLAY] = 8, [RESOURCE_IRON] = 4, [RESOURCE_CONCRETE] = 2 },
+        { [ARCHITECTS] = 2, [RESOURCE_TIMBER] = 6, [RESOURCE_CLAY] = 8, [RESOURCE_IRON] = 4 },
         { NOTHING }
     }
 };
@@ -321,8 +322,7 @@ void building_monument_set_phase(building *b, int phase)
     if (b->data.monument.phase != MONUMENT_FINISHED) {
         for (int resource = 0; resource < RESOURCE_MAX; resource++) {
             b->resources[resource] =
-                building_monument_resources_needed_for_monument_type(b->type, resource,
-                b->data.monument.phase);
+                building_monument_resources_needed_for_monument_type(b->type, resource, b->data.monument.phase);
         }
     }
 }

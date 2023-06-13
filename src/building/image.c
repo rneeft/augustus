@@ -780,6 +780,8 @@ int building_image_get(const building *b)
             switch (b->data.monument.phase) {
                 case MONUMENT_START:
                     return assets_get_image_id("Logistics", "Caravanserai_Construction_01");
+                case 2:
+                    return assets_get_image_id("Logistics", "Caravanserai_Construction_02");
                 default:
                     switch (scenario_property_climate()) {
                         case CLIMATE_DESERT:
