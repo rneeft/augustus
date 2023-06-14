@@ -316,7 +316,7 @@ resource_type city_resource_ceres_temple_food(void)
 
     // locally produced
     for (resource_type r = RESOURCE_MIN_FOOD; r < RESOURCE_MAX_FOOD; r++) {
-        if (can_produce_resource(r)) {
+        if (empire_can_produce_resource_locally(r)) {
             return r;
         }
         if (imported == RESOURCE_NONE && empire_can_import_resource_potentially(r)) {

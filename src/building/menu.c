@@ -116,7 +116,7 @@ static void enable_if_allowed(int *enabled, building_type menu_building_type, bu
 
 static void disable_raw(int *enabled, building_type menu_building_type, building_type type, int resource)
 {
-    if (type == menu_building_type && !empire_can_produce_resource(resource)) {
+    if (type == menu_building_type && !empire_can_produce_resource_naturally(resource)) {
         *enabled = 0;
     }
 }
