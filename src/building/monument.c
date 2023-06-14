@@ -38,10 +38,10 @@ typedef struct {
 static const monument_type grand_temple = {
     .phases    = 6,
     .resources = {
-        { [ARCHITECTS] = 1, [RESOURCE_MARBLE] = 20 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8, [RESOURCE_MARBLE] = 20 },
+        { [ARCHITECTS] = 1, [RESOURCE_STONE] = 20 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8, [RESOURCE_CONCRETE] = 20 },
         { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8, [RESOURCE_MARBLE] = 16 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8, [RESOURCE_CLAY] = 28, [RESOURCE_MARBLE] = 12 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_BRICKS] = 28, [RESOURCE_MARBLE] = 12 },
         { [ARCHITECTS] = 4 },
         { NOTHING }
     }
@@ -50,10 +50,10 @@ static const monument_type grand_temple = {
 static const monument_type pantheon = {
     .phases    = 6,
     .resources = {
-        { [ARCHITECTS] = 1, [RESOURCE_MARBLE] = 16 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8,  [RESOURCE_MARBLE] = 16 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_MARBLE] = 32 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 32, [RESOURCE_CLAY] = 40, [RESOURCE_MARBLE] = 32 },
+        { [ARCHITECTS] = 1, [RESOURCE_STONE] = 20 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8,  [RESOURCE_STONE] = 20 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_CONCRETE] = 40 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_MARBLE] = 32, [RESOURCE_GOLD] = 16 },
         { [ARCHITECTS] = 4 },
         { NOTHING }
     }
@@ -73,10 +73,10 @@ static const monument_type lighthouse = {
 static const monument_type colosseum = {
     .phases    = 5,
     .resources = {
-        { [ARCHITECTS] = 1, [RESOURCE_MARBLE] = 12 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8,  [RESOURCE_MARBLE] = 16 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 12, [RESOURCE_MARBLE] = 16 },
-        { [ARCHITECTS] = 4, [RESOURCE_TIMBER] = 12, [RESOURCE_CLAY] = 16, [RESOURCE_MARBLE] = 12 },
+        { [ARCHITECTS] = 1, [RESOURCE_STONE] = 12 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 8,  [RESOURCE_CONCRETE] = 16 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 12, [RESOURCE_STONE] = 16 },
+        { [ARCHITECTS] = 4, [RESOURCE_TIMBER] = 12, [RESOURCE_BRICKS] = 16, [RESOURCE_MARBLE] = 20 },
         { NOTHING }
     }
 };
@@ -84,10 +84,10 @@ static const monument_type colosseum = {
 static const monument_type hippodrome = {
     .phases    = 5,
     .resources = {
-        { [ARCHITECTS] = 1, [RESOURCE_MARBLE] = 32 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_MARBLE] = 32 },
-        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_MARBLE] = 32 },
-        { [ARCHITECTS] = 4, [RESOURCE_TIMBER] = 32, [RESOURCE_CLAY] = 46, [RESOURCE_MARBLE] = 32 },
+        { [ARCHITECTS] = 1, [RESOURCE_STONE] = 32 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_CONCRETE] = 32 },
+        { [ARCHITECTS] = 1, [RESOURCE_TIMBER] = 16, [RESOURCE_STONE] = 32 },
+        { [ARCHITECTS] = 4, [RESOURCE_TIMBER] = 32, [RESOURCE_BRICKS] = 32, [RESOURCE_MARBLE] = 48 },
         { NOTHING }
     }
 };
