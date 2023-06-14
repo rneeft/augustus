@@ -595,9 +595,9 @@
 		<layer src="Warehouse_Silver_04" x="9" y="1"/>
 	</image>
 	<!-- Note: Plain Stone Quarry OFF - Climate Variants -->
-	<image id="Stone_Quarry_C_OFF" src="Stone_Quarry_C_OFF" width="118" height="62" isometric="true"/>
-	<image id="Stone_Quarry_N_OFF" src="Stone_Quarry_N_OFF" width="118" height="62" isometric="true"/>
-	<image id="Stone_Quarry_S_OFF" src="Stone_Quarry_S_OFF" width="118" height="62" isometric="true"/>
+	<image id="Stone_Quarry_C_OFF" src="Stone_Quarry_C_OFF" width="118" height="60" isometric="true"/>
+	<image id="Stone_Quarry_N_OFF" src="Stone_Quarry_N_OFF" width="118" height="60" isometric="true"/>
+	<image id="Stone_Quarry_S_OFF" src="Stone_Quarry_S_OFF" width="118" height="60" isometric="true"/>
 	<!-- Note: Plain Stone Quarry ON animation reference DO NOT USE! -->
 	<image id="Stone_Quarry_ON_01" width="48" height="49">
 		<layer src="Stone_Quarry_ON_Base" x="0" y="0"/>
@@ -628,7 +628,7 @@
 		<layer src="Stone_Quarry_ON" x="32" y="21"/>
 	</image>
 	<!-- Note: Plain Stone Quarry ON - Climate Variants -->
-	<image id="Stone_Quarry_C_ON" width="118" height="62" isometric="true">
+	<image id="Stone_Quarry_C_ON" width="118" height="60" isometric="true">
 		<layer group="this" image="Stone_Quarry_C_OFF"/>
 		<animation speed="10" x="18" y="-15" reversible="true">
 			<frame group="this" image="Stone_Quarry_ON_01"/>
@@ -640,7 +640,7 @@
 			<frame group="this" image="Stone_Quarry_ON_07"/>
 		</animation>
 	</image>
-	<image id="Stone_Quarry_N_ON" width="118" height="62" isometric="true">
+	<image id="Stone_Quarry_N_ON" width="118" height="60" isometric="true">
 		<layer group="this" image="Stone_Quarry_N_OFF"/>
 		<animation speed="10" x="18" y="-15" reversible="true">
 			<frame group="this" image="Stone_Quarry_ON_01"/>
@@ -652,7 +652,7 @@
 			<frame group="this" image="Stone_Quarry_ON_07"/>
 		</animation>
 	</image>
-	<image id="Stone_Quarry_S_ON" width="118" height="62" isometric="true">
+	<image id="Stone_Quarry_S_ON" width="118" height="60" isometric="true">
 		<layer group="this" image="Stone_Quarry_S_OFF"/>
 		<animation speed="10" x="18" y="-15" reversible="true">
 			<frame group="this" image="Stone_Quarry_ON_01"/>
