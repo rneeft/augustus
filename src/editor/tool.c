@@ -79,8 +79,8 @@ void editor_tool_set_brush_size(int size)
 void editor_tool_foreach_brush_tile(void (*callback)(const void *user_data, int dx, int dy), const void *user_data)
 {
     if (data.type == TOOL_RAISE_LAND || data.type == TOOL_LOWER_LAND) {
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -data.brush_size + 1; dy < data.brush_size; dy++) {
+            for (int dx = -data.brush_size + 1; dx < data.brush_size; dx++) {
                 callback(user_data, dx, dy);
             }
         }
