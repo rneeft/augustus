@@ -251,7 +251,7 @@ static const char FIGURE_SOUNDS[33][20][SOUND_FILENAME_MAX] = {
         "wavs/ox_exact2.wav", "wavs/ox_exact3.wav", "wavs/ox_exact4.wav", "wavs/ox_exact5.wav",
         "wavs/ox_exact6.wav", "wavs/ox_exact7.wav", "wavs/ox_exact8.wav", "wavs/ox_exact9.wav",
         "wavs/ox_exact0.wav", "wavs/ox_free1.wav", "wavs/ox_free2.wav", "wavs/ox_free3.wav"
-    },
+    }
 };
 
 static const int FIGURE_TYPE_TO_SOUND_TYPE[] = {
