@@ -1446,7 +1446,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_REPEAT_TEXT, "Wiederholung"},
     {TR_EDITOR_REPEAT_TIMES, " Mal"},
     {TR_EDITOR_REPEAT_TIMES2, "Male:"},
-    {TR_EDITOR_REPEAT_FREQUENCY, "Wiederholungsfrequenz:"},
+    {TR_EDITOR_REPEAT_FREQUENCY, "Wiederholungsfrequenz zwischen:"},
     {TR_EDITOR_REPEAT_FREQUENCY2, "Wiederholungsfrequenz"},
     {TR_EDITOR_REPEAT_FREQUENCY_YEARS, "Jahre"},
     {TR_EDITOR_REPEAT_FREQUENCY_YEARS2, "Jahre:"},
