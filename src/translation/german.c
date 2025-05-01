@@ -1628,7 +1628,7 @@ static translation_string all_strings[] = {
     {TR_PARAMETER_VALUE_RATING_TYPE_PROSPERITY, "Wohlstand"},
     {TR_PARAMETER_VALUE_STORAGE_TYPE_ALL, "Alle"},
     {TR_PARAMETER_VALUE_STORAGE_TYPE_GRANARIES, "Silos"},
-    {TR_PARAMETER_VALUE_STORAGE_TYPE_WAREHOUSES, "Lagerhäuser"}
+    {TR_PARAMETER_VALUE_STORAGE_TYPE_WAREHOUSES, "Lagerhäuser"},
 	/* Neu Übersetzen & sortieren */
 };
 
