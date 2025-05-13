@@ -1,6 +1,5 @@
 #include "utility.h"
 
-#include <stdlib.h>
 #include "assets/assets.h"
 #include "building/building.h"
 #include "building/roadblock.h"
@@ -19,6 +18,8 @@
 #include "translation/translation.h"
 #include "window/building_info.h"
 #include "window/building/figures.h"
+
+#include <stdlib.h>
 
 static void button_go_to_orders(const generic_button *button);
 static void button_toggle_figure_state(const generic_button *button);
