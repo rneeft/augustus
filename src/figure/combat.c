@@ -89,6 +89,9 @@ static void hit_opponent(figure *f)
         attack_is_same_direction(f->attack_direction, m->direction)) {
         figure_attack += 2; // coordinated formation attack bonus
     }
+    if (m->is_charging && m->figure_type == FIGURE_FORT_MOUNTED){
+        figure_attack += 4; // charging bonus for mounted units
+    }
 
     // defense modifiers
     if (opponent_formation->is_halted &&

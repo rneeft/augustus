@@ -18,6 +18,9 @@
 #include "map/grid.h"
 #include "sound/effect.h"
 
+#include <stdio.h>
+
+
 #define FORMATION_ARRAY_SIZE_STEP 50
 #define ORIGINAL_BUFFER_SIZE_PER_FORMATION 128
 #define CURRENT_BUFFER_SIZE_PER_FORMATION 128
@@ -79,8 +82,8 @@ formation *formation_create_legion(int building_id, figure_type type)
         m->legion_id = 9;
     }
     building *fort_ground = building_get(building_get(building_id)->next_part_building_id);
-    m->x = m->standard_x = m->x_home = fort_ground->x;
-    m->y = m->standard_y = m->y_home = fort_ground->y;
+    m->x = m->standard_x = m->x_home = fort_ground->x; // home x = destination x = current x position of the legion = x of the fort
+    m->y = m->standard_y = m->y_home = fort_ground->y;// home y = destination y = current y position of the legion = y of the fort
     m->target_formation_id = 0;
 
     data.num_legions++;
@@ -184,6 +187,20 @@ void formation_record_missile_attack(formation *m, int from_formation_id)
 void formation_record_fight(formation *m)
 {
     m->recent_fight = 6;
+}
+
+int is_formation_moving(const formation *m)
+{
+    for (int i = 0; i < m->num_figures; i++) {
+        int figure_id = m->figures[i];
+        if (figure_id) {
+            const figure *f = figure_get(figure_id);
+            if (f->direction != DIR_8_NONE) {
+                return 1; // At least one figure is moving
+            }
+        }
+    }
+    return 0; // All figures are idle or invalid
 }
 
 int formation_grid_offset_for_invasion(int invasion_sequence)
@@ -585,11 +602,11 @@ void formation_calculate_figures(void)
             if (m->is_legion) {
                 if (m->num_figures > 0) {
                     int was_halted = m->is_halted;
-                    m->is_halted = 1;
-                    for (int fig = 0; fig < m->num_figures; fig++) {
-                        int figure_id = m->figures[fig];
-                        if (figure_id && figure_get(figure_id)->direction != DIR_8_NONE) {
-                            m->is_halted = 0;
+                    m->is_halted = !is_formation_moving(m);
+                    if (m->recent_fight < 4 && m->is_charging) { //if 2 or more months passed from last encounter, remove charging status
+                        m->is_charging = 0;
+                        if (m->figure_type == FIGURE_FORT_MOUNTED) { 
+                            sound_effect_play(SOUND_EFFECT_EXPLOSION); //debugging placeholder
                         }
                     }
                     int total_strength = m->num_figures;
@@ -597,10 +614,29 @@ void formation_calculate_figures(void)
                         total_strength += m->num_figures / 2;
                     }
                     enemy_army_totals_add_legion_formation(total_strength);
-                    if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-                        if (!was_halted && m->is_halted) {
-                            sound_effect_play(SOUND_EFFECT_FORMATION_SHIELD);
+                    m->traveled_tiles = map_grid_chess_distance(map_grid_offset(m->x_home,m->y_home),m->started_moving_from_grid_offset); // update distance travelled during this command
+                    if (m->traveled_tiles > 5 && !m->is_charging){ //if the legion started charging
+                        m->is_charging = 1;
+                        if (m->figure_type == FIGURE_FORT_MOUNTED) { 
+                            sound_effect_play(SOUND_EFFECT_LION_ATTACK); //debugging placeholder
                         }
+                    }
+                    
+                    if (!was_halted && m->is_halted) { //formation stopped
+                        m->halted_at_grid_offset = map_grid_offset(m->x_home,m->y_home);
+                        m->traveled_tiles = map_grid_chess_distance(map_grid_offset(m->x_home,m->y_home),m->started_moving_from_grid_offset);
+                        m->started_moving_from_grid_offset = 0;
+                        if (m->figure_type == FIGURE_FORT_LEGIONARY) { 
+                            sound_effect_play(SOUND_EFFECT_FORMATION_SHIELD); //play shield stomp if legionnaire formation stops
+                        }
+                    } else if (was_halted && !m->is_halted) { //formation started moving
+                        
+                        m->is_charging = 0; //not charging until certain distance travelled
+                        if (m->figure_type == FIGURE_FORT_MOUNTED) { 
+                            sound_effect_play(SOUND_EFFECT_EXPLOSION); //debugging placeholder
+                        }
+                        m->started_moving_from_grid_offset = map_grid_offset(m->x_home,m->y_home); //last stationary position
+                        m->traveled_tiles = 0;
                     }
                 }
             } else {

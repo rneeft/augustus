@@ -79,17 +79,17 @@ typedef struct {
     int max_total_damage; /**< Maximum total damage of all figures added */
 
     /* Position */
-    int x;
-    int y;
-    int x_home;
-    int y_home;
-    int building_id;
-    int standard_x;
-    int standard_y;
-    int standard_figure_id;
-    int destination_x;
-    int destination_y;
-    int destination_building_id;
+    int x; // legions - x position of the fort
+    int y; // legions - y position of the fort
+    int x_home; // legions - x position of the formation RIGHT NOW
+    int y_home; // legions - y position of the formation RIGHT NOW
+    int building_id; // legions - Building ID of home fort
+    int standard_x; //  legions - x position of the DESTINATION
+    int standard_y; // legions - y position of the DESTINATION
+    int standard_figure_id; 
+    int destination_x; //for enemy and animals
+    int destination_y; //for enemy and animals
+    int destination_building_id; 
 
     /* Movement */
     int wait_ticks;
@@ -99,6 +99,11 @@ typedef struct {
     int missile_fired;
     int missile_attack_timeout;
     int missile_attack_formation_id;
+    int started_moving_from_grid_offset;
+    int halted_at_grid_offset;
+    int traveled_tiles;
+    int ticks_since_halted;
+    int is_charging; //state of moving for at least 4 tiles
 
     /* Legion-related */
     int empire_service; /**< Flag to indicate this legion is selected for empire service */
@@ -128,6 +133,7 @@ typedef struct {
     } prev;
 
     int target_formation_id;
+
 } formation;
 
 void formations_clear(void);
