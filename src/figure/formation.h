@@ -94,6 +94,7 @@ typedef struct {
     /* Movement */
     int wait_ticks;
     int is_halted;
+    int is_moving;
     int recent_fight;
     int unknown_fired;
     int missile_fired;
@@ -102,7 +103,7 @@ typedef struct {
     int started_moving_from_grid_offset;
     int halted_at_grid_offset;
     int traveled_tiles;
-    int ticks_since_halted;
+    int halted_for_months;
     int is_charging; //state of moving for at least 4 tiles
 
     /* Legion-related */

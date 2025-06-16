@@ -189,19 +189,76 @@ void formation_record_fight(formation *m)
     m->recent_fight = 6;
 }
 
-int is_formation_moving(const formation *m)
+int is_formation_halted(const formation *m)
 {
     for (int i = 0; i < m->num_figures; i++) {
         int figure_id = m->figures[i];
         if (figure_id) {
             const figure *f = figure_get(figure_id);
             if (f->direction != DIR_8_NONE) {
-                return 1; // At least one figure is moving
+                return 0; // At least one figure is moving
             }
         }
     }
-    return 0; // All figures are idle or invalid
+    return 1; // All figures are idle or invalid
 }
+
+int is_formation_moving(formation *m) {
+    // Formation is considered moving if destination != current location
+    int is_moving = (m->standard_x != m->x_home || m->standard_y != m->y_home);
+
+    if (is_moving && !m->is_moving) {
+        //started moving now
+        m->started_moving_from_grid_offset = map_grid_offset(m->x_home,m->y_home);
+        int current_offset = map_grid_offset(m->x_home,m->y_home);
+        m->traveled_tiles = map_grid_chess_distance(m->started_moving_from_grid_offset, current_offset);
+        return 1;
+    } else if (is_moving && m->is_moving){
+        //continues moving
+        int current_offset = map_grid_offset(m->x_home,m->y_home);
+        m->traveled_tiles = map_grid_chess_distance(m->started_moving_from_grid_offset, current_offset);
+        return 1;
+    } else if(!is_moving && m->is_moving){
+        //coming to a stop or just stopped
+        int current_offset = map_grid_offset(m->x_home,m->y_home);
+        m->traveled_tiles = map_grid_chess_distance(m->started_moving_from_grid_offset, current_offset);
+        m->halted_at_grid_offset = current_offset;
+        return 0;
+    } else if(!is_moving && !m->is_moving){
+        //not moving at all
+        return 0;
+    }
+    //shouldnt happen
+    return 0;
+}
+
+
+int is_formation_charging(const formation *m) {
+    // If moving: must have traveled at least 5 tiles
+    if (m->is_moving) {
+        return (m->traveled_tiles >= 5) ? 1 : 0;
+    }
+
+    // If halted
+    if (m->is_halted) {
+        if (m->traveled_tiles >= 5) {
+            if (m->halted_for_months >= 2) {
+                // Only charge if fought recently (recent_fight >= 4)
+                return (m->recent_fight >= 4) ? 1 : 0;
+            } else {
+                // Halted less than 2 months, but traveled enough: charging
+                return 1;
+            }
+        } else {
+            // Not enough traveled_tiles, not charging
+            return 0;
+        }
+    }
+    // Not moving or halted: not charging
+    return 0;
+}
+
+
 
 int formation_grid_offset_for_invasion(int invasion_sequence)
 {
@@ -492,6 +549,10 @@ void formation_decrease_monthly_counters(formation *m)
     if (m->recent_fight) {
         m->recent_fight--;
     }
+    // this one increases
+    if (m->is_halted) {
+        m->halted_for_months++;
+    }
 }
 
 void formation_clear_monthly_counters(formation *m)
@@ -602,42 +663,20 @@ void formation_calculate_figures(void)
             if (m->is_legion) {
                 if (m->num_figures > 0) {
                     int was_halted = m->is_halted;
-                    m->is_halted = !is_formation_moving(m);
-                    if (m->recent_fight < 4 && m->is_charging) { //if 2 or more months passed from last encounter, remove charging status
-                        m->is_charging = 0;
-                        if (m->figure_type == FIGURE_FORT_MOUNTED) { 
-                            sound_effect_play(SOUND_EFFECT_EXPLOSION); //debugging placeholder
-                        }
+                    int was_charging = m->is_charging;
+                    m->is_halted = is_formation_halted(m);
+                    m->is_moving = is_formation_moving(m);
+                    m->is_charging = is_formation_charging(m);
+                    if (!was_charging && m->is_charging){
+                        sound_effect_play(SOUND_EFFECT_HORSE_MOVING); //CHAAARGE!
                     }
-                    int total_strength = m->num_figures;
-                    if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-                        total_strength += m->num_figures / 2;
-                    }
-                    enemy_army_totals_add_legion_formation(total_strength);
-                    m->traveled_tiles = map_grid_chess_distance(map_grid_offset(m->x_home,m->y_home),m->started_moving_from_grid_offset); // update distance travelled during this command
-                    if (m->traveled_tiles > 5 && !m->is_charging){ //if the legion started charging
-                        m->is_charging = 1;
-                        if (m->figure_type == FIGURE_FORT_MOUNTED) { 
-                            sound_effect_play(SOUND_EFFECT_LION_ATTACK); //debugging placeholder
-                        }
-                    }
-                    
-                    if (!was_halted && m->is_halted) { //formation stopped
-                        m->halted_at_grid_offset = map_grid_offset(m->x_home,m->y_home);
-                        m->traveled_tiles = map_grid_chess_distance(map_grid_offset(m->x_home,m->y_home),m->started_moving_from_grid_offset);
+                    if (!was_halted && m->is_halted) { // formation stopped
+                        m->halted_at_grid_offset = map_grid_offset(m->x_home, m->y_home);
                         m->started_moving_from_grid_offset = 0;
                         if (m->figure_type == FIGURE_FORT_LEGIONARY) { 
-                            sound_effect_play(SOUND_EFFECT_FORMATION_SHIELD); //play shield stomp if legionnaire formation stops
+                            sound_effect_play(SOUND_EFFECT_FORMATION_SHIELD);
                         }
-                    } else if (was_halted && !m->is_halted) { //formation started moving
-                        
-                        m->is_charging = 0; //not charging until certain distance travelled
-                        if (m->figure_type == FIGURE_FORT_MOUNTED) { 
-                            sound_effect_play(SOUND_EFFECT_EXPLOSION); //debugging placeholder
-                        }
-                        m->started_moving_from_grid_offset = map_grid_offset(m->x_home,m->y_home); //last stationary position
-                        m->traveled_tiles = 0;
-                    }
+                    }                 
                 }
             } else {
                 // enemy
