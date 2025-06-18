@@ -86,15 +86,16 @@ typedef struct {
     int building_id; // legions - Building ID of home fort
     int standard_x; //  legions - x position of the DESTINATION
     int standard_y; // legions - y position of the DESTINATION
-    int standard_figure_id; 
+    int standard_figure_id;
     int destination_x; //for enemy and animals
     int destination_y; //for enemy and animals
-    int destination_building_id; 
+    int destination_building_id;
 
     /* Movement */
     int wait_ticks;
     int is_halted;
     int is_moving;
+    int is_charging; //state of moving for at least 4 tiles
     int recent_fight;
     int unknown_fired;
     int missile_fired;
@@ -104,7 +105,7 @@ typedef struct {
     int halted_at_grid_offset;
     int traveled_tiles;
     int halted_for_months;
-    int is_charging; //state of moving for at least 4 tiles
+
 
     /* Legion-related */
     int empire_service; /**< Flag to indicate this legion is selected for empire service */
@@ -151,6 +152,18 @@ int formation_count(void);
 
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);
+
+int update_formation_halted_state(formation *m);
+int update_formation_movement_state(formation *m);
+int update_formation_charge_state(formation *m);
+
+void update_formation_movement_all_states(formation *m);
+
+int is_formation_halted(const formation *m);
+int is_formation_moving(const formation *m);
+int is_formation_charging(const formation *m);
+
+
 
 void formation_toggle_empire_service(int formation_id);
 
