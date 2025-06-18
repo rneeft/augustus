@@ -209,12 +209,15 @@ static int __stdcall BrowseCallbackProcW(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM
     return 0;
 }
 
-char const *tinyfd_selectFolderDialog(char const *const aTitle) /* NULL or "" */
+const char * tinyfd_selectFolderDialog(
+		char const * aTitle , /* NULL or "" */
+		char const * aDefaultPath ) /* NULL or "" */
 {
     static char resultBuff[MAX_PATH_OR_CMD];
     static wchar_t wBuff[MAX_PATH_OR_CMD];
 
     wchar_t *wTitle = utf8to16(aTitle);
+    wchar_t *wDefaultPath = utf8to16(aDefaultPath);
 
     BROWSEINFOW bInfo;
     HRESULT hResult = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -227,7 +230,7 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle) /* NULL or "" */
         bInfo.ulFlags = BIF_USENEWUI;
     }
     bInfo.lpfn = BrowseCallbackProcW;
-    bInfo.lParam = 0;
+    bInfo.lParam = (LPARAM) (wDefaultPath && wcslen(wDefaultPath) ? wDefaultPath : NULL);
     bInfo.iImage = -1;
     bInfo.ulFlags |= BIF_RETURNONLYFSDIRS;
 
@@ -241,6 +244,7 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle) /* NULL or "" */
     }
 
     free(wTitle);
+    free(wDefaultPath);
 
     if (!dirExists(wBuff)) {
         return NULL;
@@ -1167,9 +1171,12 @@ tinyfdRes=$(cat /tmp/tinyfd.txt);echo $tinyfdBool$tinyfdRes");
 }
 
 
-char const *tinyfd_selectFolderDialog(char const *const aTitle)
+const char * tinyfd_selectFolderDialog(
+    char const * aTitle , /* "" */
+    char const * aDefaultPath ) /* "" */
 {
     static char resultBuff[MAX_PATH_OR_CMD];
+    static char lastDirectory[MAX_PATH_OR_CMD] = "$PWD";
     char dialogString[MAX_PATH_OR_CMD];
     char const *p;
     resultBuff[0] = '\0';
@@ -1182,6 +1189,12 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle)
             strcat(dialogString, aTitle);
             strcat(dialogString, "\" ");
         }
+        if ( aDefaultPath && strlen(aDefaultPath) )
+        {
+            strcat(dialogString, "default location \"") ;
+            strcat(dialogString, aDefaultPath ) ;
+            strcat(dialogString , "\" " ) ;
+        }
         strcat(dialogString, ")' ");
         strcat(dialogString, "-e 'on error number -128' ");
         strcat(dialogString, "-e 'end try'");
@@ -1189,7 +1202,24 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle)
         strcpy(dialogString, "kdialog");
         strcat(dialogString, " --getexistingdirectory ");
 
-        strcat(dialogString, "$PWD/");
+        if ( aDefaultPath && strlen(aDefaultPath) )
+        {
+            strcat(dialogString, "\"") ;
+            if ( aDefaultPath[0] != '/' )
+            {
+                strcat(dialogString, lastDirectory) ;
+                strcat(dialogString , "/" ) ;
+            }
+            strcat(dialogString, aDefaultPath ) ;
+            strcat(dialogString , "\"" ) ;
+        }
+        else
+        {
+            strcat(dialogString, "\"") ;
+            strcat(dialogString, lastDirectory) ;
+            strcat(dialogString , "/" ) ;
+            strcat(dialogString, "\"") ;
+        }
 
         if (aTitle && strlen(aTitle)) {
             strcat(dialogString, " --title \"");
@@ -1211,6 +1241,14 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle)
             strcat(dialogString, aTitle);
             strcat(dialogString, "\"");
         }
+
+        if ( aDefaultPath && strlen(aDefaultPath) )
+        {
+            strcat(dialogString, " --filename=\"") ;
+            strcat(dialogString, aDefaultPath) ;
+            strcat(dialogString, "\"") ;
+        }
+    
         if (tinyfd_silent) strcat(dialogString, " 2>/dev/null ");
     } else if (xdialogPresent()) {
         strcpy(dialogString, "(Xdialog ");
@@ -1229,6 +1267,12 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle)
             strcat(dialogString, aTitle);
             strcat(dialogString, "',");
         }
+        if ( aDefaultPath && strlen(aDefaultPath) )
+        {
+            strcat(dialogString, "initialdir='") ;
+            strcat(dialogString, aDefaultPath ) ;
+            strcat(dialogString , "'" ) ;
+        }
         strcat(dialogString, ")\"");
     } else if (tkinter3Present()) {
         strcpy(dialogString, gPython3Name);
@@ -1239,6 +1283,12 @@ char const *tinyfd_selectFolderDialog(char const *const aTitle)
             strcat(dialogString, "title='");
             strcat(dialogString, aTitle);
             strcat(dialogString, "',");
+        }
+        if ( aDefaultPath && strlen(aDefaultPath) )
+        {
+            strcat(dialogString, "initialdir='") ;
+            strcat(dialogString, aDefaultPath ) ;
+            strcat(dialogString , "'" ) ;
         }
         strcat(dialogString, ") )\"");
     } else {

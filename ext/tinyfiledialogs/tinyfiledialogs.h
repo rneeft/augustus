@@ -56,8 +56,9 @@ int tinyfd_messageBox(
 	int const aDefaultButton ) ;
 		/* 0 for cancel, 1 for ok */
 
-char const * tinyfd_selectFolderDialog(
-	char const * const aTitle); /* NULL or "" */
+const char * tinyfd_selectFolderDialog(
+	char const * aTitle, /* NULL or "" */
+	char const * aDefaultPath); /* NULL or "" */
 		/* returns NULL on cancel */
 
 #ifdef	__cplusplus

@@ -139,7 +139,7 @@ int system_supports_select_folder_dialog(void)
 const char *system_show_select_folder_dialog(const char *title, const char *default_path)
 {
 #ifdef USE_TINYFILEDIALOGS
-    return tinyfd_selectFolderDialog(title);
+    return tinyfd_selectFolderDialog(title, default_path);
 #else
     return 0;
 #endif
