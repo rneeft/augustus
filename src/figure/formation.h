@@ -86,10 +86,10 @@ typedef struct {
     int building_id; // legions - Building ID of home fort
     int standard_x; //  legions - x position of the DESTINATION
     int standard_y; // legions - y position of the DESTINATION
-    int standard_figure_id; 
+    int standard_figure_id;
     int destination_x; //for enemy and animals
     int destination_y; //for enemy and animals
-    int destination_building_id; 
+    int destination_building_id;
 
     /* Movement */
     int wait_ticks;
