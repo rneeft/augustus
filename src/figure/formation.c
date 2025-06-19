@@ -191,75 +191,94 @@ void formation_record_fight(formation *m)
 
 int is_formation_halted(const formation *m)
 {
+    return m->is_halted;
+}
+
+int is_formation_moving(const formation *m)
+{
+    return m->is_moving;
+}
+
+int is_formation_charging(const formation *m)
+{
+    return m->is_charging;
+}
+
+int update_formation_halted_state(formation *m)
+{
+    int all_figures_idle = 1;
+
     for (int i = 0; i < m->num_figures; i++) {
         int figure_id = m->figures[i];
         if (figure_id) {
             const figure *f = figure_get(figure_id);
             if (f->direction != DIR_8_NONE) {
-                return 0; // At least one figure is moving
+                all_figures_idle = 0;
+                break;
             }
         }
     }
-    return 1; // All figures are idle or invalid
+
+    m->is_halted = all_figures_idle;
+    return all_figures_idle;
 }
 
-int is_formation_moving(formation *m)
-{
-    // Formation is considered moving if destination != current location
-    int is_moving = (m->standard_x != m->x_home || m->standard_y != m->y_home);
 
-    if (is_moving && !m->is_moving) {
-        //started moving now
-        m->started_moving_from_grid_offset = map_grid_offset(m->x_home, m->y_home);
-        int current_offset = map_grid_offset(m->x_home, m->y_home);
+int update_formation_movement_state(formation *m)
+{
+    int is_moving_now = (m->standard_x != m->x_home || m->standard_y != m->y_home);
+    int current_offset = map_grid_offset(m->x_home, m->y_home);
+
+    if (is_moving_now && !m->is_moving) {
+        // Just started moving
+        m->is_moving = 1;
+        m->started_moving_from_grid_offset = current_offset;
+        m->traveled_tiles = 0;
+        return 1;
+    }
+
+    if (is_moving_now && m->is_moving) {
+        // Still moving
         m->traveled_tiles = map_grid_chess_distance(m->started_moving_from_grid_offset, current_offset);
         return 1;
-    } else if (is_moving && m->is_moving) {
-        //continues moving
-        int current_offset = map_grid_offset(m->x_home, m->y_home);
-        m->traveled_tiles = map_grid_chess_distance(m->started_moving_from_grid_offset, current_offset);
-        return 1;
-    } else if (!is_moving && m->is_moving) {
-        //coming to a stop or just stopped
-        int current_offset = map_grid_offset(m->x_home, m->y_home);
+    }
+
+    if (!is_moving_now && m->is_moving) {
+        // Just stopped moving
         m->traveled_tiles = map_grid_chess_distance(m->started_moving_from_grid_offset, current_offset);
         m->halted_at_grid_offset = current_offset;
-        return 0;
-    } else if (!is_moving && !m->is_moving) {
-        //not moving at all
+        m->is_moving = 0;
         return 0;
     }
-    //shouldnt happen
+
+    // Not moving
     return 0;
 }
 
-
-int is_formation_charging(const formation *m)
+int update_formation_charge_state(formation *m)
 {
-    // If moving: must have traveled at least 5 tiles
-    if (m->is_moving) {
-        return (m->traveled_tiles >= 5) ? 1 : 0;
-    }
+    int is_charging = 0;
 
-    // If halted
-    if (m->is_halted) {
-        if (m->traveled_tiles >= 5) {
-            if (m->halted_for_months >= 2) {
-                // Only charge if fought recently (recent_fight >= 4)
-                return (m->recent_fight >= 4) ? 1 : 0;
-            } else {
-                // Halted less than 2 months, but traveled enough: charging
-                return 1;
-            }
+    if (m->is_moving) {
+        is_charging = (m->traveled_tiles >= 5);
+    } else if (m->is_halted && m->traveled_tiles >= 5) {
+        if (m->halted_for_months >= 2) {
+            is_charging = (m->recent_fight >= 4);
         } else {
-            // Not enough traveled_tiles, not charging
-            return 0;
+            is_charging = 1;
         }
     }
-    // Not moving or halted: not charging
-    return 0;
+
+    m->is_charging = is_charging;
+    return is_charging;
 }
 
+void update_formation_movement_all_states(formation *m)
+{
+    update_formation_halted_state(m);
+    update_formation_movement_state(m);
+    update_formation_charge_state(m);
+}
 
 
 int formation_grid_offset_for_invasion(int invasion_sequence)
@@ -672,9 +691,7 @@ void formation_calculate_figures(void)
                 if (m->num_figures > 0) {
                     int was_halted = m->is_halted;
                     int was_charging = m->is_charging;
-                    m->is_halted = is_formation_halted(m);
-                    m->is_moving = is_formation_moving(m);
-                    m->is_charging = is_formation_charging(m);
+                    update_formation_movement_all_states(m);
                     if (!was_charging && m->is_charging) {
                         sound_effect_play(SOUND_EFFECT_HORSE_MOVING); //CHAAARGE!
                     }

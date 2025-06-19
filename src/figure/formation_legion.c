@@ -131,7 +131,7 @@ void formation_legion_move_to(formation *m, const map_tile *tile)
     m->standard_x = tile->x;
     m->standard_y = tile->y;
     m->is_at_fort = 0;
-    m->target_formation_id = 0; //why
+    m->target_formation_id = 0;
 
     int figure_id = map_figure_at(tile->grid_offset);
     while (figure_id) {
