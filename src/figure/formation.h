@@ -153,15 +153,15 @@ int formation_count(void);
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);
 
-int update_formation_halted_state(formation *m);
-int update_formation_movement_state(formation *m);
-int update_formation_charge_state(formation *m);
+int formation_update_halted_state(formation *m);
+int formation_update_movement_state(formation *m);
+int formation_update_charge_state(formation *m);
 
-void update_formation_movement_all_states(formation *m);
+void formation_update_movement_all_states(formation *m);
 
-int is_formation_halted(const formation *m);
-int is_formation_moving(const formation *m);
-int is_formation_charging(const formation *m);
+int formation_is_halted(const formation *m);
+int formation_is_moving(const formation *m);
+int formation_is_charging(const formation *m);
 
 
 

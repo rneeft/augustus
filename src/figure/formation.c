@@ -189,22 +189,22 @@ void formation_record_fight(formation *m)
     m->recent_fight = 6;
 }
 
-int is_formation_halted(const formation *m)
+int formation_is_halted(const formation *m)
 {
     return m->is_halted;
 }
 
-int is_formation_moving(const formation *m)
+int formation_is_moving(const formation *m)
 {
     return m->is_moving;
 }
 
-int is_formation_charging(const formation *m)
+int formation_is_charging(const formation *m)
 {
     return m->is_charging;
 }
 
-int update_formation_halted_state(formation *m)
+int formation_update_halted_state(formation *m)
 {
     int all_figures_idle = 1;
 
@@ -224,7 +224,7 @@ int update_formation_halted_state(formation *m)
 }
 
 
-int update_formation_movement_state(formation *m)
+int formation_update_movement_state(formation *m)
 {
     int is_moving_now = (m->standard_x != m->x_home || m->standard_y != m->y_home);
     int current_offset = map_grid_offset(m->x_home, m->y_home);
@@ -255,7 +255,7 @@ int update_formation_movement_state(formation *m)
     return 0;
 }
 
-int update_formation_charge_state(formation *m)
+int formation_update_charge_state(formation *m)
 {
     int is_charging = 0;
 
@@ -273,11 +273,11 @@ int update_formation_charge_state(formation *m)
     return is_charging;
 }
 
-void update_formation_movement_all_states(formation *m)
+void formation_update_movement_all_states(formation *m)
 {
-    update_formation_halted_state(m);
-    update_formation_movement_state(m);
-    update_formation_charge_state(m);
+    formation_update_halted_state(m);
+    formation_update_movement_state(m);
+    formation_update_charge_state(m);
 }
 
 
@@ -691,7 +691,7 @@ void formation_calculate_figures(void)
                 if (m->num_figures > 0) {
                     int was_halted = m->is_halted;
                     int was_charging = m->is_charging;
-                    update_formation_movement_all_states(m);
+                    formation_update_movement_all_states(m);
                     if (!was_charging && m->is_charging) {
                         sound_effect_play(SOUND_EFFECT_HORSE_MOVING); //CHAAARGE!
                     }
