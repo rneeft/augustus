@@ -693,7 +693,9 @@ void formation_calculate_figures(void)
                     int was_charging = m->is_charging;
                     formation_update_movement_all_states(m);
                     if (!was_charging && m->is_charging) {
-                        sound_effect_play(SOUND_EFFECT_HORSE_MOVING); //CHAAARGE!
+                        if (m->figure_type == FIGURE_FORT_MOUNTED) {
+                            sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
+                        } //CHAAARGE!
                     }
                     if (!was_halted && m->is_halted) { // formation stopped
                         m->halted_at_grid_offset = map_grid_offset(m->x_home, m->y_home);
