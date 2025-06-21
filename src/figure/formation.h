@@ -163,8 +163,6 @@ int formation_is_halted(const formation *m);
 int formation_is_moving(const formation *m);
 int formation_is_charging(const formation *m);
 
-
-
 void formation_toggle_empire_service(int formation_id);
 
 void formation_record_missile_fired(formation *m);
