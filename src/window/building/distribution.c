@@ -935,7 +935,7 @@ static void draw_button_from_state(int state, int x, int y, building_type type, 
         case BUILDING_STORAGE_STATE_NOT_ACCEPTING_QUARTER:
             lang_text_draw_centered(99, 8, x, y, 210, FONT_NORMAL_RED);
             break;
-        default: 
+        default:
             lang_text_draw_centered(99, 7, x, y, 210, FONT_NORMAL_WHITE);
             break;
     }
@@ -1291,6 +1291,7 @@ int window_building_handle_mouse_warehouse_orders(const mouse *m, building_info_
             generic_buttons_handle_mouse(m, c->x_offset + 80, y_offset + 404,
                 warehouse_order_buttons, 2, &data.orders_focus_button_id);
     }
+    return 0; //fallback
 }
 
 void window_building_warehouse_get_tooltip_distribution_permissions(int *translation)

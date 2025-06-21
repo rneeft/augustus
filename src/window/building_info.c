@@ -144,7 +144,7 @@ static int get_height_id(void)
             case BUILDING_GLADIATOR_STATUE:
                 return 1;
 
-            //288px
+                //288px
             case BUILDING_FOUNTAIN:
             case BUILDING_GLADIATOR_SCHOOL:
             case BUILDING_LION_HOUSE:
@@ -152,7 +152,7 @@ static int get_height_id(void)
             case BUILDING_CHARIOT_MAKER:
                 return 2;
 
-            //(new 320px for description)
+                //(new 320px for description)
             case BUILDING_PREFECTURE:
             case BUILDING_ENGINEERS_POST:
             case BUILDING_BARBER:
@@ -165,7 +165,7 @@ static int get_height_id(void)
             case BUILDING_SHIPYARD:
                 return 3;
 
-            //224px
+                //224px
             case BUILDING_WELL:
             case BUILDING_ROADBLOCK:
             case BUILDING_HEDGE_GATE_DARK:
@@ -176,7 +176,7 @@ static int get_height_id(void)
             case BUILDING_PANELLED_GARDEN_GATE:
                 return 4;
 
-            //384px
+                //384px
             case BUILDING_TAVERN:
             case BUILDING_AMPHITHEATER:
             case BUILDING_ARENA:
@@ -185,14 +185,14 @@ static int get_height_id(void)
             case BUILDING_LOW_BRIDGE:
                 return 5;
 
-            //608px
+                //608px
 
             case BUILDING_DOCK:
             case BUILDING_LIGHTHOUSE:
             case BUILDING_CARAVANSERAI:
                 return 6;
 
-            //640px
+                //640px
             case BUILDING_GRAND_TEMPLE_CERES:
             case BUILDING_GRAND_TEMPLE_NEPTUNE:
             case BUILDING_GRAND_TEMPLE_MERCURY:
@@ -202,18 +202,18 @@ static int get_height_id(void)
             case BUILDING_COLOSSEUM:
                 return 8;
 
-            //736px
+                //736px
             case BUILDING_GRAND_TEMPLE_MARS:
                 return 10;
 
-            //448px
+                //448px
             case BUILDING_FORT:
             case BUILDING_MESS_HALL:
             case BUILDING_CITY_MINT:
             case BUILDING_BARRACKS:
                 return 11;
 
-            //272px (new 336px for description)
+                //272px (new 336px for description)
             case BUILDING_SHRINE_CERES:
             case BUILDING_SHRINE_NEPTUNE:
             case BUILDING_SHRINE_MERCURY:
@@ -231,12 +231,12 @@ static int get_height_id(void)
             case BUILDING_LARGE_TEMPLE_VENUS:
                 return 12;
 
-            //240px
+                //240px
             case BUILDING_LARARIUM:
             case BUILDING_ARMOURY:
                 return 13;
 
-            //352px
+                //352px
             default:
                 return 0;
         }
@@ -1080,7 +1080,7 @@ static void get_tooltip(tooltip_context *c)
         window_building_primary_product_producer_stockpiling_tooltip(&translation);
     } else if (context.type == BUILDING_INFO_LEGION) {
         text_id = window_building_get_legion_info_tooltip_text(&context);
-    } else if (context.type == BUILDING_INFO_BUILDING && context.show_special_orders) {
+    } else if ((context.type == BUILDING_INFO_BUILDING && context.show_special_orders) || building_type_is_bridge(btype)) { //bridges are technically terrain, but they have special orders
         if (btype == BUILDING_GRANARY) {
             window_building_get_tooltip_granary_orders(&group_id, &text_id, &translation);
         } else if (btype == BUILDING_WAREHOUSE) {
