@@ -91,8 +91,6 @@ static int get_height_id(void)
             case TERRAIN_INFO_WALL:
             case TERRAIN_INFO_GARDEN:
                 return 1;
-            case TERRAIN_INFO_HIGHWAY:
-                return 7;
             default:
                 return 5;
         }
@@ -104,7 +102,7 @@ static int get_height_id(void)
             return 5;
         }
         if (building_is_house(b->type) && b->house_population > 0) {
-            return 7;
+            return 5;
         }
 
         if (b->type >= BUILDING_SMALL_POND && b->type <= BUILDING_SENATOR_STATUE) {
@@ -112,35 +110,25 @@ static int get_height_id(void)
         }
 
         switch (b->type) {
+            //256px
             case BUILDING_SMALL_STATUE:
             case BUILDING_MEDIUM_STATUE:
             case BUILDING_LARGE_STATUE:
             case BUILDING_LEGION_STATUE:
             case BUILDING_DECORATIVE_COLUMN:
             case BUILDING_HORSE_STATUE:
-            case BUILDING_GLADIATOR_SCHOOL:
-            case BUILDING_LION_HOUSE:
-            case BUILDING_ACTOR_COLONY:
-            case BUILDING_CHARIOT_MAKER:
             case BUILDING_BURNING_RUIN:
             case BUILDING_RESERVOIR:
             case BUILDING_NATIVE_HUT:
             case BUILDING_NATIVE_MEETING:
             case BUILDING_NATIVE_CROPS:
             case BUILDING_MISSION_POST:
-            case BUILDING_PREFECTURE:
-            case BUILDING_ENGINEERS_POST:
             case BUILDING_GATEHOUSE:
             case BUILDING_TOWER:
             case BUILDING_MILITARY_ACADEMY:
-            case BUILDING_MARKET:
-            case BUILDING_SHIPYARD:
-            case BUILDING_WHARF:
             case BUILDING_GOVERNORS_HOUSE:
             case BUILDING_GOVERNORS_VILLA:
             case BUILDING_GOVERNORS_PALACE:
-            case BUILDING_FORUM:
-            case BUILDING_FORUM_2_UNUSED:
             case BUILDING_WORKCAMP:
             case BUILDING_ARCHITECT_GUILD:
             case BUILDING_OBELISK:
@@ -156,14 +144,28 @@ static int get_height_id(void)
             case BUILDING_GLADIATOR_STATUE:
                 return 1;
 
-            case BUILDING_SENATE_1_UNUSED:
-            case BUILDING_SENATE:
+            //288px
             case BUILDING_FOUNTAIN:
+            case BUILDING_GLADIATOR_SCHOOL:
+            case BUILDING_LION_HOUSE:
+            case BUILDING_ACTOR_COLONY:
+            case BUILDING_CHARIOT_MAKER:
                 return 2;
 
-            case BUILDING_ARMOURY:
+            //(new 320px for description)
+            case BUILDING_PREFECTURE:
+            case BUILDING_ENGINEERS_POST:
+            case BUILDING_BARBER:
+            case BUILDING_BATHHOUSE:
+            case BUILDING_DOCTOR:
+            case BUILDING_HOSPITAL:
+            case BUILDING_MARKET:
+            case BUILDING_LATRINES:
+            case BUILDING_WHARF:
+            case BUILDING_SHIPYARD:
                 return 3;
 
+            //224px
             case BUILDING_WELL:
             case BUILDING_ROADBLOCK:
             case BUILDING_HEDGE_GATE_DARK:
@@ -174,35 +176,23 @@ static int get_height_id(void)
             case BUILDING_PANELLED_GARDEN_GATE:
                 return 4;
 
+            //384px
             case BUILDING_TAVERN:
             case BUILDING_AMPHITHEATER:
             case BUILDING_ARENA:
-            case BUILDING_CONCRETE_MAKER:
-            case BUILDING_ORACLE:
-            case BUILDING_NYMPHAEUM:
-            case BUILDING_LARGE_TEMPLE_CERES:
-            case BUILDING_LARGE_TEMPLE_NEPTUNE:
-            case BUILDING_LARGE_TEMPLE_MERCURY:
-            case BUILDING_LARGE_TEMPLE_MARS:
-            case BUILDING_LARGE_TEMPLE_VENUS:
-            case BUILDING_SMALL_MAUSOLEUM:
-            case BUILDING_LARGE_MAUSOLEUM:
             case BUILDING_TRIUMPHAL_ARCH:
-            case BUILDING_LATRINES:
             case BUILDING_SHIP_BRIDGE:
             case BUILDING_LOW_BRIDGE:
                 return 5;
+
+            //608px
 
             case BUILDING_DOCK:
             case BUILDING_LIGHTHOUSE:
             case BUILDING_CARAVANSERAI:
                 return 6;
 
-            case BUILDING_MESS_HALL:
-            case BUILDING_CITY_MINT:
-            case BUILDING_BARRACKS:
-                return 7;
-
+            //640px
             case BUILDING_GRAND_TEMPLE_CERES:
             case BUILDING_GRAND_TEMPLE_NEPTUNE:
             case BUILDING_GRAND_TEMPLE_MERCURY:
@@ -212,12 +202,18 @@ static int get_height_id(void)
             case BUILDING_COLOSSEUM:
                 return 8;
 
+            //736px
             case BUILDING_GRAND_TEMPLE_MARS:
                 return 10;
 
+            //448px
             case BUILDING_FORT:
+            case BUILDING_MESS_HALL:
+            case BUILDING_CITY_MINT:
+            case BUILDING_BARRACKS:
                 return 11;
 
+            //272px (new 336px for description)
             case BUILDING_SHRINE_CERES:
             case BUILDING_SHRINE_NEPTUNE:
             case BUILDING_SHRINE_MERCURY:
@@ -228,11 +224,19 @@ static int get_height_id(void)
             case BUILDING_SMALL_TEMPLE_MERCURY:
             case BUILDING_SMALL_TEMPLE_MARS:
             case BUILDING_SMALL_TEMPLE_VENUS:
+            case BUILDING_LARGE_TEMPLE_CERES:
+            case BUILDING_LARGE_TEMPLE_NEPTUNE:
+            case BUILDING_LARGE_TEMPLE_MERCURY:
+            case BUILDING_LARGE_TEMPLE_MARS:
+            case BUILDING_LARGE_TEMPLE_VENUS:
                 return 12;
 
+            //240px
             case BUILDING_LARARIUM:
+            case BUILDING_ARMOURY:
                 return 13;
 
+            //352px
             default:
                 return 0;
         }
@@ -424,7 +428,6 @@ static void init(int grid_offset)
                     case FIGURE_FRIENDLY_ARROW:
                     case FIGURE_WATCHTOWER_ARCHER:
                         break;
-                        // intentional fallthrough
                     default:
                         context.figure.figure_ids[context.figure.count++] = figure_id;
                         figure_phrase_determine(f);
@@ -461,15 +464,15 @@ static void init(int grid_offset)
     switch (get_height_id()) {
         case 1: context.height_blocks = 16; break;
         case 2: context.height_blocks = 18; break;
-        case 3: context.height_blocks = 19; break;
+        case 3: context.height_blocks = 20; break;
         case 4: context.height_blocks = 14; break;
         case 5: context.height_blocks = 24; break;
         case 6: context.height_blocks = 38; break;
-        case 7: context.height_blocks = 26; break;
+        case 7: context.height_blocks = 26; break; //416px
         case 8: context.height_blocks = 40; break;
-        case 10: context.height_blocks = 47; break;
+        case 10: context.height_blocks = 46; break;
         case 11: context.height_blocks = 28; break;
-        case 12: context.height_blocks = 17; break;
+        case 12: context.height_blocks = 21; break;
         case 13: context.height_blocks = 15; break;
         default: context.height_blocks = 22; break;
     }
