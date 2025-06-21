@@ -91,7 +91,6 @@ typedef struct {
     int y;
     int width;
     int height;
-    int hide_route_type_icon; //  If open_trade_button is not compressed at all, hide the icon next to the name to avoid cluttering the view
 } sidebar_city_entry;
 
 typedef struct {
@@ -169,7 +168,6 @@ static void sidebar_expand(void);
 
 //helpers for integrating sidebar and map
 static void process_selection(void);
-static int get_sidebar_index_from_empire_object_id(int empire_object_id);
 
 //positioning and area checking
 static int is_sidebar(const mouse *m);
@@ -695,16 +693,12 @@ void draw_open_trade_button(const empire_city *city, const open_trade_button_sty
     // --- Decide what to draw ---
     int draw_label = 0, draw_icon = 0;
     int content_width = 0;
-    int sidebar_index = get_sidebar_index_from_empire_object_id(city->empire_object_id);
-    // if (sidebar_index >= 0) {
-    //     sidebar_cities[sidebar_index].hide_route_type_icon = 0; //reset hide flag
-    // }
 
     if (width_full < available_width) {
         draw_label = 1;
         draw_icon = (icon_type != TRADE_ICON_NONE);
         content_width = width_full;
-        sidebar_cities[sidebar_index].hide_route_type_icon = 1; // hide icon if it fits in the button
+
     } else if (width_cost_and_label <= available_width) {
         draw_label = 1;
         draw_icon = 0;
@@ -1047,17 +1041,6 @@ static void setup_sidebar_gridbox(void)
     sidebar_grid_box.offset_scrollbar_x = grid_box_has_scrollbar(&sidebar_grid_box) ? -14 : 0;
     grid_box_set_bounds(&sidebar_grid_box, sidebar_grid_box.x, sidebar_grid_box.y, sidebar_grid_box.width, sidebar_grid_box.height);
 }
-
-static int get_sidebar_index_from_empire_object_id(int empire_object_id)
-{
-    for (int i = 0; i < sidebar_city_count; i++) {
-        if (sidebar_cities[i].empire_object_id == empire_object_id) {
-            return i;
-        }
-    }
-    return -1; // Not found
-}
-
 
 
 static void draw_city_info(const empire_object *object)
