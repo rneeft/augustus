@@ -2,8 +2,9 @@
 
 #include "map/data.h"
 
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
 
 #define OFFSET(x,y) (x + GRID_SIZE * y)
 
