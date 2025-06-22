@@ -217,6 +217,8 @@
 	<image id="Panelling_Stone_02" src="Panelling_Stone_02"/>
 	<image id="Panelling_Concrete_01" src="Panelling_Concrete_01"/>
 	<image id="Panelling_Concrete_02" src="Panelling_Concrete_02"/>
+	<image id="Panelling_Papyrus_01" src="Panelling_Papyrus_01"/>
+	<image id="Panelling_Papyrus_02" src="Panelling_Papyrus_02"/>
 	<!-- Note: Standards for custom legions by MSTVD -->
 	<image id="11Legion_Elephants" src="11Legion_Elephants"/>
 	<image id="12Legion_Thunder_Bolts" src="12Legion_Thunder_Bolts"/>

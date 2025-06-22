@@ -773,22 +773,22 @@
 	<!-- Note: Papyrus Maker OFF - No Climate Variants -->
 	<image id="Papyrus_Maker_OFF" src="Papyrus_Maker_OFF" width="118" height="92" isometric="true"/>
 	<!-- Note: Papyrus Maker ON Animation Frames - DO NOT USE -->
-	<image id="Papyrus_Maker_ON_01" width="118" height="92" isometric="true">
+	<image id="Papyrus_Maker_ON_01" width="118" height="92">
 		<layer src="Papyrus_Maker_ON_01" x="7" y="28"/>
 	</image>
-	<image id="Papyrus_Maker_ON_02" width="118" height="92" isometric="true">
+	<image id="Papyrus_Maker_ON_02" width="118" height="92">
 		<layer group="this" image="Papyrus_Maker_ON_01"/>
 		<layer src="Papyrus_Maker_ON_02" x="21" y="56"/>
 	</image>
-	<image id="Papyrus_Maker_ON_03" width="118" height="92" isometric="true">
+	<image id="Papyrus_Maker_ON_03" width="118" height="92">
 		<layer group="this" image="Papyrus_Maker_ON_02"/>
 		<layer src="Papyrus_Maker_ON_03" x="21" y="56"/>
 	</image>
-	<image id="Papyrus_Maker_ON_04" width="118" height="92" isometric="true">
+	<image id="Papyrus_Maker_ON_04" width="118" height="92">
 		<layer group="this" image="Papyrus_Maker_ON_03"/>
 		<layer src="Papyrus_Maker_ON_04" x="21" y="53"/>
 	</image>
-	<image id="Papyrus_Maker_ON_05" width="118" height="92" isometric="true">
+	<image id="Papyrus_Maker_ON_05" width="118" height="92">
 		<layer group="this" image="Papyrus_Maker_ON_04"/>
 		<layer src="Papyrus_Maker_ON_05" x="21" y="51"/>
 	</image>
