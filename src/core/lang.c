@@ -580,6 +580,8 @@ const uint8_t *lang_get_string(int group, int index)
                 return translation_for(TR_BUILDING_PALISADE_GATE);
             case BUILDING_LATRINES:
                 return translation_for(TR_BUILDING_LATRINES);
+            case BUILDING_NATIVE_HUT_ALT:
+                return translation_for(TR_BUILDING_NATIVE_HUT_ALT);
             default:
                 break;
         }
