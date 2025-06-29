@@ -195,6 +195,8 @@ int scenario_get_state_buffer_size_by_savegame_version(int savegame_version)
         calculate_buffer_offsets(SCENARIO_LAST_WRONG_END_OFFSET);
     } else if (savegame_version <= SAVE_GAME_LAST_STATIC_SCENARIO_ORIGINAL_DATA) {
         calculate_buffer_offsets(SCENARIO_LAST_STATIC_ORIGINAL_DATA);
+    } else if (savegame_version <= SAVE_GAME_LAST_NO_ALT_NATIVE_HUTS) {
+        calculate_buffer_offsets(SCENARIO_LAST_NO_ALT_NATIVE_HUTS);
     } else {
         calculate_buffer_offsets(SCENARIO_CURRENT_VERSION);
     }
