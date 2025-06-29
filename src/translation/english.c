@@ -1610,6 +1610,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_LATRINES_UNNECESSARY, "These latrines have no purpose here, as there are no houses in range needing them."},
     {TR_BUILDING_LATRINES_NO_HOUSES, "These latrines are unnecessary at the moment, as there are no houses within its service range."},
     {TR_CONFIG_DRAW_ASCLEPIUS, "Draw Rod of Asclepius for health menu"},
+    {TR_EDITOR_SCENARIO_BUILDING_NATIVE_HUT_ALT, "Native hut alt" },
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

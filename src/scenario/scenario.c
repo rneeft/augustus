@@ -46,6 +46,7 @@ static struct {
     size_t map_points;
     size_t invasion_points;
     size_t misc;
+    size_t alt_huts;
     size_t introduction;
     size_t custom_variables;
     size_t custom_name;
@@ -155,6 +156,11 @@ static void calculate_buffer_offsets(int scenario_version)
 
     buffer_offsets.misc = next_start_offset;
     next_start_offset = buffer_offsets.misc + 51;
+
+    if (scenario_version > SCENARIO_LAST_NO_ALT_NATIVE_HUTS) {
+        buffer_offsets.alt_huts = next_start_offset;
+        next_start_offset = buffer_offsets.alt_huts + 4;
+    }
 
     if (scenario_version > SCENARIO_LAST_NO_CUSTOM_MESSAGES) {
         buffer_offsets.introduction = next_start_offset;
@@ -332,6 +338,8 @@ void scenario_save_state(buffer *buf)
     buffer_write_u8(buf, scenario.empire.distant_battle_enemy_travel_months);
     buffer_write_u8(buf, scenario.open_play_scenario_id);
 
+    buffer_write_i32(buf, scenario.native_images.alt_hut);
+
     buffer_write_i32(buf, scenario.intro_custom_message_id);
 
     buffer_write_raw(buf, scenario.empire.custom_name, sizeof(scenario.empire.custom_name));
@@ -497,6 +505,10 @@ void scenario_load_state(buffer *buf, int version)
     scenario.empire.distant_battle_roman_travel_months = buffer_read_u8(buf);
     scenario.empire.distant_battle_enemy_travel_months = buffer_read_u8(buf);
     scenario.open_play_scenario_id = buffer_read_u8(buf);
+
+    if (version > SCENARIO_LAST_NO_ALT_NATIVE_HUTS) {
+        scenario.native_images.alt_hut = buffer_read_i32(buf);
+    }
 
     scenario.intro_custom_message_id = 0;
     if (version > SCENARIO_LAST_NO_CUSTOM_MESSAGES) {
