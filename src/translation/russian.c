@@ -1613,6 +1613,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_SCENARIO_BUILDING_NATIVE_HUT_ALT, "Хижина туземцев 2"}, // Имя в меню редактора карт
     {TR_BUILDING_NATIVE_HUT_ALT, "Хижина туземцев alt"}, // Имя в окне Тип здания для подсчета редактора карт
     {TR_CONFIG_WAREHOUSES_GRANARIES_OVER_ROAD_PLACEMENT, "Склады и амбары можно строить поверх дорог"},
+    {TR_CONFIG_HIGHLIGHT_SELECTED_BUILDING, "Подсвечивать выбранное здание"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
