@@ -36,7 +36,7 @@
 #include <string.h>
 
 #define MAX_LANGUAGE_DIRS 20
-#define MAX_WIDGETS 33
+#define MAX_WIDGETS 36
 
 #define NUM_VISIBLE_ITEMS 13
 
@@ -82,6 +82,8 @@ static const uint8_t *display_text_video_volume(void);
 static const uint8_t *display_text_scroll_speed(void);
 static const uint8_t *display_text_difficulty(void);
 static const uint8_t *display_text_max_grand_temples(void);
+static const uint8_t *display_text_autosave_slots(void);
+
 
 static scrollbar_type scrollbar = {
     580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, CHECKBOX_WIDTH, NUM_VISIBLE_ITEMS, on_scroll, 0, 4
@@ -116,7 +118,8 @@ enum {
     RANGE_VIDEO_VOLUME,
     RANGE_SCROLL_SPEED,
     RANGE_DIFFICULTY,
-    RANGE_MAX_GRAND_TEMPLES
+    RANGE_MAX_GRAND_TEMPLES,
+    RANGE_MAX_AUTOSAVE_SLOTS,
 };
 
 enum {
@@ -175,6 +178,9 @@ static config_widget all_widgets[CONFIG_PAGES][MAX_WIDGETS] = {
         {TYPE_SPACE},
         {TYPE_NUMERICAL_DESC, RANGE_GAME_SPEED, TR_CONFIG_GAME_SPEED},
         {TYPE_NUMERICAL_RANGE, RANGE_GAME_SPEED, 0, display_text_game_speed},
+        {TYPE_NUMERICAL_DESC, RANGE_MAX_AUTOSAVE_SLOTS, TR_CONFIG_MAX_AUTOSAVE_SLOTS, 0, 5},
+        {TYPE_NUMERICAL_RANGE, RANGE_MAX_AUTOSAVE_SLOTS, 0, display_text_autosave_slots, 1},
+        {TYPE_CHECKBOX, CONFIG_GP_CH_YEARLY_AUTOSAVE, TR_BUTTON_YEARLY_AUTOSAVE_ON},
         {TYPE_SPACE, TR_CONFIG_VIDEO},
         {TYPE_HEADER, TR_CONFIG_VIDEO},
         {TYPE_CHECKBOX, CONFIG_ORIGINAL_FULLSCREEN, TR_CONFIG_FULLSCREEN },
@@ -199,7 +205,7 @@ static config_widget all_widgets[CONFIG_PAGES][MAX_WIDGETS] = {
         {TYPE_CHECKBOX, CONFIG_ORIGINAL_ENABLE_CITY_SOUNDS, TR_CONFIG_CITY_SOUNDS, 0, 5},
         {TYPE_NUMERICAL_RANGE, RANGE_CITY_SOUNDS_VOLUME, 0, display_text_city_sounds_volume, 1},
         {TYPE_CHECKBOX, CONFIG_GENERAL_ENABLE_VIDEO_SOUND, TR_CONFIG_VIDEO_SOUND, 0, 5},
-        {TYPE_NUMERICAL_RANGE, RANGE_VIDEO_VOLUME, 0, display_text_video_volume, 1}
+        {TYPE_NUMERICAL_RANGE, RANGE_VIDEO_VOLUME, 0, display_text_video_volume, 1},
     },
     { // UI
         {TYPE_NUMERICAL_DESC, RANGE_SCROLL_SPEED, TR_CONFIG_SCROLL_SPEED},
@@ -296,7 +302,8 @@ static numerical_range_widget ranges[] = {
     {130, 25,   0, 100,  1, 0},
     { 50, 30,   0, 100, 10, 0},
     {146, 24,   0,   4,  1, 0},
-    { 50, 30,   0,   5,  1, 0}
+    { 50, 30,   0,   5,  1, 0},
+    { 50, 30,   1,  20,  1, 0},
 };
 
 static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
@@ -435,6 +442,8 @@ static inline void set_range_values(void)
     ranges[RANGE_DIFFICULTY].value = &data.config_values[CONFIG_ORIGINAL_DIFFICULTY].new_value;
 
     ranges[RANGE_MAX_GRAND_TEMPLES].value = &data.config_values[CONFIG_GP_CH_MAX_GRAND_TEMPLES].new_value;
+    ranges[RANGE_MAX_AUTOSAVE_SLOTS].value = &data.config_values[CONFIG_GP_CH_MAX_AUTOSAVE_SLOTS].new_value;
+
 }
 
 static void set_player_name_width(void)
@@ -752,6 +761,12 @@ static const uint8_t *display_text_difficulty(void)
 static const uint8_t *display_text_max_grand_temples(void)
 {
     string_from_int(data.display_text, data.config_values[CONFIG_GP_CH_MAX_GRAND_TEMPLES].new_value, 0);
+    return data.display_text;
+}
+
+static const uint8_t *display_text_autosave_slots(void)
+{
+    string_from_int(data.display_text, data.config_values[CONFIG_GP_CH_MAX_AUTOSAVE_SLOTS].new_value, 0);
     return data.display_text;
 }
 
