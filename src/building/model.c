@@ -260,6 +260,12 @@ const model_building MODEL_ARMOURY = { .cost = 50, .desirability_value = -5, .de
  .desirability_step_size = 1, .desirability_range = 4, .laborers = 6 };
 const model_building MODEL_LATRINE = { .cost = 15, .desirability_value = 0, .desirability_step = 0,
  .desirability_step_size = 0, .desirability_range = 0, .laborers = 2 };
+const model_building MODEL_NATIVE_DECORATION = { .cost = 0, .desirability_value = 6, .desirability_step = 1,
+ .desirability_step_size = -1, .desirability_range = 4, .laborers = 0 };
+const model_building MODEL_NATIVE_MONUMENT = { .cost = 0, .desirability_value = 15, .desirability_step = 2,
+ .desirability_step_size = -2, .desirability_range = 8, .laborers = 0 };
+const model_building MODEL_NATIVE_WATCHTOWER = { .cost = 0, .desirability_value = -10, .desirability_step = 1,
+ .desirability_step_size = 2, .desirability_range = 4, .laborers = 0 };
 
 
 
@@ -345,6 +351,12 @@ const model_building *model_get_building(building_type type)
             return &MODEL_ARMOURY;
         case BUILDING_LATRINES:
             return &MODEL_LATRINE;
+        case BUILDING_NATIVE_DECORATION:
+            return &MODEL_NATIVE_DECORATION;
+        case BUILDING_NATIVE_MONUMENT:
+            return &MODEL_NATIVE_MONUMENT;
+        case BUILDING_NATIVE_WATCHTOWER:
+            return &MODEL_NATIVE_WATCHTOWER;
         default:
             break;
     }

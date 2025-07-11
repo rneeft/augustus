@@ -603,6 +603,12 @@ const uint8_t *lang_get_string(int group, int index)
         switch (index) {
             case TR_EDITOR_SCENARIO_BUILDING_NATIVE_HUT_ALT:
                 return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_HUT_ALT);
+            case TR_EDITOR_SCENARIO_BUILDING_NATIVE_DECORATION:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_DECORATION);
+            case TR_EDITOR_SCENARIO_BUILDING_NATIVE_MONUMENT:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_MONUMENT);
+            case TR_EDITOR_SCENARIO_BUILDING_NATIVE_WATCHTOWER:
+                return translation_for(TR_EDITOR_SCENARIO_BUILDING_NATIVE_WATCHTOWER);
             default:
                 break;
         }
