@@ -293,6 +293,9 @@ int figure_phrase_play(figure *f)
     } else if (f->type == FIGURE_SHEEP) {
         sound_effect_play(SOUND_EFFECT_SHEEP_BAA);
         return -1; //default behaviour
+    } else if (f->type == FIGURE_WOLF) {
+        sound_effect_play(SOUND_EFFECT_WOLF_HOWL);
+        return -1; //default behaviour
     }
     play_sound_file(sound_id, f->phrase_id);
     return sound_id;
