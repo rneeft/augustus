@@ -87,6 +87,10 @@ if (AV1_VIDEO_SUPPORT)
     set(EASYAV1_BUILD_TOOLS OFF)
     set(EASYAV1_USE_SANITIZERS OFF)
 
+    if(${TARGET_PLATFORM} STREQUAL "emscripten")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+    endif()
+
     add_subdirectory("ext/easyav1")
 
     include_directories(${SHORT_NAME} SYSTEM "ext/easyav1/src")
@@ -870,7 +874,7 @@ endif()
 
 if(${TARGET_PLATFORM} STREQUAL "emscripten")
     set(CMAKE_EXECUTABLE_SUFFIX .html)
-    set_target_properties(${SHORT_NAME} PROPERTIES LINK_FLAGS "-lidbfs.js -s SINGLE_FILE=1 -s DYNCALLS=1 --shell-file ${PROJECT_SOURCE_DIR}/res/shell.html --embed-file ${ASSETS_DIR}@/assets -s INITIAL_MEMORY=268435456 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -s SAFE_HEAP=1 -s INVOKE_RUN=0 -s EXPORTED_FUNCTIONS=[\"_main\"] -s EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\"] -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"$autoResumeAudioContext\"] -s PROXY_TO_PTHREAD=1 --bind")
+    set_target_properties(${SHORT_NAME} PROPERTIES LINK_FLAGS "-lidbfs.js -s SINGLE_FILE=1 -s DYNCALLS=1 --shell-file ${PROJECT_SOURCE_DIR}/res/shell.html --embed-file ${ASSETS_DIR}@/assets -s INITIAL_MEMORY=268435456 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -s SAFE_HEAP=1 -s INVOKE_RUN=0 -s EXPORTED_FUNCTIONS=[\"_main\"] -s EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\"] -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=[\"$autoResumeAudioContext\"] -s PROXY_TO_PTHREAD=1 -pthread --bind")
 endif()
 
 if(MSVC)
