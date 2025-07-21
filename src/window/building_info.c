@@ -1019,7 +1019,7 @@ static int handle_specific_building_info_mouse(const mouse *m)
             } else if (context.depot_selection.resource) {
                 window_building_handle_mouse_depot_select_resource(m, &context);
             } else {
-                window_building_handle_mouse_depot(m, &context);
+                return window_building_handle_mouse_depot(m, &context);
             }
         } else if (btype == BUILDING_LIGHTHOUSE) {
             return window_building_handle_mouse_lighthouse(m, &context);
@@ -1253,7 +1253,19 @@ void window_building_info_depot_toggle_condition_type(void)
 void window_building_info_depot_toggle_condition_threshold(void)
 {
     building *b = building_get(context.building_id);
-    b->data.depot.current_order.condition.threshold = (b->data.depot.current_order.condition.threshold + 4) % 36;
+    int step = config_get(CONFIG_GP_STORAGE_INCREMENT_4) ? 4 : 8;
+    int step_max = config_get(CONFIG_GP_STORAGE_INCREMENT_4) ? 36 : 40;
+    b->data.depot.current_order.condition.threshold = (b->data.depot.current_order.condition.threshold + step) % step_max;
+    window_invalidate();
+}
+
+void window_building_info_depot_toggle_condition_threshold_reverse(void)
+{
+    building *b = building_get(context.building_id);
+    int step = config_get(CONFIG_GP_STORAGE_INCREMENT_4) ? 4 : 8;
+    int new_threshold = (b->data.depot.current_order.condition.threshold - step);
+    new_threshold = new_threshold < 0 ? 32 : new_threshold;
+    b->data.depot.current_order.condition.threshold = new_threshold;
     window_invalidate();
 }
 
