@@ -1049,6 +1049,8 @@ void window_building_get_tooltip_storage_orders(int *group_id, int *text_id, int
         } else {
             *translation = TR_TOOLTIP_BUTTON_STORAGE_ORDER_REJECT_ALL;
         }
+    } else if (data.partial_resource_focus_button_id) { //quantity button tooltip
+        *translation = TR_TOOLTIP_RIGHT_CLICK_TO_DECREASE;
     } else {
         if (data.resource_focus_button_id) {
             int building_id = data.building_id;

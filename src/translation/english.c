@@ -1634,6 +1634,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_MOVE_SAVINGS_TO_THE_RIGHT, "Original top bar items order" },
     {TR_TOOLTIP_DEPOT_MOVED, "Moving resource:"},
     {TR_TOOLTIP_DEPOT_ORDER_TO, "to"},
+    {TR_TOOLTIP_RIGHT_CLICK_TO_DECREASE, "Right click to decrease"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)
