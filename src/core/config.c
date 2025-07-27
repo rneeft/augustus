@@ -79,15 +79,21 @@ static const char *ini_keys[] = {
     [CONFIG_GP_CH_MAX_AUTOSAVE_SLOTS] = "gameplay_change_max_autosave_slots",
     [CONFIG_UI_SHOW_SPEEDRUN_INFO] = "ui_show_speedrun_info",
     [CONFIG_UI_SHOW_DESIRABILITY_RANGE] = "ui_show_desirability_range",
-    [CONFIG_UI_SHOW_DESIRABILITY_RANGE_ALL] = "ui_draw_asclepius",
-    [CONFIG_UI_DRAW_ASCLEPIUS] = "ui_show_desirability_range_all",
+    [CONFIG_UI_SHOW_DESIRABILITY_RANGE_ALL] = "ui_show_desirability_range_all",
+    [CONFIG_UI_DRAW_ASCLEPIUS] = "ui_draw_asclepius",
     [CONFIG_UI_HIGHLIGHT_SELECTED_BUILDING] = "ui_highlight_selected_building",
     [CONFIG_GP_CARAVANS_MOVE_OFF_ROAD] = "gameplay_change_caravans_move_off_road",
     [CONFIG_UI_DRAW_WEATHER] = "ui_draw_weather",
     [CONFIG_GP_STORAGE_INCREMENT_4] = "gameplay_change_storage_step_4",
     [CONFIG_UI_MOVE_SAVINGS_TO_RIGHT] = "ui_move_savings_to_right",
     [CONFIG_GP_CH_PATRICIAN_DEVOLUTION_FIX] = "gameplay_patrician_devolution_fix",
-
+    [CONFIG_WT_SNOW_INTENSITY] = "weather_snow_intensity",
+    [CONFIG_WT_RAIN_INTENSITY] = "weather_rain_intensity",
+    [CONFIG_WT_SANDSTORM_INTENSITY] = "weather_sandstorm_intensity",
+    [CONFIG_WT_RAIN_SPEED] = "weather_rain_speed",
+    [CONFIG_WT_RAIN_LENGTH] = "weather_rain_length",
+    [CONFIG_WT_SNOW_SPEED] = "weather_snow_speed",
+    [CONFIG_WT_SANDSTORM_SPEED] = "weather_sandstorm_speed",
 };
 
 static const char *ini_string_keys[] = {
@@ -123,6 +129,13 @@ static int default_values[CONFIG_MAX_ENTRIES] = {
     [CONFIG_GP_STORAGE_INCREMENT_4] = 0,
     [CONFIG_UI_MOVE_SAVINGS_TO_RIGHT] = 0,
     [CONFIG_GP_CH_PATRICIAN_DEVOLUTION_FIX] = 1,
+    [CONFIG_WT_SNOW_INTENSITY] = 20,
+    [CONFIG_WT_RAIN_INTENSITY] = 20,
+    [CONFIG_WT_SANDSTORM_INTENSITY] = 40,
+    [CONFIG_WT_RAIN_SPEED] = 4,
+    [CONFIG_WT_RAIN_LENGTH] = 10,
+    [CONFIG_WT_SNOW_SPEED] = 1,
+    [CONFIG_WT_SANDSTORM_SPEED] = 2
 };
 
 static const char default_string_values[CONFIG_STRING_MAX_ENTRIES][CONFIG_STRING_VALUE_MAX] = { 0 };
