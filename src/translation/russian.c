@@ -1640,6 +1640,14 @@ static translation_string all_strings[] = {
     {TR_CONFIG_PATRICIAN_DEVOLUTION_FIX, "При деградации резиденций патрициев не создаются дома 1х1"},
     {TR_CONDITION_TEXT_TIME_LEFT_UNTIL_DEFEAT, "Время до поражения:"},
     {TR_CONDITION_TEXT_TIME_LEFT_UNTIL_VICTORY, "Время до победы:"},
+    {TR_ACTION_TYPE_CHANGE_TERRAIN, "Добавить/удалить ландшафт"},
+    {TR_PARAMETER_TERRAIN, "Ландшафт"},
+    {TR_PARAMETER_ADD, "Добавить"},
+    {TR_PARAMETER_TERRAIN_TREE, "Дерево"},
+    {TR_PARAMETER_TERRAIN_ROCK, "Скала"},
+    {TR_PARAMETER_TERRAIN_WATER, "Вода"},
+    {TR_PARAMETER_TERRAIN_MEADOW, "Луг"},
+    {TR_PARAMETER_TERRAIN_SHRUB, "Кустарник"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
