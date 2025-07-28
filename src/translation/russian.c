@@ -1638,6 +1638,8 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_RIGHT_CLICK_TO_DECREASE, "Клик правой кнопкой уменьшает значения"},
     {TR_TOOLTIP_POPULATION_GOAL, "Необходимо жителей:"},
     {TR_CONFIG_PATRICIAN_DEVOLUTION_FIX, "При деградации резиденций патрициев не создаются дома 1х1"},
+    {TR_CONDITION_TEXT_TIME_LEFT_UNTIL_DEFEAT, "Время до поражения:"},
+    {TR_CONDITION_TEXT_TIME_LEFT_UNTIL_VICTORY, "Время до победы:"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
