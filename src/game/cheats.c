@@ -296,6 +296,7 @@ static void game_cheat_disable_legions_consumption(uint8_t *args)
 static void game_cheat_disable_invasions(uint8_t *args)
 {
     data.disabled_invasions = 1;
+    scenario_invasion_clear();
     show_warning(TR_CHEAT_DISABLE_INVASIONS);
 }
 
