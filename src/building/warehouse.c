@@ -311,6 +311,8 @@ int building_warehouse_add_import(building *warehouse, int resource, int amount,
     if (added_amount <= 0) {
         return 0; // no space to add
     }
+    int price = trade_price_buy(resource, land_trader);
+    city_finance_process_import(price * added_amount);
     return 1;
 }
 
