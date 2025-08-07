@@ -339,7 +339,8 @@ static int get_tooltip_problems(tooltip_context *c, const building *b)
     } else if (b->type == BUILDING_HIPPODROME && !b->data.entertainment.days1) {
         c->text_group = 73;
         return 5;
-    } else if (b->has_road_access == 0) {
+    } else if (b->has_road_access == 0 &&
+        building_get_laborers(b->type) && b->type != BUILDING_LATRINES && b->type != BUILDING_FOUNTAIN) {
         c->translation_key = TR_TOOLTIP_OVERLAY_PROBLEMS_NO_ROAD_ACCESS;
     }
     if (c->translation_key) {
