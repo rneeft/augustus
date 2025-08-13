@@ -65,7 +65,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, "Показать зону покрытия при строительстве объектов водоснабжения"},
     {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE_HOUSES, "Показать зону покрытия фонтанов и колодцев при постройке домов"},
     {TR_CONFIG_SHOW_MARKET_RANGE, "Показать область доступа при строительстве рынков"},
-    {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Показать размер здания при строительстве с нажатой кноп. мыши"},
+    {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Показать размер здания при строительстве с зажатой кноп. мыши"},
     {TR_CONFIG_HIGHLIGHT_LEGIONS, "Подсвечивать легион под курсором"},
     {TR_CONFIG_ROTATE_MANUALLY, "Поворачивать ворота и Триумфальную арку с помощью горячей клавиши"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR, "ВКЛ боковую военную панель"},
