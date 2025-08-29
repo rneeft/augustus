@@ -58,7 +58,7 @@ void building_granary_bless(void);
 
 void building_granary_warehouse_curse(int big);
 
-int building_granary_maximum_receptible_amount(building *b, int);
+int building_granary_maximum_receptible_amount(building *b, int resource);
 
 void building_granary_update_built_granaries_capacity(void);
 
