@@ -1211,7 +1211,7 @@ static translation_string all_strings[] = {
     {TR_ACTION_TYPE_REQUEST_IMMEDIATELY_START, "Начать запрос императора:"},
     {TR_ACTION_TYPE_SHOW_CUSTOM_MESSAGE, "Показать пользовательское сообщение:"},
     {TR_ACTION_TYPE_TAX_RATE_SET, "Изменить ставку налога:"},
-    {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE, "Изменить переменную:"},
+    {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE, "Переменная: изменить"},
     {TR_ACTION_TYPE_TRADE_ADJUST_ROUTE_OPEN_PRICE, "Торговый путь: Цена открытия"},
     {TR_ACTION_TYPE_A_MESSAGE, "Сообщение"},
     {TR_ACTION_TYPE_CHANGE_CITY_RATING, "Изменить рейтинг города:"},
@@ -1698,7 +1698,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_CATEGORY_MANAGEMENT_HOUSING, "Жилье"},
     {TR_EDITOR_CUSTOM_VARIABLES_TEXT_DISPLAY, "Отображаемый текст"},
     {TR_EDITOR_CUSTOM_VARIABLES_IS_VISIBLE, "Видимость"},
-    {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE_VISIBILITY, "Изменить видимость переменной"},
+    {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE_VISIBILITY, "Переменная: видимость"},
     {TR_CONFIG_SHOW_CUSTOM_VARIABLES, "Показать пользовательские переменные в городском обзоре"},
     {TR_CONFIG_ENABLE_GETTING_WHILE_STOCKPILED, "Разрешить \"Получение\", когда ресурс складируется"},
 };
