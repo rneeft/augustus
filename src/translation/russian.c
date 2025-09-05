@@ -1685,6 +1685,7 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_CHANGE_SIDEBAR_WIDTH, "Изменить ширину боковой панели"},
     {TR_TOOLTIP_ASCENDING_ORDER, "По возрастанию"},
     {TR_TOOLTIP_DESCENDING_ORDER, "По убыванию"},
+    {TR_CHEAT_CHANGE_WEATHER, "Погода изменена"},
     {TR_CONFIG_DEFAULT_GAME_SPEED, "Скорость игры по умолчанию:"},
     {TR_CONFIG_CATEGORY_GENERAL, "Общие"},
     {TR_CONFIG_CATEGORY_UI_MAP, "Прокрутка и карта"},
@@ -1699,6 +1700,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_CUSTOM_VARIABLES_IS_VISIBLE, "Видимость"},
     {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE_VISIBILITY, "Изменить видимость переменной"},
     {TR_CONFIG_SHOW_CUSTOM_VARIABLES, "Показать пользовательские переменные в городском обзоре"},
+    {TR_CONFIG_ENABLE_GETTING_WHILE_STOCKPILED, "Разрешить \"Получение\", когда ресурс складируется"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)
