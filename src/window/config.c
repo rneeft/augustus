@@ -652,7 +652,9 @@ static int config_enable_music(int key)
 }
 static int config_enable_music_randomise(int key)
 {
-    return config_change_basic(key);
+    int ok = config_change_basic(key);
+    sound_music_update(1);
+    return ok;
 }
 static int config_set_music_volume(int key)
 {
