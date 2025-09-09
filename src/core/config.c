@@ -99,6 +99,7 @@ static const char *ini_keys[] = {
     [CONFIG_UI_SHOW_CUSTOM_VARIABLES] = "ui_show_custom_variables",
     [CONFIG_GP_CH_ENABLE_GETTING_WHILE_STOCKPILED] = "gameplay_change_stockpiled_getting",
     [CONFIG_UI_PAVED_ROADS_NEAR_GRANNARIES] = "ui_paved_roads_near_grannaries",
+    [CONFIG_UI_ANIMATE_TRADE_ROUTES] = "ui_animate_trade_routes",
     [CONFIG_UI_MOVE_LEGION_SOUND_SWAP] = "ui_move_legion_sound_swap",
 };
 
@@ -147,6 +148,7 @@ static int default_values[CONFIG_MAX_ENTRIES] = {
     [CONFIG_UI_SHOW_CUSTOM_VARIABLES] = 1,
     [CONFIG_GP_CH_ENABLE_GETTING_WHILE_STOCKPILED] = 0,
     [CONFIG_UI_PAVED_ROADS_NEAR_GRANNARIES] = 1,
+    [CONFIG_UI_ANIMATE_TRADE_ROUTES] = 1,
     [CONFIG_UI_MOVE_LEGION_SOUND_SWAP] = 0,
 };
 
