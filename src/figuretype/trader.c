@@ -202,14 +202,14 @@ int figure_trade_caravan_can_sell(figure *trader, int building_id, int city_id)
 
 resource_type get_native_trader_buy_resource(building *b)
 {
-    unsigned char i;
-    unsigned char highest_resource = RESOURCE_NONE;
+    resource_type highest_resource = RESOURCE_NONE;
     if (b->type == BUILDING_WAREHOUSE) {
         building_warehouse_recount_resources(b);
     }
-    for (i = RESOURCE_NONE + 1; i < RESOURCE_MAX; i++) { //not interested in RESOURCE_NONE
-        if (b->resources[i] > highest_resource) {
-            highest_resource = i;
+    for (resource_type r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        if (b->resources[r] > highest_resource &&
+            (city_resource_trade_status(r) & TRADE_STATUS_EXPORT)) {
+            highest_resource = r;
         }
     }
     return highest_resource;
