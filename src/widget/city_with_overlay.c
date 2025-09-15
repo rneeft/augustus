@@ -35,6 +35,7 @@
 #include "widget/city_overlay_entertainment.h"
 #include "widget/city_overlay_health.h"
 #include "widget/city_overlay_other.h"
+#include "widget/city_overlay_housing.h"
 #include "widget/city_overlay_risks.h"
 #include "widget/city_without_overlay.h"
 #include "widget/city_draw_highway.h"
@@ -136,6 +137,10 @@ static const city_overlay *get_city_overlay(void)
             return city_overlay_for_logistics();
         case OVERLAY_STORAGES:
             return city_overlay_for_storages();
+        case OVERLAY_HOUSE_SMALL_TENT:
+            return city_overlay_for_small_tent();
+        case OVERLAY_HOUSE_LARGE_TENT:
+            return city_overlay_for_large_tent();
         default:
             return 0;
     }

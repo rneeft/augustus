@@ -40,6 +40,9 @@ enum {
     OVERLAY_STORAGES = 40,
     OVERLAY_HEALTH = 41,
     OVERLAY_EMPLOYMENT = 42,
+    OVERLAY_HOUSING = 43,
+    OVERLAY_HOUSE_SMALL_TENT = 44,
+    OVERLAY_HOUSE_LARGE_TENT = 45
 };
 
 void game_state_init(void);
