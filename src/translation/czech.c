@@ -108,7 +108,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_EDIT_TITLE, "Stiskněte novou klávesovou zkratku"},
     {TR_HOTKEY_DUPLICATE_TITLE, "Klávesová zkratka již použita"},
     {TR_HOTKEY_DUPLICATE_MESSAGE, "Tato kombinace kláves je již přiřazena k následující akci:"},
-    {TR_WARNING_SCREENSHOT_SAVED, "Snímek obrazovky byl uložen: "}
+    {TR_WARNING_SCREENSHOT_SAVED, "Snímek obrazovky byl uložen: "},
 };
 
 void translation_czech(const translation_string **strings, int *num_strings)

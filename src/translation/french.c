@@ -1700,7 +1700,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_CUSTOM_VARIABLES_IS_VISIBLE, "Visible"},
     {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE_VISIBILITY, "Modifier la visibilité de la variable perso." },
     {TR_CONFIG_SHOW_CUSTOM_VARIABLES, "Afficher les variables personnalisées en jeu" },
-    {TR_CONFIG_ENABLE_GETTING_WHILE_STOCKPILED, "Autoriser 'Aller chercher' lorsqu'une ressource est stockée" }
+    {TR_CONFIG_ENABLE_GETTING_WHILE_STOCKPILED, "Autoriser 'Aller chercher' lorsqu'une ressource est stockée" },
 };
 
 void translation_french(const translation_string **strings, int *num_strings)

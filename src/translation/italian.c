@@ -1463,7 +1463,7 @@ static translation_string all_strings[] = {
     {TR_WINDOW_ADVISOR_MOUNTED, "Cavalieri" },
     {TR_BUILDING_FORT_JAVELIN, "Ausiliari - Giavellottieri" },
     {TR_WINDOW_ADVISOR_JAVELIN, "Giavellottieri" },
-    {TR_WARNING_NO_ARMOURY, "Costruisci un'armeria per consegnare armi alle scuderie" }
+    {TR_WARNING_NO_ARMOURY, "Costruisci un'armeria per consegnare armi alle scuderie" },
 };
 
 void translation_italian(const translation_string **strings, int *num_strings)

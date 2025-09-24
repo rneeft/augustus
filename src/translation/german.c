@@ -1754,7 +1754,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_CATEGORY_MANAGEMENT_STORAGE, "Lager und Märkte"},
     {TR_CONFIG_CATEGORY_MANAGEMENT_ROADS, "Straßen"},
     {TR_CONFIG_CATEGORY_MANAGEMENT_ROADBLOCKS, "Straßensperren"},
-    {TR_CONFIG_CATEGORY_MANAGEMENT_HOUSING, "Häuser"}
+    {TR_CONFIG_CATEGORY_MANAGEMENT_HOUSING, "Häuser"},
 };
 
 void translation_german(const translation_string **strings, int *num_strings)

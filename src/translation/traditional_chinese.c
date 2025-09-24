@@ -833,7 +833,7 @@ static translation_string all_strings[] = {
     {TR_WINDOW_ASSET_PREVIEWER_TITLE, "資源預覽"},
     {TR_WINDOW_ASSET_PREVIEWER_UNNAMED_ASSET, "（未命名資源）"},
     {TR_WINDOW_RACE_YOUR_BET, "你的債務"},
-    {TR_ZOOM, "縮放："}
+    {TR_ZOOM, "縮放："},
 };
 
 void translation_traditional_chinese(const translation_string **strings, int *num_strings)

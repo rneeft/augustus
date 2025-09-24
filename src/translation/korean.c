@@ -1629,7 +1629,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_CARAVANS_MOVE_OFF_ROAD, "무역상들이 도로가 아닌 곳으로도 이동 가능"},
 	{TR_FIX_KOREAN_BUILDING_DOCTORS_CLINIC, "진료소"},
 	{TR_OVERLAY_LOGISTICS, "물류"},
-    {TR_HOTKEY_SHOW_OVERLAY_RELATIVE, "현황 보기 종료"}
+    {TR_HOTKEY_SHOW_OVERLAY_RELATIVE, "현황 보기 종료"},
 };
 
 void translation_korean(const translation_string **strings, int *num_strings)

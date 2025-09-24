@@ -1339,6 +1339,7 @@ static translation_string all_strings[] = {
     {TR_BUILDING_FORMAL_GARDENS, "Επίσημοι κήποι" },
     {TR_BUILDING_OVERGROWN_GARDENS, "Κατάφυτοι κήποι" },			
     {TR_WINDOW_ADVISOR_RELIGION_ALTARS_HEADER, "βωμός" }
+
 };
 
 void translation_greek(const translation_string **strings, int *num_strings)
