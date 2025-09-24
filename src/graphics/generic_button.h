@@ -14,7 +14,6 @@ typedef struct generic_button {
     int parameter2;
 } generic_button;
 
-int generic_buttons_handle_mouse(const mouse *m, int x, int y, generic_button *buttons, unsigned int num_buttons,
-    unsigned int *focus_button_id);
+int generic_buttons_handle_mouse(const mouse *m, int x, int y, generic_button *buttons, unsigned int num_buttons, unsigned int *focus_button_id);
 
 #endif // GRAPHICS_GENERIC_BUTTON_H

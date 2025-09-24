@@ -1658,7 +1658,7 @@ static translation_string all_strings[] = {
     {TR_TOOLTIP_BUTTON_REJECT_ALL, "Don't allow anyone to get from here"},
     {TR_TOOLTIP_OVERLAY_PROBLEMS_NO_ROAD_ACCESS, "没有道路连接"},
     {TR_WARNING_NO_WAREHOUSE_TOWER_ROAD_ACCESS, "仓库需要道路连接"},
-    {TR_BUILDING_FORT_MENU, "要   塞"}
+    {TR_BUILDING_FORT_MENU, "要   塞"},
 };
 
 void translation_simplified_chinese(const translation_string **strings, int *num_strings)

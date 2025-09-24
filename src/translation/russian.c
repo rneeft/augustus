@@ -1700,7 +1700,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_CUSTOM_VARIABLES_IS_VISIBLE, "Показать"},
     {TR_ACTION_TYPE_CHANGE_CUSTOM_VARIABLE_VISIBILITY, "Изменить видимость переменной:"},
     {TR_CONFIG_SHOW_CUSTOM_VARIABLES, "Показать пользовательские переменные в городском обзоре"},
-    {TR_CONFIG_ENABLE_GETTING_WHILE_STOCKPILED, "Разрешить \"Получение\", когда ресурс складируется"}
+    {TR_CONFIG_ENABLE_GETTING_WHILE_STOCKPILED, "Разрешить \"Получение\", когда ресурс складируется"},
 };
 
 void translation_russian(const translation_string **strings, int *num_strings)

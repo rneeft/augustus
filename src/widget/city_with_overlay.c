@@ -177,6 +177,20 @@ static const city_overlay *get_city_overlay(void)
             return city_overlay_for_large_palace();
         case OVERLAY_HOUSE_LUXURY_PALACE:
             return city_overlay_for_luxury_palace();
+        case OVERLAY_HOUSING_GROUPS_TENTS:
+            return city_overlay_for_housing_groups_tents();
+        case OVERLAY_HOUSING_GROUPS_SHACKS:
+            return city_overlay_for_housing_groups_shacks();
+        case OVERLAY_HOUSING_GROUPS_HOVELS:
+            return city_overlay_for_housing_groups_hovels();
+        case OVERLAY_HOUSING_GROUPS_CASAE:
+            return city_overlay_for_housing_groups_casae();
+        case OVERLAY_HOUSING_GROUPS_INSULAE:
+            return city_overlay_for_housing_groups_insulae();
+        case OVERLAY_HOUSING_GROUPS_VILLAS:
+            return city_overlay_for_housing_groups_villas();
+        case OVERLAY_HOUSING_GROUPS_PALACES:
+            return city_overlay_for_housing_groups_palaces();
         default:
             return 0;
     }

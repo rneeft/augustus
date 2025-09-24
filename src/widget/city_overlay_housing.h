@@ -26,5 +26,12 @@ const city_overlay *city_overlay_for_small_palace(void);
 const city_overlay *city_overlay_for_medium_palace(void);
 const city_overlay *city_overlay_for_large_palace(void);
 const city_overlay *city_overlay_for_luxury_palace(void);
+const city_overlay *city_overlay_for_housing_groups_tents(void);
+const city_overlay *city_overlay_for_housing_groups_shacks(void);
+const city_overlay *city_overlay_for_housing_groups_hovels(void);
+const city_overlay *city_overlay_for_housing_groups_casae(void);
+const city_overlay *city_overlay_for_housing_groups_insulae(void);
+const city_overlay *city_overlay_for_housing_groups_villas(void);
+const city_overlay *city_overlay_for_housing_groups_palaces(void);
 
 #endif // WIGET_CITY_OVERLAY_HOUSING_H

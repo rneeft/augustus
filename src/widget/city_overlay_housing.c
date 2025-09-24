@@ -162,3 +162,74 @@ const city_overlay *city_overlay_for_luxury_palace(void) {
     static city_overlay overlay = { OVERLAY_HOUSE_LUXURY_PALACE, COLUMN_COLOR_GREEN, show_building_luxury_palace, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
     return &overlay;
 }
+
+static int show_building_housing_groups_tents(const building *b) {
+    return b->type == BUILDING_HOUSE_SMALL_TENT ||
+           b->type == BUILDING_HOUSE_LARGE_TENT;
+}
+const city_overlay *city_overlay_for_housing_groups_tents(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_TENTS, COLUMN_COLOR_GREEN, show_building_housing_groups_tents, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}
+
+static int show_building_housing_groups_shacks(const building *b) {
+    return b->type == BUILDING_HOUSE_SMALL_SHACK ||
+           b->type == BUILDING_HOUSE_LARGE_SHACK;
+}
+const city_overlay *city_overlay_for_housing_groups_shacks(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_SHACKS, COLUMN_COLOR_GREEN, show_building_housing_groups_shacks, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}
+
+static int show_building_housing_groups_hovels(const building *b) {
+    return b->type == BUILDING_HOUSE_SMALL_HOVEL ||
+           b->type == BUILDING_HOUSE_LARGE_HOVEL;
+}
+const city_overlay *city_overlay_for_housing_groups_hovels(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_HOVELS, COLUMN_COLOR_GREEN, show_building_housing_groups_hovels, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}
+
+static int show_building_housing_groups_casae(const building *b) {
+    return b->type == BUILDING_HOUSE_SMALL_CASA ||
+           b->type == BUILDING_HOUSE_LARGE_CASA;
+}
+const city_overlay *city_overlay_for_housing_groups_casae(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_CASAE, COLUMN_COLOR_GREEN, show_building_housing_groups_casae, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}
+
+static int show_building_housing_groups_insulae(const building *b) {
+    return b->type == BUILDING_HOUSE_SMALL_INSULA ||
+           b->type == BUILDING_HOUSE_MEDIUM_INSULA ||
+           b->type == BUILDING_HOUSE_LARGE_INSULA ||
+           b->type == BUILDING_HOUSE_GRAND_INSULA;
+}
+const city_overlay *city_overlay_for_housing_groups_insulae(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_INSULAE, COLUMN_COLOR_GREEN, show_building_housing_groups_insulae, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}
+
+static int show_building_housing_groups_villas(const building *b)
+{
+    return b->type == BUILDING_HOUSE_SMALL_VILLA ||
+           b->type == BUILDING_HOUSE_MEDIUM_VILLA ||
+           b->type == BUILDING_HOUSE_LARGE_VILLA ||
+           b->type == BUILDING_HOUSE_GRAND_VILLA;
+}
+const city_overlay *city_overlay_for_housing_groups_villas(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_VILLAS, COLUMN_COLOR_GREEN, show_building_housing_groups_villas, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}
+
+static int show_building_housing_groups_palaces(const building *b)
+{
+    return b->type == BUILDING_HOUSE_SMALL_PALACE ||
+           b->type == BUILDING_HOUSE_MEDIUM_PALACE ||
+           b->type == BUILDING_HOUSE_LARGE_PALACE ||
+           b->type == BUILDING_HOUSE_LUXURY_PALACE;
+}
+const city_overlay *city_overlay_for_housing_groups_palaces(void) {
+    static city_overlay overlay = { OVERLAY_HOUSING_GROUPS_PALACES, COLUMN_COLOR_GREEN, show_building_housing_groups_palaces, show_figure_none, get_column_height_none, 0, 0, 0, 0, 0 };
+    return &overlay;
+}

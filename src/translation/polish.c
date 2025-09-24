@@ -1562,7 +1562,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_CATEGORY_MANAGEMENT_STORAGE, "Hurtownie i Stragany"},
     {TR_CONFIG_CATEGORY_MANAGEMENT_ROADS, "Drogi"},
     {TR_CONFIG_CATEGORY_MANAGEMENT_ROADBLOCKS, "Blokady"},
-    {TR_CONFIG_CATEGORY_MANAGEMENT_HOUSING, "Domy"}
+    {TR_CONFIG_CATEGORY_MANAGEMENT_HOUSING, "Domy"},
 };
 
 void translation_polish(const translation_string **strings, int *num_strings)

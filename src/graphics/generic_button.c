@@ -13,8 +13,7 @@ static unsigned int get_button(const mouse *m, int x, int y, generic_button *but
     return 0;
 }
 
-int generic_buttons_handle_mouse(const mouse *m, int x, int y, generic_button *buttons, unsigned int num_buttons,
-    unsigned int *focus_button_id)
+int generic_buttons_handle_mouse(const mouse *m, int x, int y, generic_button *buttons, unsigned int num_buttons, unsigned int *focus_button_id)
 {
     unsigned int button_id = get_button(m, x, y, buttons, num_buttons);
     if (focus_button_id) {
