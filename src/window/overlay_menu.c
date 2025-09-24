@@ -319,17 +319,8 @@ static void handle_input(const mouse *m, const hotkeys *h)
     show_menu();
 }
 
-static void clear_buttons(void)
-{
-    for (int i = 0; i < MAX_BUTTONS; i++) {
-        data.buttons[i] = (generic_button){0};
-    }
-    data.menu_focus_button_index = 0;
-}
-
 static void button_menu_item(const generic_button *button)
 {
-    clear_buttons();
     const overlay_menu_entry selected_overlay = find_overlay(overlay_menu, button->parameter1);
     data.selected_overlay_clicked = selected_overlay.overlay;
 
