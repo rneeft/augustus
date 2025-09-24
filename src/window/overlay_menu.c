@@ -31,6 +31,7 @@
 #define LABEL_WIDTH_BLOCKS 10
 #define SIDEBAR_MARGIN_X 10
 #define MAX_BUTTONS 20
+#define OVERLAY_MENU_END { -1, -1, JULIUS, NULL }
 
 static void button_menu_item(const generic_button *button);
 
@@ -48,7 +49,7 @@ typedef struct overlay_menu_entry {
     const struct overlay_menu_entry *submenu;
 } overlay_menu_entry;
 
-static const overlay_menu_entry END_OF_MENU = { -1,-1, JULIUS, NULL};
+static const overlay_menu_entry OVERLAY_MENU_SENTINEL = OVERLAY_MENU_END;
 
 static const overlay_menu_entry submenu_risks[] ={
     { OVERLAY_FIRE, 0, JULIUS, NULL },
@@ -58,7 +59,7 @@ static const overlay_menu_entry submenu_risks[] ={
     { OVERLAY_PROBLEMS, 0, JULIUS, NULL },
     { OVERLAY_ENEMY, 0, JULIUS, NULL },
     { OVERLAY_SICKNESS, 0, JULIUS, NULL },
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_entertainment[] = {
@@ -69,7 +70,7 @@ static const overlay_menu_entry submenu_entertainment[] = {
     { OVERLAY_ARENA, TR_OVERLAY_ARENA_COL, AUGUSTUS, NULL },
     { OVERLAY_COLOSSEUM, 0, JULIUS, NULL },
     { OVERLAY_HIPPODROME, 0, JULIUS, NULL },
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_education[] = {
@@ -77,7 +78,7 @@ static const overlay_menu_entry submenu_education[] = {
     {OVERLAY_SCHOOL, 0, JULIUS, NULL},
     {OVERLAY_LIBRARY, 0, JULIUS, NULL},
     {OVERLAY_ACADEMY, 0, JULIUS, NULL},
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_health[] = {
@@ -86,7 +87,7 @@ static const overlay_menu_entry submenu_health[] = {
     {OVERLAY_BATHHOUSE, 0, JULIUS, NULL},
     {OVERLAY_CLINIC, 0, JULIUS, NULL},
     {OVERLAY_HOSPITAL, 0, JULIUS, NULL},
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_commerce[] = {
@@ -97,7 +98,7 @@ static const overlay_menu_entry submenu_commerce[] = {
     {OVERLAY_TAX_INCOME, 0, JULIUS, NULL},
     {OVERLAY_LEVY, TR_OVERLAY_LEVY, AUGUSTUS, NULL},
     {OVERLAY_EMPLOYMENT, TR_OVERLAY_EMPLOYMENT, AUGUSTUS, NULL},
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_housing_groups[] = {
@@ -108,7 +109,7 @@ static const overlay_menu_entry submenu_housing_groups[] = {
     { OVERLAY_HOUSING_GROUPS_INSULAE,TR_OVERLAY_HOUSE_INSULAS, AUGUSTUS, NULL},
     { OVERLAY_HOUSING_GROUPS_VILLAS,TR_OVERLAY_HOUSE_VILLAS, AUGUSTUS, NULL},
     { OVERLAY_HOUSING_GROUPS_PALACES,TR_OVERLAY_HOUSE_PALACES, AUGUSTUS, NULL},
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry submenu_housing[] = {
@@ -133,7 +134,7 @@ static const overlay_menu_entry submenu_housing[] = {
     { OVERLAY_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_TYPE, NULL },
     { OVERLAY_HOUSE_LARGE_PALACE, BUILDING_HOUSE_LARGE_PALACE, BUILDING_TYPE, NULL },
     { OVERLAY_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LUXURY_PALACE, BUILDING_TYPE, NULL },
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static const overlay_menu_entry overlay_menu[] = {
@@ -149,7 +150,7 @@ static const overlay_menu_entry overlay_menu[] = {
     { OVERLAY_DESIRABILITY,0, JULIUS, NULL },
     { OVERLAY_SENTIMENT, TR_OVERLAY_SENTIMENT, AUGUSTUS, NULL },
     { OVERLAY_HOUSING, TR_HEADER_HOUSING, AUGUSTUS, submenu_housing },
-    END_OF_MENU
+    OVERLAY_MENU_END
 };
 
 static struct {
@@ -253,14 +254,14 @@ static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const 
         if (entries[i].submenu != NULL)
         {
             const overlay_menu_entry found_sub_item = find_overlay(entries[i].submenu, overlay_id);
-            if (found_sub_item.overlay != END_OF_MENU.overlay)
+            if (found_sub_item.overlay != OVERLAY_MENU_SENTINEL.overlay)
             {
                 return found_sub_item;
             }
         }
     }
 
-    return END_OF_MENU;
+    return OVERLAY_MENU_SENTINEL;
 }
 
 static void draw_menu(const overlay_menu_entry *entries)
