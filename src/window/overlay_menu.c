@@ -28,21 +28,11 @@
 #define MENU_CLICK_MARGIN 20
 #define MENU_ITEM_WIDTH 160
 #define TOP_MARGIN 74
-#define RIGHT_MARGIN 170
-
-#define MAX_BUTTONS 9
-
-#define NORMAL_LABEL_TYPE 1
-#define HOVER_LABEL_TYPE 2
 #define LABEL_WIDTH_BLOCKS 10
-#define SIDEBAR_MARGIN_X 10;
-#define MENU_ITEM_X_MARGIN 8
-
+#define SIDEBAR_MARGIN_X 10
+#define MAX_BUTTONS 20
 
 static void button_menu_item(const generic_button *button);
-
-#define OVERLAY_BUTTONS 12
-#define MAX_OVERLAY_SUBMENU_BUTTONS 20
 
 typedef enum
 {
@@ -168,14 +158,8 @@ static struct {
     int show_menu;
     unsigned int menu_focus_button_index;
 
-    generic_button buttons[20];
+    generic_button buttons[MAX_BUTTONS];
 } data;
-
-static int get_focused_button_index(void)
-{
-    return data.menu_focus_button_index -1 < 0
-        ? 0 : data.menu_focus_button_index -1;
-}
 
 static void show_menu(void){
     data.show_menu = 1;
@@ -183,10 +167,6 @@ static void show_menu(void){
 
 static void hide_menu(void){
     data.show_menu = 0;
-}
-
-static void init(void)
-{
 }
 
 static void draw_background(void)
@@ -203,7 +183,13 @@ static int get_sidebar_x_offset(void)
 
 static int is_mouse_hovering(const overlay_menu_entry *entry)
 {
-    return data.buttons[get_focused_button_index()].parameter1 == entry->overlay;
+    const int index = (int)data.menu_focus_button_index -1;
+
+    if (index < 0) {
+        return 0;
+    }
+
+    return data.buttons[index].parameter1 == entry->overlay;
 }
 
 static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
@@ -222,7 +208,7 @@ static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
 }
 
 static void draw_menu_item(const overlay_menu_entry *entry, const int i, const int x_offset, const int button_index){
-    const int x = x_offset - 160;
+    const int x = x_offset - MENU_ITEM_WIDTH;
     const int y = TOP_MARGIN + MENU_ITEM_HEIGHT * i;
 
     data.buttons[button_index] = (generic_button){
@@ -242,12 +228,10 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
             ? LABEL_TYPE_NORMAL
             : LABEL_TYPE_HOVER);
 
-    const uint8_t *text = get_overlay_text(entry);
-
-    text_draw_centered(text,
-        x_offset - 160,
+    text_draw_centered(get_overlay_text(entry),
+        x_offset - MENU_ITEM_WIDTH,
         y + 4,
-        160,
+        MENU_ITEM_WIDTH,
         FONT_NORMAL_GREEN,
         COLOR_MASK_NONE);
 
@@ -323,7 +307,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         0,
         0,
         data.buttons,
-        20,
+        MAX_BUTTONS,
         &data.menu_focus_button_index);
 
     if (!handled && click_outside_menu(m, x_offset)) {
@@ -335,8 +319,17 @@ static void handle_input(const mouse *m, const hotkeys *h)
     show_menu();
 }
 
+static void clear_buttons(void)
+{
+    for (int i = 0; i < MAX_BUTTONS; i++) {
+        data.buttons[i] = (generic_button){0};
+    }
+    data.menu_focus_button_index = 0;
+}
+
 static void button_menu_item(const generic_button *button)
 {
+    clear_buttons();
     const overlay_menu_entry selected_overlay = find_overlay(overlay_menu, button->parameter1);
     data.selected_overlay_clicked = selected_overlay.overlay;
 
@@ -359,7 +352,6 @@ void window_overlay_menu_show(void)
         draw_foreground,
         handle_input
     };
-    init();
     window_show(&window);
 }
 
