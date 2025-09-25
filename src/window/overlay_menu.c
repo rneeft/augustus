@@ -1,15 +1,11 @@
 #include "overlay_menu.h"
 
-#include <SDL_log.h>
-#include <stdlib.h>
-
 #include "assets/assets.h"
 #include "building/type.h"
 #include "city/view.h"
 #include "core/image.h"
 #include "core/image_group.h"
 #include "core/lang.h"
-#include "core/log.h"
 #include "core/time.h"
 #include "game/state.h"
 #include "graphics/generic_button.h"
@@ -20,6 +16,8 @@
 #include "input/input.h"
 #include "translation/translation.h"
 #include "window/city.h"
+
+#include <stdlib.h>
 
 #define MENU_X_OFFSET 170
 #define SUBMENU_X_OFFSET 348
@@ -39,7 +37,7 @@ typedef enum
 {
     JULIUS = 0,
     AUGUSTUS = 1,
-    BUILDING_TYPE =2
+    BUILDING_TYPE = 2,
 } translation_type;
 
 typedef struct overlay_menu_entry {
@@ -51,7 +49,7 @@ typedef struct overlay_menu_entry {
 
 static const overlay_menu_entry OVERLAY_MENU_SENTINEL = OVERLAY_MENU_END;
 
-static const overlay_menu_entry submenu_risks[] ={
+static const overlay_menu_entry submenu_risks[] = {
     { OVERLAY_FIRE, 0, JULIUS, NULL },
     { OVERLAY_DAMAGE, 0, JULIUS, NULL },
     { OVERLAY_CRIME, 0, JULIUS, NULL },
@@ -158,15 +156,16 @@ static struct {
     int selected_overlay_clicked;
     int show_menu;
     unsigned int menu_focus_button_index;
-
     generic_button buttons[MAX_BUTTONS];
 } data;
 
-static void show_menu(void){
+static void show_menu(void)
+{
     data.show_menu = 1;
 }
 
-static void hide_menu(void){
+static void hide_menu(void)
+{
     data.show_menu = 0;
 }
 
@@ -184,7 +183,7 @@ static int get_sidebar_x_offset(void)
 
 static int is_mouse_hovering(const overlay_menu_entry *entry)
 {
-    const int index = (int)data.menu_focus_button_index -1;
+    const int index = (int) data.menu_focus_button_index - 1;
 
     if (index < 0) {
         return 0;
@@ -195,39 +194,32 @@ static int is_mouse_hovering(const overlay_menu_entry *entry)
 
 static const uint8_t *get_overlay_text(const overlay_menu_entry *entry)
 {
-    if (entry->translation_type == AUGUSTUS)
-    {
+    if (entry->translation_type == AUGUSTUS) {
         return translation_for(entry->translation);
     }
 
-    if (entry->translation_type == BUILDING_TYPE)
-    {
+    if (entry->translation_type == BUILDING_TYPE) {
         return lang_get_building_type_string(entry->translation);
     }
 
     return lang_get_string(14, entry->overlay);
 }
 
-static void draw_menu_item(const overlay_menu_entry *entry, const int i, const int x_offset, const int button_index){
+static void draw_menu_item(const overlay_menu_entry *entry, const int i, const int x_offset, const int button_index)
+{
     const int x = x_offset - MENU_ITEM_WIDTH;
     const int y = TOP_MARGIN + MENU_ITEM_HEIGHT * i;
 
-    data.buttons[button_index] = (generic_button){
-        .x = (short)x,
-        .y = (short)y,
+    data.buttons[button_index] = (generic_button) {
+        .x = (short) x,
+        .y = (short) y,
         .width = MENU_ITEM_WIDTH,
         .height = MENU_ITEM_HEIGHT,
         .left_click_handler = button_menu_item,
         .parameter1 = entry->overlay,
     };
 
-    label_draw(
-        x,
-        y,
-        LABEL_WIDTH_BLOCKS,
-        is_mouse_hovering(entry)
-            ? LABEL_TYPE_NORMAL
-            : LABEL_TYPE_HOVER);
+    label_draw(x, y, LABEL_WIDTH_BLOCKS, is_mouse_hovering(entry) ? LABEL_TYPE_NORMAL : LABEL_TYPE_HOVER);
 
     text_draw_centered(get_overlay_text(entry),
         x_offset - MENU_ITEM_WIDTH,
@@ -236,8 +228,7 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
         FONT_NORMAL_GREEN,
         COLOR_MASK_NONE);
 
-    if (entry->submenu != NULL)
-    {
+    if (entry->submenu != NULL) {
         const int image_id = assets_get_image_id("UI", "Expand Menu Icon");
         image_draw(image_id, x + MENU_ITEM_WIDTH - 16, y + 3, COLOR_MASK_NONE, SCALE_NONE);
     }
@@ -246,16 +237,13 @@ static void draw_menu_item(const overlay_menu_entry *entry, const int i, const i
 static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const int overlay_id)
 {
     for (unsigned i = 0; entries[i].overlay != -1; i++) {
-        if (entries[i].overlay == overlay_id)
-        {
+        if (entries[i].overlay == overlay_id) {
             return entries[i];
         }
 
-        if (entries[i].submenu != NULL)
-        {
+        if (entries[i].submenu != NULL) {
             const overlay_menu_entry found_sub_item = find_overlay(entries[i].submenu, overlay_id);
-            if (found_sub_item.overlay != OVERLAY_MENU_SENTINEL.overlay)
-            {
+            if (found_sub_item.overlay != OVERLAY_MENU_SENTINEL.overlay) {
                 return found_sub_item;
             }
         }
@@ -267,7 +255,7 @@ static overlay_menu_entry find_overlay(const overlay_menu_entry *entries, const 
 static void draw_menu(const overlay_menu_entry *entries)
 {
     const int x_offset = get_sidebar_x_offset() - SIDEBAR_MARGIN_X;
-    int button_index =  0;
+    int button_index = 0;
 
     for (int i = 0; entries[i].overlay != -1; i++) {
         draw_menu_item(&entries[i], i, x_offset, button_index++);
@@ -280,10 +268,9 @@ static void draw_foreground(void)
 
     if (data.show_menu == 1) {
         const overlay_menu_entry menu_item = find_overlay(overlay_menu, data.selected_overlay_clicked);
-        if (menu_item.submenu != NULL){
+        if (menu_item.submenu != NULL) {
             draw_menu(menu_item.submenu);
-        }
-        else {
+        } else {
             draw_menu(overlay_menu);;
         }
     }
@@ -303,13 +290,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     const int x_offset = get_sidebar_x_offset();
     int handled = 0;
 
-    handled |= generic_buttons_handle_mouse(
-        m,
-        0,
-        0,
-        data.buttons,
-        MAX_BUTTONS,
-        &data.menu_focus_button_index);
+    handled |= generic_buttons_handle_mouse(m, 0, 0, data.buttons, MAX_BUTTONS, &data.menu_focus_button_index);
 
     if (!handled && click_outside_menu(m, x_offset)) {
         data.selected_overlay_clicked = 0;
@@ -325,10 +306,9 @@ static void button_menu_item(const generic_button *button)
     const overlay_menu_entry selected_overlay = find_overlay(overlay_menu, button->parameter1);
     data.selected_overlay_clicked = selected_overlay.overlay;
 
-    if (selected_overlay.submenu != NULL){
+    if (selected_overlay.submenu != NULL) {
         show_menu();
-    }
-    else {
+    } else {
         data.selected_overlay_id = selected_overlay.overlay;
         hide_menu();
         game_state_set_overlay(selected_overlay.overlay);
@@ -350,6 +330,5 @@ void window_overlay_menu_show(void)
 const uint8_t *get_current_overlay_text(void)
 {
     const overlay_menu_entry overlay_item = find_overlay(overlay_menu, data.selected_overlay_id);
-
     return get_overlay_text(&overlay_item);
 }

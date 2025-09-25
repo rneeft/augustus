@@ -34,8 +34,8 @@
 #include "widget/city_overlay_education.h"
 #include "widget/city_overlay_entertainment.h"
 #include "widget/city_overlay_health.h"
-#include "widget/city_overlay_other.h"
 #include "widget/city_overlay_housing.h"
+#include "widget/city_overlay_other.h"
 #include "widget/city_overlay_risks.h"
 #include "widget/city_without_overlay.h"
 #include "widget/city_draw_highway.h"
@@ -214,18 +214,15 @@ static color_t get_building_color_mask(const building *b)
     color_t color_mask = COLOR_MASK_NONE;
     const model_building *model = model_get_building(b->type);
     int labor_needed = model->laborers;
-    if (!labor_needed && b->type != BUILDING_WAREHOUSE_SPACE) {
-        // account for warehouse case
+    if (!labor_needed && b->type != BUILDING_WAREHOUSE_SPACE) { // account for warehouse case
         color_mask = COLOR_MASK_NONE;
     } else {
-        switch (b->type) {
-            //buildings that have labor but no walkers
+        switch (b->type) { //buildings that have labor but no walkers
             case BUILDING_LATRINES:
             case BUILDING_FOUNTAIN:
                 color_mask = COLOR_MASK_NONE;
                 break;
-                //all other buildings
-            default:
+            default: //all other buildings
                 color_mask = SELECTED_BUILDING_COLOR_MASK;
         }
     }
