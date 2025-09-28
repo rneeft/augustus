@@ -411,7 +411,11 @@ static int draw_extra_info_objective(
     } else {
         lang_text_draw(text_group, text_id, x_offset + 11, y_offset, FONT_NORMAL_WHITE);
     }
-    font_t font = obj->value >= obj->target ? FONT_NORMAL_GREEN : FONT_NORMAL_RED;
+    font_t font =  obj->value >= obj->target ? FONT_NORMAL_GREEN : FONT_NORMAL_RED;
+    if (has_target == 0) {
+        font = FONT_NORMAL_GREEN;
+    }
+
     int width = text_draw_number(obj->value, '@', "", x_offset + 11, y_offset + EXTRA_INFO_LINE_SPACE, font, 0);
 
     if (has_target) {
