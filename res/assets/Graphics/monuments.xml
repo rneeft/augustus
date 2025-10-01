@@ -991,10 +991,12 @@
 		<layer src="Neptune_Temple_Complex_Module2_01" x="57" y="13"/>
 	</image>
 	<image id="Neptune_Temple_Complex_Module2_02" width="125" height="80">
+		<layer src="Construction_Part_Pots_01" x="34" y="1"/>
 		<layer src="Neptune_Temple_Complex_Module2_Base" x="0" y="0"/>
 		<layer src="Neptune_Temple_Complex_Module2_02" x="57" y="13"/>
 	</image>
 	<image id="Neptune_Temple_Complex_Module2_03" width="125" height="80">
+		<layer src="Construction_Part_Pots_01" x="34" y="1"/>
 		<layer src="Neptune_Temple_Complex_Module2_Base" x="0" y="0"/>
 		<layer src="Neptune_Temple_Complex_Module2_03" x="57" y="13"/>
 	</image>
