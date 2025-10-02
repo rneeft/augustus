@@ -55,9 +55,9 @@ static struct {
     unsigned int storage_building_goto_orders_focus_button_id;
     unsigned int depot_resource_focus_button_id;
     int depot_building_id;
-    unsigned int available_storages;
-    unsigned int secondary_storages;
-    unsigned int advanced_mode;
+    unsigned char available_storages;
+    unsigned char secondary_storages;
+    unsigned char advanced_mode;
     resource_type target_resource_id;
     pixel_area window_area;
 } data;
@@ -225,6 +225,7 @@ static void setup_buttons_for_selected_depot(void)
             button_index++;
         }
     }
+    scrollbar_reset(&scrollbar, 0);
 }
 
 static int total_storages(void)
