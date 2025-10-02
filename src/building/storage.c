@@ -257,13 +257,24 @@ void building_storage_cycle_resource_state(int storage_id, resource_type resourc
 {
     resource_storage_entry *entry = &array_item(storages, storage_id)->storage.resource_state[resource_id];
     int num_states = BUILDING_STORAGE_STATE_MAX;
-
-    if (reverse_order) {
-        entry->state = (entry->state - 1 + num_states) % num_states;
-    } else {
-        entry->state = (entry->state + 1) % num_states;
+    int ordered[BUILDING_STORAGE_STATE_MAX] = { BUILDING_STORAGE_STATE_NOT_ACCEPTING, BUILDING_STORAGE_STATE_ACCEPTING,
+        BUILDING_STORAGE_STATE_GETTING, BUILDING_STORAGE_STATE_MAINTAINING };
+    int idx = 0;    // find current state's index in ordered[]
+    for (int i = 0; i < num_states; i++) {
+        if (ordered[i] == entry->state) {
+            idx = i;
+            break;
+        }
     }
+    // step forward/backward with wrap
+    if (reverse_order) {
+        idx = (idx - 1 + num_states) % num_states;
+    } else {
+        idx = (idx + 1) % num_states;
+    }
+    entry->state = ordered[idx];
 }
+
 
 void building_storage_toggle_permission(building_storage_permission_states p, building *b)
 {
