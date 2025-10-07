@@ -284,6 +284,7 @@ static const lang_message *get_custom_or_standard_lang_message(int text_id)
 static int setup_request_button(const lang_message *msg)
 {
     if (msg->message_type != MESSAGE_TYPE_IMPERIAL) {
+        complex_button_dispatch_request.is_hidden = 1;
         return 0;
     }
     if (scenario_request_can_comply(player_message.param1)) { // param1 should already be set to request id here
