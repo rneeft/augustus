@@ -620,6 +620,7 @@ set(WIDGET_FILES
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/extra.c
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/military.c
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/slide.c
+        ${PROJECT_SOURCE_DIR}/src/widget/newsidebar/new_city.c
 )
 set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/advisors.c

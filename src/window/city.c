@@ -43,6 +43,8 @@
 #include "widget/city_with_overlay.h"
 #include "widget/top_menu.h"
 #include "widget/sidebar/city.h"
+
+#include "widget/newsidebar/new_city.h"
 #include "widget/sidebar/extra.h"
 #include "widget/sidebar/military.h"
 #include "window/advisors.h"
@@ -74,7 +76,9 @@ static void draw_background(void)
     if (window_is(WINDOW_CITY)) {
         widget_city_setup_routing_preview();
     }
-    widget_sidebar_city_draw_background();
+    // TODO: Make config
+    // widget_sidebar_city_draw_background();
+    widget_new_sidebar_draw_background();
     widget_top_menu_draw(1);
 }
 
@@ -269,7 +273,9 @@ static void draw_foreground(void)
 {
     widget_top_menu_draw(0);
     window_city_draw();
-    widget_sidebar_city_draw_foreground();
+    // TODO: make setting
+    //widget_sidebar_city_draw_foreground();
+    widget_new_sidebar_draw_foreground();
     draw_speedrun_info();
     if (window_is(WINDOW_CITY) || window_is(WINDOW_CITY_MILITARY)) {
         draw_time_left();
