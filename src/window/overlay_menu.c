@@ -327,6 +327,11 @@ void window_overlay_menu_show(void)
     window_show(&window);
 }
 
+void window_overlay_menu_update(void)
+{
+    data.selected_overlay_id = game_state_overlay();
+}
+
 const uint8_t *get_current_overlay_text(void)
 {
     const overlay_menu_entry overlay_item = find_overlay(overlay_menu, data.selected_overlay_id);
